@@ -1,0 +1,35 @@
+Package: facepageR
+Title: Analyze Facepager Data with R
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Functions to analyze the database files of Facepager.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1.9000
+Imports:
+    tidyverse,
+    RSQLite,
+    jsonlite,
+    tidyjson,
+    magrittr,
+    lubridate,
+    tidygraph,
+    zoo,
+    rlang,
+    fuzzyjoin,
+    tidytext,
+    tokenizers,
+    SnowballC,
+    methods,
+    stats,
+    utils
+Suggests: 
+    foreach,
+    progressr,
+    doFuture,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
