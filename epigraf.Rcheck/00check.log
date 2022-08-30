@@ -1,0 +1,94 @@
+* using log directory 'C:/Users/henri/OneDrive/Desktop/Arbeit/datavana git/datavana/epigraf.Rcheck'
+* using R version 4.1.2 (2021-11-01)
+* using platform: x86_64-w64-mingw32 (64-bit)
+* using session charset: ISO8859-1
+* using options '--no-manual --as-cran'
+* checking for file 'epigraf/DESCRIPTION' ... OK
+* this is package 'epigraf' version '0.0.0.9000'
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking serialization versions ... OK
+* checking whether package 'epigraf' can be installed ... WARNING
+Found the following significant warnings:
+  Warning: package 'tidyverse' was built under R version 4.1.3
+  Warning: package 'ggplot2' was built under R version 4.1.3
+  Warning: package 'tibble' was built under R version 4.1.3
+  Warning: package 'tidyr' was built under R version 4.1.3
+  Warning: package 'readr' was built under R version 4.1.3
+  Warning: package 'purrr' was built under R version 4.1.3
+  Warning: package 'dplyr' was built under R version 4.1.3
+  Warning: package 'stringr' was built under R version 4.1.3
+  Warning: package 'forcats' was built under R version 4.1.3
+See 'C:/Users/henri/OneDrive/Desktop/Arbeit/datavana git/datavana/epigraf.Rcheck/00install.out' for details.
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking DESCRIPTION meta-information ... WARNING
+Non-standard license specification:
+  `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+  license
+Standardizable: FALSE
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+Package in Depends field not imported from: 'tidyverse'
+  These packages need to be imported from (in the NAMESPACE file)
+  for when this namespace is loaded but not attached.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+textToArticle: no visible global function definition for 'tibble'
+textToArticle: no visible global function definition for 'bind_rows'
+Undefined global functions or variables:
+  bind_rows tibble
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd line widths ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking examples ... OK
+* checking for unstated dependencies in 'tests' ... OK
+* checking tests ... ERROR
+  Running 'testthat.R'
+Running the tests in 'tests/testthat.R' failed.
+Last 13 lines of output:
+  5: package 'readr' was built under R version 4.1.3 
+  6: package 'purrr' was built under R version 4.1.3 
+  7: package 'dplyr' was built under R version 4.1.3 
+  8: package 'stringr' was built under R version 4.1.3 
+  9: package 'forcats' was built under R version 4.1.3 
+  > 
+  > test_check("epigraf")
+  Error in `test_dir()`:
+  ! No test files found
+  Backtrace:
+      x
+   1. \-testthat::test_check("epigraf")
+   2.   \-testthat::test_dir("testthat", package = package, reporter = reporter, ..., load_package = "installed")
+   3.     \-rlang::abort("No test files found")
+  Execution halted
+* checking for non-standard things in the check directory ... OK
+* checking for detritus in the temp directory ... OK
+* DONE
+Status: 1 ERROR, 2 WARNINGs, 2 NOTEs

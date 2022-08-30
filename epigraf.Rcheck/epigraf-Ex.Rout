@@ -1,0 +1,103 @@
+
+R version 4.1.2 (2021-11-01) -- "Bird Hippie"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "epigraf"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> options(pager = "console")
+> base::assign(".ExTimings", "epigraf-Ex.timings", pos = 'CheckExEnv')
+> base::cat("name\tuser\tsystem\telapsed\n", file=base::get(".ExTimings", pos = 'CheckExEnv'))
+> base::assign(".format_ptime",
++ function(x) {
++   if(!is.na(x[4L])) x[1L] <- x[1L] + x[4L]
++   if(!is.na(x[5L])) x[2L] <- x[2L] + x[5L]
++   options(OutDec = '.')
++   format(x[1L:3L], digits = 7L)
++ },
++ pos = 'CheckExEnv')
+> 
+> ### * </HEADER>
+> library('epigraf')
+Loading required package: tidyverse
+Warning: package 'tidyverse' was built under R version 4.1.3
+-- Attaching packages --------------------------------------- tidyverse 1.3.2 --
+v ggplot2 3.3.6     v purrr   0.3.4
+v tibble  3.1.8     v dplyr   1.0.9
+v tidyr   1.2.0     v stringr 1.4.0
+v readr   2.1.2     v forcats 0.5.1
+Warning: package 'ggplot2' was built under R version 4.1.3
+Warning: package 'tibble' was built under R version 4.1.3
+Warning: package 'tidyr' was built under R version 4.1.3
+Warning: package 'readr' was built under R version 4.1.3
+Warning: package 'purrr' was built under R version 4.1.3
+Warning: package 'dplyr' was built under R version 4.1.3
+Warning: package 'stringr' was built under R version 4.1.3
+Warning: package 'forcats' was built under R version 4.1.3
+-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("textToArticle")
+> ### * textToArticle
+> 
+> flush(stderr()); flush(stdout())
+> 
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: textToArticle
+> ### Title: Convert text to epigraf article
+> ### Aliases: textToArticle
+> 
+> ### ** Examples
+> 
+> textToArticle(
++ tibble(id=1,project="Import",
++ caption="Mein erster Text",
++ content="Worte sind Buchstaben mit Kleber"))
+# A tibble: 4 x 8
+  table    type    id                 name       proje~1 artic~2 secti~3 content
+  <chr>    <chr>   <chr>              <chr>      <chr>   <chr>   <chr>   <chr>  
+1 projects default projects-intImport Import     <NA>    <NA>    <NA>    <NA>   
+2 articles default articles-int1      Mein erst~ projec~ <NA>    <NA>    <NA>   
+3 sections default sections-int1      Text       <NA>    articl~ <NA>    <NA>   
+4 items    default items-int1         <NA>       <NA>    articl~ sectio~ Worte ~
+# ... with abbreviated variable names 1: projects_id, 2: articles_id,
+#   3: sections_id
+> 
+> 
+> 
+> base::assign(".dptime", (proc.time() - get(".ptime", pos = "CheckExEnv")), pos = "CheckExEnv")
+> base::cat("textToArticle", base::get(".format_ptime", pos = 'CheckExEnv')(get(".dptime", pos = "CheckExEnv")), "\n", file=base::get(".ExTimings", pos = 'CheckExEnv'), append=TRUE, sep="\t")
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  2.64 1.03 3.99 NA NA 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')
