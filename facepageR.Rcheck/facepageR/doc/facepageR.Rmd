@@ -1,0 +1,33 @@
+---
+title: "facepageR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{facepageR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# facepageR package
+
+This vignette presents the rough framework of the facepageR package. It should help to understand the package better and show how and in which order to use it best.
+
+## Overview
+
+1. load data 
+- read_csv2
+- load_nodes
+- loaddatabase
+- loaddatabases
+
+2. basics
+- status
+- timing
+- duplicates
+
+3. utilities
+- childcount
+- children_bynode
+- children
+- getparents
+- nodesperseed
+
