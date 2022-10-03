@@ -31,8 +31,8 @@ Loading required package: tidyverse
 -- Attaching packages --------------------------------------- tidyverse 1.3.2 --
 v ggplot2 3.3.6     v purrr   0.3.4
 v tibble  3.1.8     v dplyr   1.0.9
-v tidyr   1.2.0     v stringr 1.4.0
-v readr   2.1.2     v forcats 0.5.1
+v tidyr   1.2.0     v stringr 1.4.1
+v readr   2.1.2     v forcats 0.5.2
 -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 x readr::edition_get()   masks testthat::edition_get()
 x dplyr::filter()        masks stats::filter()
@@ -40,6 +40,14 @@ x purrr::is_null()       masks testthat::is_null()
 x dplyr::lag()           masks stats::lag()
 x readr::local_edition() masks testthat::local_edition()
 x dplyr::matches()       masks tidyr::matches(), testthat::matches()
+Loading required package: jsonlite
+
+Attaching package: 'jsonlite'
+
+The following object is masked from 'package:purrr':
+
+    flatten
+
 Warning messages:
 1: package 'tidyverse' was built under R version 4.1.3 
 2: package 'ggplot2' was built under R version 4.1.3 
@@ -50,6 +58,7 @@ Warning messages:
 7: package 'dplyr' was built under R version 4.1.3 
 8: package 'stringr' was built under R version 4.1.3 
 9: package 'forcats' was built under R version 4.1.3 
+10: package 'jsonlite' was built under R version 4.1.3 
 > 
 > test_check("epigraf")
 Error in `test_dir()`:

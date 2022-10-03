@@ -59,13 +59,4 @@ textToArticle <- function(text)
 
 }
 
-# Example
-textToArticle(
-  tibble(
-    id=1,
-    project="Import",
-    caption="Mein erster Text",
-    content="Worte sind Buchstaben mit Kleber"
-  )
-)
 

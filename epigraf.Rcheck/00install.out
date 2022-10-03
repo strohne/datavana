@@ -12,6 +12,7 @@ Warning messages:
 7: package 'dplyr' was built under R version 4.1.3 
 8: package 'stringr' was built under R version 4.1.3 
 9: package 'forcats' was built under R version 4.1.3 
+10: package 'jsonlite' was built under R version 4.1.3 
 ** help
 *** installing help indices
 ** building package indices
@@ -26,6 +27,7 @@ Warning: package 'purrr' was built under R version 4.1.3
 Warning: package 'dplyr' was built under R version 4.1.3
 Warning: package 'stringr' was built under R version 4.1.3
 Warning: package 'forcats' was built under R version 4.1.3
+Warning: package 'jsonlite' was built under R version 4.1.3
 *** arch - x64
 Warning: package 'tidyverse' was built under R version 4.1.3
 Warning: package 'ggplot2' was built under R version 4.1.3
@@ -36,6 +38,7 @@ Warning: package 'purrr' was built under R version 4.1.3
 Warning: package 'dplyr' was built under R version 4.1.3
 Warning: package 'stringr' was built under R version 4.1.3
 Warning: package 'forcats' was built under R version 4.1.3
+Warning: package 'jsonlite' was built under R version 4.1.3
 ** testing if installed package can be loaded from final location
 *** arch - i386
 Warning: package 'tidyverse' was built under R version 4.1.3
@@ -47,6 +50,7 @@ Warning: package 'purrr' was built under R version 4.1.3
 Warning: package 'dplyr' was built under R version 4.1.3
 Warning: package 'stringr' was built under R version 4.1.3
 Warning: package 'forcats' was built under R version 4.1.3
+Warning: package 'jsonlite' was built under R version 4.1.3
 *** arch - x64
 Warning: package 'tidyverse' was built under R version 4.1.3
 Warning: package 'ggplot2' was built under R version 4.1.3
@@ -57,5 +61,6 @@ Warning: package 'purrr' was built under R version 4.1.3
 Warning: package 'dplyr' was built under R version 4.1.3
 Warning: package 'stringr' was built under R version 4.1.3
 Warning: package 'forcats' was built under R version 4.1.3
+Warning: package 'jsonlite' was built under R version 4.1.3
 ** testing if installed package keeps a record of temporary installation path
 * DONE (epigraf)

@@ -1,1 +1,4 @@
+sm_create_properties    Create properties from a column
+sm_create_property_items
+                        Create items linked to a property
 textToArticle           Convert text to epigraf article
