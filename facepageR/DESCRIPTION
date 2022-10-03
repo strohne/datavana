@@ -9,29 +9,13 @@ License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1.9000
+VignetteBuilder: knitr
 Imports:
   tidyverse,
   RSQLite,
-  jsonlite,
-  tidyjson,
-  magrittr,
-  lubridate,
-  tidygraph,
-  zoo,
-  rlang,
-  fuzzyjoin,
-  tidytext,
-  tokenizers,
-  SnowballC,
-  methods,
-  stats,
-  utils,
-  foreach,
-  progressr,
-  doFuture,
   dplyr,
-  purrr,
-  stringr,
-  tidyr
+  ggplot2
 Suggests:
-  testthat (>= 3.0.0)
+  testthat (>= 3.0.0),
+  knitr,
+  rmarkdown
