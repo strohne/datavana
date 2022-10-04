@@ -1,0 +1,4 @@
+sample_name;platform;tree_thread;msg_type;tree_id;tree_parent;tree_pos;sample_no;seed_domain;seed_handle;caption;text;created;link;author_id;author_name;tags;count_likes;count_dislikes;count_shares;count_comments
+LIKE;ig;p_B4fjlLNiWjW;post;p_B4fjlLNiWjW;f_2227874357;1;;example.org;examplemagazine;;Die Wissenschaft hat festgestellt!;2019-11-05T18:01:41Z;;1;magazin;"umweltschutz;umweltverschmutzung;nachhaltigkeit;klimaschutz;klimawandel";6448;;;261
+LIKE;ig;p_B4fjlLNiWjW;comment;c_17898656764397502;p_B4fjlLNiWjW;172;;example.org;examplemagazine;;was denn?;2019-11-05T21:47:33Z;https://www.instagram.com/p/B4fjlLNiWjW/c/17898656764397502;2;joyvan;;6;;;3
+LIKE;ig;p_B4fjlLNiWjW;reply;r_18091071757128869;c_17898656764397502;173;1482;example.org;examplemagazine;;ja was denn?;2019-11-06T08:31:12Z;https://www.instagram.com/p/B4fjlLNiWjW/c/17898656764397502/r/18091071757128869;3;vanna;;1;;;
