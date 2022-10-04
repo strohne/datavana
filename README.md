@@ -49,10 +49,8 @@ We define the canonical form of a social media dataset as a table where each row
 | msg\_type       | The message type, one of "post", "comment" or "reply".                                                                                                                                                          |
 | tree\_thread    | All messages in a thread share the ID of of the initial post. You can use the platform specific ID, e.g. "B4fjlLNiWjW".                                                                                         |
 | tree\_id        | The platform specific ID of the message, e.g. "B4fjlLNiWjW".                                                                                                                                                    |
-| tree\_parent    | The platform specific ID of the parent message. The parent of a reply is its comment, the parent of the comment is ist post and the parent of the post is the page (or stays empty). E.g. "B4fjlLNiWjW".        |
+| tree\_parent    | The platform specific ID of the parent message. The parent of a reply is its comment, the parent of the comment is its post and the parent of the post is the page (or stays empty). E.g. "B4fjlLNiWjW".        |
 | tree\_pos       | The number of the message in the thread, e.g. 117. In a sample, you usually don't include all messages of a thread. Based on the number you can see, how many messages come before or after a comment or reply. |
-| seed\_domain    | Give the pages that are provided by the same user or organization on different platforms a common name. For news outlets, as an example, the internet domain is a reasonable choice.                            |
-| seed\_handle    | The handle of the page or user profile where the thread started, e.g. the Twitter handle of a news outlet.                                                                                                      |
 | caption         | Caption of the post, comment or reply.                                                                                                                                                                          |
 | text            | Text of the post, comment or reply.                                                                                                                                                                             |
 | created         | Date and time the message was created in UTC-format, e.g. "2019-11-05T18:01:41Z".                                                                                                                               |
@@ -64,5 +62,7 @@ We define the canonical form of a social media dataset as a table where each row
 | count\_dislikes | The number of dislikes the message received.                                                                                                                                                                    |
 | count\_shares   | The number of times the message was shared.                                                                                                                                                                     |
 | count\_comments | The number of answerts to the message.            
+| seed\_domain    | Give the pages that are provided by the same user or organization on different platforms a common name. For news outlets, as an example, the internet domain is a reasonable choice.                            |
+| seed\_handle    | The handle of the page or user profile where the thread started, e.g. the Twitter handle of a news outlet.                                                                                                      |
 
 On this basis, the package functions create article, section, item and property records to be imported from a CSV file or via the API into Epigraf.
