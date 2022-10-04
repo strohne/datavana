@@ -356,3 +356,37 @@ sm_create_properties <- function(msg, col_id, col_lemma) {
     select(table, id, type, lemma, name)
 }
 
+# Fix xml attributes and entities
+#' @export
+#' @param data
+#' @param column
+#' @return
+sm_cleanhtml <- function(data, column) {
+  column <- enquo(column)
+
+  data %>%
+    mutate(!!column := sapply(!!column,unescape_html))
+  # mutate(!!column := str_replace_all(
+  #   !!column,
+  #   c(
+  #     "<br>"="<br></br>",
+  #     "&emsp;"="&#8195;",
+  #     "&ensp;"="&#8194;",
+  #     "&nbsp;" = "&#160;",
+  #     "&shy;" = "&#173;",
+  #     "&amp;" = "&"
+  #   )
+  # ))
+
+}
+
+# Remove HTML entities
+#' @export
+unescape_html <- function(str){
+  if (is.na(str)) {
+    return (str)
+  } else {
+    return (xml2::xml_text(xml2::read_html(paste0("<x>", str, "</x>"))))
+  }
+}
+
