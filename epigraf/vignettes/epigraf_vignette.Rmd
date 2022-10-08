@@ -1,0 +1,51 @@
+---
+title: "Get Started with Epigraf Package"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{epigraf_vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Why using Epigraf package? 
+
+Epigraf 
+The epigraf package provides functions allowing 
+
+  1. 
+  2. 
+  3.
+
+## Installation 
+
+```{r}
+library(devtools)
+install_github("strohne/datavana/epigraf")
+```
+
+## A simple example 
+The following example shows how to convert a social media dataset into an Epigraf import file. 
+
+```{r setup}
+library(tidyverse)
+library(epigraf)
+
+# Load example data
+threads <- read_csv2(system.file("extdata", "threads.csv", package = "epigraf"))
+
+# Replace user names
+threads <- sm_pseudonyms(threads)
+
+# Convert to epi format
+threads <- sm_canonical2epi(threads)
+
+# Clean HTML content
+threads <- sm_cleanhtml(threads, content)
+```
