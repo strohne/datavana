@@ -7,21 +7,21 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r, echo=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>", 
+  message = FALSE, 
+  warning = FALSE
 )
 ```
 
 ## Why using Epigraf package? 
 
-Epigraf 
-The epigraf package provides functions allowing 
+The Epigraf package aims to make data work with [Epigraf](https://epigraf.inschriften.net/) easier. 
+Therefore it provides functions preparing data for import into epigraf article format.  
 
-  1. 
-  2. 
-  3.
+More is yet to come. 
 
 ## Installation 
 
@@ -30,10 +30,29 @@ library(devtools)
 install_github("strohne/datavana/epigraf")
 ```
 
-## A simple example 
+## A simple example I 
+The following example shows how to convert any text into epigraf article format. 
+```{r}
+library(tidyverse)
+library(epigraf)
+
+# Creating example data 
+post <- tibble(
+    id=1,
+    project="Import",
+    caption="My first text",
+    content="Words are letters with glue")
+
+# Converting data into epigraf article 
+epidata <- textToArticle(post)
+
+```
+
+
+## A simple example II 
 The following example shows how to convert a social media dataset into an Epigraf import file. 
 
-```{r setup}
+```{r, eval=TRUE}
 library(tidyverse)
 library(epigraf)
 
@@ -48,4 +67,8 @@ threads <- sm_canonical2epi(threads)
 
 # Clean HTML content
 threads <- sm_cleanhtml(threads, content)
+
+# Display 
+threads
+
 ```
