@@ -2,10 +2,22 @@
 % Please edit documentation in R/fp_childcount.R
 \name{fp_childcount}
 \alias{fp_childcount}
-\title{Function to count the number of different children per Object ID (without duplicates).}
+\title{Count the number of different children per Object ID (without duplicates).}
 \usage{
 fp_childcount(.data, .parents = NA, .silent = FALSE, level = 0)
 }
+\arguments{
+\item{.data}{the loaded data from Facepager}
+
+\item{.parents=NA}{ensures the usage of the parent nodes}
+
+\item{.silent=FALSE}{standard that error messages are displayed}
+
+\item{level=0}{the node level}
+}
+\value{
+a tibble with 4 columns: parent_objectid, children, parent_no, file
+}
 \description{
-Function to count the number of different children per Object ID (without duplicates).
+Count the number of different children per Object ID (without duplicates).
 }

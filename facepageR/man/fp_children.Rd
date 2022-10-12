@@ -2,7 +2,7 @@
 % Please edit documentation in R/fp_children.R
 \name{fp_children}
 \alias{fp_children}
-\title{Function to count the collected data per Object ID}
+\title{get the collected data per Object ID}
 \usage{
 fp_children(
   .data,
@@ -13,6 +13,23 @@ fp_children(
   level = 0
 )
 }
+\arguments{
+\item{.data}{the loaded data from Facepager}
+
+\item{timestamp}{on Twitter, the timestamp must be parsed (timestamp == "twitter"),
+on Instagram, the timestamp must first be converted to a date (timestamp == TRUE)}
+
+\item{col_target=NA}{coverage per object ID}
+
+\item{col_paging=NA}{offcuts and last cursor per object ID}
+
+\item{col_created=NA}{first and last date per object ID}
+
+\item{level=0}{the node level}
+}
+\value{
+a tibble with ?
+}
 \description{
-Function to count the collected data per Object ID
+get the collected data per Object ID
 }

@@ -1,6 +1,11 @@
-#' Function to get the number of childnodes as shown in Facepager
-#' @param
-#' @keywords
+#' get the number of childnodes for each node shown in Facepager
+#' @import ggplot2
+#' @import tidyr
+#' @param data the loaded data from Facepager
+#' @param .global=T ...
+#' @param .maxlevel the node level
+#' @return a tibble with 4 columns: parent_id, parent_no, parent_objectid, children
+#' @return a boxplot
 #' @examples
 #' @export
 fp_children_bynode <- function(data, .global=T, .maxlevel=1) {

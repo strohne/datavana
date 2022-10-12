@@ -2,10 +2,18 @@
 % Please edit documentation in R/fp_getparents.R
 \name{fp_getparents}
 \alias{fp_getparents}
-\title{Function to get Object ID and number of parent nodes}
+\title{get the Object IDs  and number of parent nodes}
 \usage{
-fp_getparents(data, level = 0)
+fp_getparents(.data, level = 0)
+}
+\arguments{
+\item{data}{the loaded data from Facepager}
+
+\item{level=0}{the node level}
+}
+\value{
+a tibble with 3 columns: parent_id, parent_object, parent_no
 }
 \description{
-Function to get Object ID and number of parent nodes
+get the Object IDs  and number of parent nodes
 }

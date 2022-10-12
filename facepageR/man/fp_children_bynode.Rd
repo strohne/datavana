@@ -2,10 +2,22 @@
 % Please edit documentation in R/fp_children_bynode.R
 \name{fp_children_bynode}
 \alias{fp_children_bynode}
-\title{Function to get the number of childnodes as shown in Facepager}
+\title{get the number of childnodes for each node shown in Facepager}
 \usage{
 fp_children_bynode(data, .global = T, .maxlevel = 1)
 }
+\arguments{
+\item{data}{the loaded data from Facepager}
+
+\item{.maxlevel}{the node level}
+
+\item{.global=T}{...}
+}
+\value{
+a tibble with 4 columns: parent_id, parent_no, parent_objectid, children
+
+a boxplot
+}
 \description{
-Function to get the number of childnodes as shown in Facepager
+get the number of childnodes for each node shown in Facepager
 }

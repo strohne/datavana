@@ -1,6 +1,15 @@
-#' Function to convert JSON in the response to columns of a data frame
-#' @param
-#' @keywords
+#' convert response data to columns of a data frame
+#' @import jsonlite
+#' @description As you can see in the loaded data,
+#' most of your data is in JSON format in the response column.
+#' Therefore you need to convert the JSON data in the response to columns of a data frame.
+#' @param nodes the fields/columns originally collected by Facepager,
+#' which are all together in the response column,
+#' can be for example "created_at", "text"/ "message", "favorite_count"/ "like_count" etc.
+#' @param plain ...
+#' @param prefix name of the columns
+#' @return a data frame containing the data of the fp database
+#'  with all response data as own columns
 #' @examples
 #' @export
 fp_parse_response_data <- function (nodes, plain = F, prefix="response.") {
@@ -16,8 +25,21 @@ fp_parse_response_data <- function (nodes, plain = F, prefix="response.") {
   nodes = bind_cols(select(nodes,-response),responses)
   rm(responses)
   nodes
-}
+  }
 
+#' helper function for fp_parse_response_data()
+#' @import jsonlite
+#' @export
+fp_from_ndjson <- function(data) {
+  data[data == "[]"] = "{}"
+  data[is.na(data)] = "{}"
+
+  jsonlite::stream_in(textConnection(data))}
+
+
+#' helper function for fp_parse_response_data()
+#' @import tidyverse
+#' @export
 fp_get_response_value <- function(nodes, col, .split=TRUE,.progress=NULL) {
 
   if (.split) {

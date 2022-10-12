@@ -2,10 +2,20 @@
 % Please edit documentation in R/fp_loaddatabases.R
 \name{fp_loaddatabases}
 \alias{fp_loaddatabases}
-\title{Function to load multiple databases}
+\title{Load multiple fp databases}
 \usage{
 fp_loaddatabases(filenames, fields = NULL)
 }
+\arguments{
+\item{filenames}{names of the fp databases you want to load}
+
+\item{fields}{select your collected fields you want to load
+(you can only load fields you have collected via facepager)
+e.g. objectid, objecttype, querystatus, querytype, querytime etc.}
+}
+\value{
+A data frame containing the data of multiple fp databases
+}
 \description{
-Function to load multiple databases
+Load multiple fp databases
 }

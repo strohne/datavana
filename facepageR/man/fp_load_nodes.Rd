@@ -2,10 +2,22 @@
 % Please edit documentation in R/fp_load_nodes.R
 \name{fp_load_nodes}
 \alias{fp_load_nodes}
-\title{Function to load data from the database}
+\title{Load single data from a fp database}
 \usage{
 fp_load_nodes(dbname, fields = "*", .progress = NULL)
 }
+\arguments{
+\item{dbname}{name of the fp database you want to load data from (file extension db)}
+
+\item{fields}{select your collected fields you want to load
+(you can only load fields you have collected via facepager)
+e.g. objectid, objecttype, querystatus, querytype, querytime etc.}
+
+\item{.progress}{progress bar displays estimated time remaining}
+}
+\value{
+A data frame containing the data of the selected fields of the fp database.
+}
 \description{
-Function to load data from the database
+Load single data from a fp database
 }

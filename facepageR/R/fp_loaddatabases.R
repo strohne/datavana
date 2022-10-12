@@ -1,6 +1,9 @@
-#' Function to load multiple databases
-#' @param
-#' @keywords
+#' Load multiple fp databases
+#' @param filenames names of the fp databases you want to load
+#' @param fields select your collected fields you want to load
+#' (you can only load fields you have collected via facepager)
+#' e.g. objectid, objecttype, querystatus, querytype, querytime etc.
+#' @return A data frame containing the data of multiple fp databases
 #' @examples
 #' @export
 fp_loaddatabases <- function(filenames, fields=NULL) {

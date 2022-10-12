@@ -2,10 +2,17 @@
 % Please edit documentation in R/fp_status.R
 \name{fp_status}
 \alias{fp_status}
-\title{Function to get number of levels, querytypes, querystatus and objecttypes}
+\title{Get details of the query}
 \usage{
 fp_status(data)
 }
+\arguments{
+\item{data}{the loaded data from Facepager}
+}
+\value{
+a tibble with 5 columns: level, querytype, querystatus, objecttype  and n
+}
 \description{
-Function to get number of levels, querytypes, querystatus and objecttypes
+These details include the numbers of
+levels, querytypes, querystatus and objecttypes.
 }

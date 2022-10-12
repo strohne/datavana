@@ -1,6 +1,12 @@
-#' Function to evaluate duplicates at parent level, children level with same parent and children level independent of parent
-#' @param
-#' @keywords
+#' Evaluate duplicates on different node levels
+#' @description With this function duplicates will be extracted on three different levels:
+#' 1. at parent level,
+#' 2. at children level with same parent/seed
+#' 3. at children level independent of parent
+#' @param data the loaded data from Facepager
+#' @param level the node level
+#' @return a list of duplicates at parent level,
+#' duplicates within the seeds, duplicates at all childnodes
 #' @examples
 #' @export
 fp_duplicates <- function(data, level=0) {

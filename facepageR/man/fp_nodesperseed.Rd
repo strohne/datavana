@@ -2,7 +2,7 @@
 % Please edit documentation in R/fp_nodesperseed.R
 \name{fp_nodesperseed}
 \alias{fp_nodesperseed}
-\title{Function to}
+\title{get the number of childnodes for each seed for a certain period of time}
 \usage{
 fp_nodesperseed(
   .data,
@@ -12,6 +12,20 @@ fp_nodesperseed(
   col_seed = NULL
 )
 }
+\arguments{
+\item{.data}{the loaded data from Facepager}
+
+\item{col_created}{column with the date and time the data (post, tweet, etc.) was created at}
+
+\item{daterange=NULL}{the period of time you want to know, e.g. ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin")}
+
+\item{prefix=NA}{names of the seeds}
+
+\item{col_seed=NULL}{calculation is for each seed}
+}
+\value{
+a tibble ..?
+}
 \description{
-Function to
+get the number of childnodes for each seed for a certain period of time
 }

@@ -1,6 +1,12 @@
-#' Function to
-#' @param
-#' @keywords
+#' get the number of childnodes for each seed for a certain period of time
+#' @import rlang
+#' @import dplyr
+#' @param .data the loaded data from Facepager
+#' @param col_created column with the date and time the data (post, tweet, etc.) was created at
+#' @param daterange=NULL the period of time you want to know, e.g. ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin")
+#' @param prefix=NA names of the seeds
+#' @param col_seed=NULL calculation is for each seed
+#' @return a tibble ..?
 #' @examples
 #' @export
 fp_nodesperseed <- function(.data,col_created,daterange=NULL,prefix=NA,col_seed=NULL) {
@@ -70,4 +76,15 @@ fp_nodesperseed <- function(.data,col_created,daterange=NULL,prefix=NA,col_seed=
     seeds <- rename_all(seeds ,~paste0(prefix,.))
 
   seeds
+}
+
+
+#' helper function for fp_addseed()
+#' @import dplyr
+#' @export
+fp_addseed <- function(.data) {
+  .data %>%
+    dplyr::filter(object_type=="data",query_status=="fetched (200)") %>%
+    inner_join(.data %>% filter(level == 0) %>% select(seed = object_id,id),by=c("parent_id"="id")) %>%
+    distinct(seed,object_id,.keep_all = T)
 }

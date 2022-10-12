@@ -2,10 +2,23 @@
 % Please edit documentation in R/fp_timing.R
 \name{fp_timing}
 \alias{fp_timing}
-\title{Function to get requests per minute}
+\title{Get requests per minute}
 \usage{
-fp_timing(data, f.objecttype = "offcut", f.querystatus = "fetched (200)")
+fp_timing(data, f.objecttype = "data", f.querystatus = "fetched (200)")
+}
+\arguments{
+\item{data}{the loaded data from Facepager}
+
+\item{f.objecttype}{object types to be included in the calculation of requests/minute.
+Usually "data", because "seed" and "offcut" do not contain any data.}
+
+\item{f.querystatus}{query status to be included in the calculation of requests/minute.
+Only those nodes are included here that have been fetched in full like "fetched(200)".}
+}
+\value{
+a list with Start, End, Duration, Active hours, Active minutes and Requests per day
+a line plot with requests per minute as yvalue and the time es xvalue
 }
 \description{
-Function to get requests per minute
+Get requests per minute
 }

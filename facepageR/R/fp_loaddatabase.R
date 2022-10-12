@@ -1,15 +1,15 @@
-#' Function to load a database
-# shard: prefix ids to load multiple databases
-#' @param
-#' @keywords
+#' Load a complete fp database
+#' @param filename name of the fp database you want to load (file extension db)
+#' @param shard prefix ids to load multiple databases
+#' @return a data frame containing the data of the fp database
 #' @examples
 #' @export
-fp_loaddatabase <- function(filename,shard=NA) {
+fp_loaddatabase <- function(dbname,shard=NA) {
 
   # Load data
   fields <- "objectid,objecttype,id,parent_id,level,childcount,
              querystatus,querytype,querytime,response"
-  data <- fp_load_nodes(filename, fields)
+  data <- fp_load_nodes(dbname, fields)
 
   if (!is.na(shard)) {
     data <- data %>%

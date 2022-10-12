@@ -10,12 +10,21 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1.9000
 VignetteBuilder: knitr
+LazyData: true
 Imports:
   tidyverse,
   RSQLite,
   dplyr,
-  ggplot2
+  ggplot2,
+  lubridate,
+  stringr,
+  rlang,
+  readr,
+  tidyr,
+  jsonlite,
+  purrr
 Suggests:
   testthat (>= 3.0.0),
   knitr,
   rmarkdown
+Config/testthat/edition: 3

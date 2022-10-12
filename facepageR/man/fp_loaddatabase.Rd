@@ -2,10 +2,18 @@
 % Please edit documentation in R/fp_loaddatabase.R
 \name{fp_loaddatabase}
 \alias{fp_loaddatabase}
-\title{Function to load a database}
+\title{Load a complete fp database}
 \usage{
-fp_loaddatabase(filename, shard = NA)
+fp_loaddatabase(dbname, shard = NA)
+}
+\arguments{
+\item{shard}{prefix ids to load multiple databases}
+
+\item{filename}{name of the fp database you want to load (file extension db)}
+}
+\value{
+a data frame containing the data of the fp database
 }
 \description{
-Function to load a database
+Load a complete fp database
 }

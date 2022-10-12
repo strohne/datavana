@@ -2,10 +2,24 @@
 % Please edit documentation in R/fp_duplicates.R
 \name{fp_duplicates}
 \alias{fp_duplicates}
-\title{Function to evaluate duplicates at parent level, children level with same parent and children level independent of parent}
+\title{Evaluate duplicates on different node levels}
 \usage{
 fp_duplicates(data, level = 0)
 }
+\arguments{
+\item{data}{the loaded data from Facepager}
+
+\item{level}{the node level}
+}
+\value{
+a list of duplicates at parent level,
+duplicates within the seeds, duplicates at all childnodes
+}
 \description{
-Function to evaluate duplicates at parent level, children level with same parent and children level independent of parent
+With this function duplicates will be extracted on three different levels:
+\enumerate{
+\item at parent level,
+\item at children level with same parent/seed
+\item at children level independent of parent
+}
 }

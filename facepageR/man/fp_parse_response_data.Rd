@@ -2,10 +2,25 @@
 % Please edit documentation in R/fp_parse_response_data.R
 \name{fp_parse_response_data}
 \alias{fp_parse_response_data}
-\title{Function to convert JSON in the response to columns of a data frame}
+\title{convert response data to columns of a data frame}
 \usage{
 fp_parse_response_data(nodes, plain = F, prefix = "response.")
 }
+\arguments{
+\item{nodes}{the fields/columns originally collected by Facepager,
+which are all together in the response column,
+can be for example "created_at", "text"/ "message", "favorite_count"/ "like_count" etc.}
+
+\item{plain}{...}
+
+\item{prefix}{name of the columns}
+}
+\value{
+a data frame containing the data of the fp database
+with all response data as own columns
+}
 \description{
-Function to convert JSON in the response to columns of a data frame
+As you can see in the loaded data,
+most of your data is in JSON format in the response column.
+Therefore you need to convert the JSON data in the response to columns of a data frame.
 }
