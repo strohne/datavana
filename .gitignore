@@ -5,3 +5,5 @@
 .Rcheck
 private/
 *.gz
+.DS_Store
+facepageR/.DS_Store
