@@ -1,5 +1,6 @@
 #' Count the number of different children per Object ID (without duplicates).
 #' @import stringr
+#' @import dplyr
 #' @param .data the loaded data from Facepager
 #' @param .parents=NA ensures the usage of the parent nodes
 #' @param .silent=FALSE standard that error messages are displayed

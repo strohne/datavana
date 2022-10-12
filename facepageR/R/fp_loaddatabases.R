@@ -1,4 +1,5 @@
 #' Load multiple fp databases
+#' @import purrr
 #' @param filenames names of the fp databases you want to load
 #' @param fields select your collected fields you want to load
 #' (you can only load fields you have collected via facepager)
@@ -18,7 +19,7 @@ fp_loaddatabases <- function(filenames, fields=NULL) {
   .progress$print()
 
   shard=ifelse(length(filenames) > 0,"file",NULL)
-  data <- map_df(filenames,fp_load_nodes, fields,.id=shard,.progress=.progress)
+  data <- purrr::map_df(filenames,fp_load_nodes, fields,.id=shard,.progress=.progress)
 
   if (length(filenames) > 0) {
     data <- data %>%
