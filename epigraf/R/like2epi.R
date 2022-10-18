@@ -394,29 +394,29 @@ unescape_html <- function(str){
 
 #' Convert a social media dataset from its canonical form
 #' to the form expected by Epigraf
-#' 
+#'
 #' @param data Datafram containing a social media dataset in its canonical form
 #' @return Dataframe containing project, articles, sections, items and properties rows
 #' @export
 sm_canonical2epi <- function(data) {
-  
+
   # Create structure
   epi_projects <- sm_create_projects(threads)
   epi_articles <- sm_create_articles(threads)
   epi_sections <- sm_create_sections(threads)
-  
+
   # Create content
   epi_items  <- bind_rows(
     sm_create_text_items(threads, 1),
     sm_create_search_items(threads, 2),
     sm_create_metrics_items(threads, 3),
-    
+
     sm_create_property_items(threads, platform, 4, T),
     sm_create_property_items(threads, seed_domain, 5, T),
     sm_create_property_items(threads, author_id, 6, F),
     sm_unnest_property_items(threads, tags, 7)
   )
-  
+
   # Create properties
   epi_props  <- bind_rows(
     sm_create_properties(threads, platform, platform),
@@ -424,8 +424,8 @@ sm_canonical2epi <- function(data) {
     sm_create_properties(threads, author_id,author_name),
     sm_unnest_property_properties(threads, tags)
   )
-  
-  
+
+
   # Bind and return
   epi <- bind_rows(
     epi_projects,
@@ -434,6 +434,6 @@ sm_canonical2epi <- function(data) {
     epi_items,
     epi_props
   )
-  
+
   return(epi)
 }

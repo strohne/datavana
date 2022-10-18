@@ -46,7 +46,7 @@ data <- fp_read_csv2("../data/exampledata.csv")
 However, you do not have to export your data collected with Facepager as a csv file.
 
 
-### Load a complete fp database with `fp_loaddatabase()`
+### Load a complete database with `fp_loaddatabase()`
 
 With `fp_loaddatabase()` it is also possible to load the data directly from the .db file of the Facepager database.
 
@@ -55,12 +55,13 @@ data <- fp_loaddatabase("../data/exampledata.db")
 ```
 
 
-### Load multiple fp databases with `fp_loaddatabases()`
+### Load multiple databases with `fp_loaddatabases()`
 
 In case you have performed several data collections with Facepager and accordingly have several .db files, you can load them easily with `fp_loaddatabases()` at the same time.This way you get one big combined dataset instead of loading the Facepager databases individually.
 
 ```{r}
-data <- fp_loaddatabase("../data/exampledata.db", "../data/exampledata2.db")
+filenames <- c("../data/exampledata.db", "../data/exampledata2.db")
+data <- fp_loaddatabases(filenames)
 ```
 
 
@@ -77,11 +78,7 @@ data <- fp_load_nodes("../data/exampledata.db", fields = 'querytype, querytime, 
 All previous functions deal with the basic reading of data. But, as you can see in the loaded data, most of your detailed data is located in the response column in JSON format. Therefore you need to convert the JSON data in the response to own columns with `fp_parse_response_data()`.
 
 ```{r}
-# eigentlich: fp_parse_response_data(data)
-# aber Fehlermeldung: 
-# Error in names(x) <- value : 
-#   'names' attribute [1] must be the same length as the vector [0] 
-# Calls: <Anonymous> ... eval -> eval -> fp_parse_response_data -> colnames<-
+data <- fp_parse_response_data(data)
 ```
 
 
