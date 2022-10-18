@@ -11,7 +11,7 @@ fp_loaddatabases(filenames, fields = NULL)
 
 \item{fields}{select your collected fields you want to load
 (you can only load fields you have collected via facepager)
-e.g. objectid, objecttype, querystatus, querytype, querytime etc.}
+e.g. objectid, object_type, query_status, query_type, query_time etc.}
 }
 \value{
 A data frame containing the data of multiple fp databases

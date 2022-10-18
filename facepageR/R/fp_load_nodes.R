@@ -3,7 +3,7 @@
 #' @param dbname name of the fp database you want to load data from (file extension db)
 #' @param fields select your collected fields you want to load
 #' (you can only load fields you have collected via facepager)
-#' e.g. objectid, objecttype, querystatus, querytype, querytime etc.
+#' e.g. object_id, object_type, query_status, query_type, query_time etc.
 #' @param .progress progress bar displays estimated time remaining
 #' @return A data frame containing the data of the selected fields of the fp database.
 #' @examples

@@ -7,8 +7,8 @@
 fp_loaddatabase <- function(dbname,shard=NA) {
 
   # Load data
-  fields <- "objectid,objecttype,id,parent_id,level,childcount,
-             querystatus,querytype,querytime,response"
+  fields <- "objectid,object_type,id,parent_id,level,childcount,
+             query_status,query_type,query_time,response"
   data <- fp_load_nodes(dbname, fields)
 
   if (!is.na(shard)) {

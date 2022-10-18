@@ -3,7 +3,7 @@
 #' @param filenames names of the fp databases you want to load
 #' @param fields select your collected fields you want to load
 #' (you can only load fields you have collected via facepager)
-#' e.g. objectid, objecttype, querystatus, querytype, querytime etc.
+#' e.g. objectid, object_type, query_status, query_type, query_time etc.
 #' @return A data frame containing the data of multiple fp databases
 #' @examples
 #' @export
@@ -11,8 +11,8 @@ fp_loaddatabases <- function(filenames, fields=NULL) {
 
   # Load data
   if (is.null(fields)) {
-    fields <- "objectid,objecttype,id,parent_id,level,childcount,
-               querystatus,querytype,querytime,response"
+    fields <- "object_id,object_type,id,parent_id,level,childcount,
+               query_status,query_type,query_time,response"
   }
 
   .progress <- progress_estimated(length(filenames),min_time = 1)

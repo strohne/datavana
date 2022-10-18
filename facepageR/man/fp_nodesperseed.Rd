@@ -19,7 +19,7 @@ fp_nodesperseed(
 
 \item{daterange=NULL}{the period of time you want to know, e.g. ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin")}
 
-\item{prefix=NA}{names of the seeds}
+\item{prefix=NA}{when transformatting, the values are not prefixed with a character}
 
 \item{col_seed=NULL}{calculation is for each seed}
 }

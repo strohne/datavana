@@ -7,5 +7,5 @@
 #' @export
 fp_status <- function(data) {
   data %>%
-    count(level,querytype,querystatus,objecttype)
+    count(level,query_type,query_status,object_type)
 }

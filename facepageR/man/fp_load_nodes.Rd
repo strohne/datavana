@@ -11,7 +11,7 @@ fp_load_nodes(dbname, fields = "*", .progress = NULL)
 
 \item{fields}{select your collected fields you want to load
 (you can only load fields you have collected via facepager)
-e.g. objectid, objecttype, querystatus, querytype, querytime etc.}
+e.g. object_id, object_type, query_status, query_type, query_time etc.}
 
 \item{.progress}{progress bar displays estimated time remaining}
 }

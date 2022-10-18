@@ -4,7 +4,7 @@
 #' @param .data the loaded data from Facepager
 #' @param col_created column with the date and time the data (post, tweet, etc.) was created at
 #' @param daterange=NULL the period of time you want to know, e.g. ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin")
-#' @param prefix=NA names of the seeds
+#' @param prefix=NA when transformatting, the values are not prefixed with a character
 #' @param col_seed=NULL calculation is for each seed
 #' @return a tibble ..?
 #' @examples
