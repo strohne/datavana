@@ -11,8 +11,8 @@ fp_loaddatabases <- function(filenames, fields=NULL) {
 
   # Load data
   if (is.null(fields)) {
-    fields <- "object_id,object_type,id,parent_id,level,childcount,
-               query_status,query_type,query_time,response"
+    fields <- "objectid,objecttype,id,parent_id,level,childcount,
+               querystatus,querytype,querytime,response"
   }
 
   .progress <- progress_estimated(length(filenames),min_time = 1)
