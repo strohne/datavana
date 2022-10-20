@@ -25,6 +25,7 @@ export(fp_timing)
 export(tree_add_level)
 export(tree_add_mptt)
 export(tree_disambiguate_ids)
+export(tree_add_ancestors)
 
 import(RSQLite)
 import(dplyr)

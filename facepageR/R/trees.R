@@ -94,6 +94,34 @@ tree_add_level <- function(.data, id, parent, sort=NULL) {
 
 }
 
+#' Row bind all ancestors of the selected nodes
+#'
+#' @param .data Data frame containing the selected nodes
+#' @param .tree Data frame containing all nodes including all ancestors
+#' @param id Column name of the id in .data and .tree
+#' @param parent_id Column name of the parent id in .data and .tree
+#' @return Data frame containing the nodes of .data and alle ancestors
+#' @examples
+#' @export
+tree_add_ancestors <- function(.data, .tree, id, parent_id) {
+  id <- enquo(id)
+  parent_id <- enquo(parent_id)
+
+  # Equavalent to c("id" = "parent_id"), note the changed field order
+  joinby = set_names(quo_name(parent_id), quo_name(id))
+
+  selected = tibble()
+
+  while (nrow(.data) > 0) {
+    print(paste0(nrow(.data), " nodes added" ))
+    .data = bind_rows(selected, .data)
+    .data = .tree %>%
+      semi_join(.data,by=joinby)
+  }
+
+  return (selected)
+}
+
 
 #' Adds left and right values to the dataframe (modified preorder tree traversal)
 #' See https://www.sitepoint.com/hierarchical-data-database-3/
