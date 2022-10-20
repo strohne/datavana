@@ -1,6 +1,16 @@
 # Datavana
  Helper scripts for working in the Datavana
  
+ ## Facepager package
+
+Installation:
+
+```
+library(devtools)
+install_github("strohne/datavana/facepageR")
+```
+
+
  ## Epigraf package
  
 Installation:
