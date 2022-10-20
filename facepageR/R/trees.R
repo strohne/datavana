@@ -1,16 +1,106 @@
-#' Add thread, level and order
+
+#' Row bind all ancestors of the selected nodes
+#'
+#' @param .data Data frame containing the selected nodes
+#' @param .tree Data frame containing all nodes including all ancestors
+#' @param id Column name of the id in .data and .tree
+#' @param parent_id Column name of the parent id in .data and .tree
+#' @return Data frame containing the nodes of .data and alle ancestors
+#' @examples
+#' @export
+tree_bind_ancestors <- function(.data, .tree, id, parent_id) {
+  id <- enquo(id)
+  parent_id <- enquo(parent_id)
+
+  # Equavalent to c("id" = "parent_id"), note the changed field order
+  join_semi = set_names(quo_name(parent_id), quo_name(id))
+
+  selected = tibble()
+
+  while (nrow(.data) > 0) {
+    print(paste0(nrow(.data), " nodes added" ))
+    selected <-  bind_rows(selected, .data)
+    .data <-  semi_join(.tree, .data,by=join_semi)
+    .data <- anti_join(.data,selected,by=quo_name(id))
+  }
+
+  return (selected)
+}
+
+
+#' For each node, add each ancestors id.
+#' In the result, nodes will be duplicated for all their ancestors.
+#' As an example: a node on level 2 will be present two times,
+#'   1. the node containing the parent_id in the col_stack column
+#'   2. the node containing the parents parent_id in the col_stack column
+#
+#' @param data All nodes
+#' @param col_id The column holding IDs of the nodes
+#' @param col_parent The column holding IDs of the parent nodes
+#' @param col_stack The column that will hold the ancestors IDs
+#'
+tree_stack_ancestors <- function(data, col_id, col_parent, col_stack) {
+
+  # Quoting
+  col_id <- enquo(col_id)
+  col_parent <- enquo(col_parent)
+  col_main <- enquo(col_main)
+
+  # Prepare temporary columns (for easier joins)
+  data <- mutate(data,.tree_id=!!col_id)
+  data <- mutate(data,.tree_parent=!!col_parent)
+
+  # Put items themselves on the stack
+  data_stacked <- mutate(data,.tree_main=.tree_id)
+
+  # Init parents (.tree_main is the parent id)
+  data_parents <- data %>%
+    filter(!is.na(.tree_parent)) %>%
+    mutate(.tree_main=.tree_parent)
+
+  while (TRUE) {
+
+    if (nrow(data_parents) > 0) {
+      cat("Adding ", nrow(data_parents)," rows. \n",sep = "")
+      data_stacked <- bind_rows(data_stacked, data_parents)
+    } else {
+      break
+    }
+
+    # Find parents
+    data_parents <- data_parents %>%
+      inner_join(
+        select(data, .tree_id, .tree_main = .tree_parent),
+        by=c(".tree_main"=".tree_id")
+      ) %>%
+      filter(!is.na(.tree_main.y)) %>%
+      mutate(.tree_main = .tree_main.y) %>%
+      select(-.tree_main.y)
+
+  }
+
+  # Remove columns and return data
+  data_stacked %>%
+    select(-.tree_id,-.tree_parent) %>%
+    rename(!!col_main := .tree_main)
+}
+
+
+#' Add level, thread and order
+#'
+#' Version 1: using network analysis
 #'
 #' @import tidygraph
 #' @param .data The dataframe containing hierarchical data
-#' @param id The ID column of the node
-#' @param parent The ID column of the parent node
-#' @param sort Column for sorting the nodes inside each parent. Leave empty to use the order in the dataset.
+#' @param col_id The ID column of the node
+#' @param col_parent The ID column of the parent node
+#' @param col_sort Column for sorting the nodes inside each parent. Leave empty to use the order in the dataset.
 #' @return Data frame with the additional columns tree_thread, tree_order and tree_level
 #' @examples
 #' @export
-tree_add_level <- function(.data, id, parent, sort=NULL) {
-  id <- enquo(id)
-  parent <- enquo(parent)
+tree_add_level <- function(.data, col_id, col_parent, col_sort=NULL) {
+  col_id <- enquo(col_id)
+  col_parent <- enquo(col_parent)
 
   # See below
   #.numeric <- is.numeric(select(.data,!!id,!!parent))
@@ -18,25 +108,25 @@ tree_add_level <- function(.data, id, parent, sort=NULL) {
 
   # Convert to character for tidygraph functions
   .data <- .data %>%
-    mutate(!!id := as.character(!!id), !!parent := as.character(!!parent))
+    mutate(!!col_id := as.character(!!col_id), !!col_parent := as.character(!!col_parent))
 
   # Sort and select tree data
-  if (!missing(sort)) {
-    sort <- enquo(sort)
+  if (!missing(col_sort)) {
+    col_sort <- enquo(col_sort)
     tree <- .data %>%
-      arrange(!!sort)
+      arrange(!!col_sort)
   } else {
     tree <- .data
   }
 
   # Select and distinct
   tree <- tree %>%
-    select(!!id,!!parent) %>%
+    select(!!col_id,!!col_parent) %>%
     distinct()
 
   # Seperate roots and descendants
   # (to restructure tree in cases where parents are missing)
-  by_roots = set_names(quo_name(id), quo_name(parent))
+  by_roots = set_names(quo_name(col_id), quo_name(col_parent))
 
   tree_roots <- tree %>%
     anti_join(tree,by=by_roots)
@@ -45,10 +135,10 @@ tree_add_level <- function(.data, id, parent, sort=NULL) {
     semi_join(tree,by=by_roots)
 
   tree_nodes <- bind_rows(tree_roots,tree_descendants) %>%
-    select(!!id)
+    select(!!col_id)
 
   tree_edges <- tree_descendants %>%
-    select(source=!!id, target=!!parent)
+    select(source=!!col_id, target=!!col_parent)
 
   rm(tree)
   rm(tree_roots)
@@ -62,7 +152,7 @@ tree_add_level <- function(.data, id, parent, sort=NULL) {
   # tree_order: Number of node within thread
   # tree_level: Level of node
   gr <- gr %>%
-    mutate(tree_comp = group_components(type = "weak")) %>%
+    mutate(.tree_comp = group_components(type = "weak")) %>%
     morph(to_components) %>%
     mutate(tree_order = dfs_rank(root=1,mode="in")) %>%
     mutate(tree_level = bfs_dist(root=1,mode="in"))   %>%
@@ -72,18 +162,22 @@ tree_add_level <- function(.data, id, parent, sort=NULL) {
   tree <- gr %>%
     as_tibble() %>%
 
-    group_by(tree_comp) %>%
+    group_by(.tree_comp) %>%
     arrange(tree_order) %>%
-    mutate(tree_thread = first(!!id)) %>%
+    mutate(tree_thread = first(!!col_id)) %>%
     ungroup() %>%
-    select(-tree_comp)
+    select(-.tree_comp)
 
   # Join tree to original data
   .data <-   .data %>%
-    left_join(tree, by=quo_name(id))  %>%
+    left_join(tree, by=quo_name(col_id))  %>%
     arrange(tree_thread, tree_order) %>%
-    mutate(!!parent := ifelse(tree_level==0,NA,!!parent)) %>%
-    select(tree_id=!!id,tree_parent=!!parent,tree_thread,tree_order,tree_level, everything())
+    mutate(!!col_parent := ifelse(tree_level==0, NA, !!col_parent)) %>%
+    select(
+      !!col_id, !!col_parent,
+      tree_thread,tree_order,tree_level,
+      everything()
+    )
 
   # # Cast character back to numeric
   # if (.numeric) {
@@ -94,34 +188,84 @@ tree_add_level <- function(.data, id, parent, sort=NULL) {
 
 }
 
-#' Row bind all ancestors of the selected nodes
+
+
+#' Add level, thread and order
 #'
-#' @param .data Data frame containing the selected nodes
-#' @param .tree Data frame containing all nodes including all ancestors
-#' @param id Column name of the id in .data and .tree
-#' @param parent_id Column name of the parent id in .data and .tree
-#' @return Data frame containing the nodes of .data and alle ancestors
+#' TODO: fix tree_order ... should be related to the thread, not the parent
+#'
+#' Version 2: loop through the levels
+#'
+#' @import tidygraph
+#' @param .data The dataframe containing hierarchical data
+#' @param col_id The ID column of the node
+#' @param col_parent The ID column of the parent node
+#' @param col_sort Column for sorting the nodes inside each parent. Leave empty to use the ID column.
+#' @return Data frame with the additional columns tree_thread, tree_order and tree_level
 #' @examples
 #' @export
-tree_add_ancestors <- function(.data, .tree, id, parent_id) {
-  id <- enquo(id)
-  parent_id <- enquo(parent_id)
+tree_add_level2 <- function(data, col_id, col_parent, col_sort=NULL) {
+  # Quoting
+  col_id <- enquo(col_id)
+  col_parent <- enquo(col_parent)
+  col_sort <- enquo(col_sort)
 
-  # Equavalent to c("id" = "parent_id"), note the changed field order
-  joinby = set_names(quo_name(parent_id), quo_name(id))
-
-  selected = tibble()
-
-  while (nrow(.data) > 0) {
-    print(paste0(nrow(.data), " nodes added" ))
-    .data = bind_rows(selected, .data)
-    .data = .tree %>%
-      semi_join(.data,by=joinby)
+  if (quo_is_null(col_sort)) {
+    col_sort <- col_id
   }
 
-  return (selected)
-}
+  # Prepare columns
+  data <- mutate(data,.tree_id=!!col_id)
+  data <- mutate(data,.tree_parent=!!col_parent)
 
+  # Prepare roots
+  roots <- data %>%
+    anti_join(data,by=c(".tree_parent"=".tree_id")) %>%
+    mutate(tree_thread=.tree_id,tree_level=0,tree_order=0)
+
+  # First level
+  .level <- 1
+  children <- data %>%
+    inner_join(select(roots,.tree_id,tree_thread),by=c(".tree_parent"=".tree_id")) %>%
+    mutate(tree_level=.level) %>%
+
+    group_by(.tree_parent) %>%
+    arrange(!!col_sort) %>%
+    mutate(tree_order=row_number()) %>%
+    ungroup()
+
+  cat("Level ",.level,". ",sep="")
+  cat(nrow(children)," nodes addes.\n\n",sep="")
+
+  while (TRUE) {
+
+    .level <- .level + 1
+    cat("Level ",.level,". ",sep="")
+
+    children.next <- data %>%
+      anti_join(children,by=c(".tree_id")) %>%
+      inner_join(select(children,tree_thread,.tree_id,.parent_order=tree_order),by=c(".tree_parent"=".tree_id")) %>%
+      mutate(tree_level=.level) %>%
+
+      group_by(.tree_parent) %>%
+      arrange(!!col_sort) %>%
+      mutate(tree_order= row_number()) %>%
+      ungroup() %>%
+      select(-.parent_order)
+
+    children <- dplyr::bind_rows(children,children.next)
+
+    cat(nrow(children.next)," nodes addes.\n\n",sep="")
+
+    if (!nrow(children.next))
+      break
+  }
+
+  bind_rows(roots,children) %>%
+    arrange(tree_thread,tree_order) %>%
+    select(-.tree_id,-.tree_parent)
+
+}
 
 #' Adds left and right values to the dataframe (modified preorder tree traversal)
 #' See https://www.sitepoint.com/hierarchical-data-database-3/
@@ -200,6 +344,54 @@ tree_add_mptt <- function(.data) {
 }
 
 
+#' Add a column holding the path of each node.
+#' The path is created by concatenating all col_lemma values up to the root node.
+#' Lemmata are concatenated using a slash - existing slashes are replaced by the entity &#47;.
+#'
+#' @param data Dataframe containing hierarchical data
+#' @param col_id The ID column of the node
+#' @param col_parent The ID column of the parent node
+#' @param col_lemma The column holding the node name that will be used for the path
+#' @return A data frame with the additional column tree_path
+#' @export
+tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
+
+  col_id <- enquo(col_id)
+  col_parent_id <- enquo(col_parent_id)
+  col_lemma <- enquo(col_lemma)
+  join_by_parent = set_names(quo_name(col_id), quo_name(col_parent_id))
+
+  # Escape slashes in lemmata
+  data <- data %>%
+    mutate(!!col_lemma := str_replace(!!col_lemma,"/","&#47;"))
+
+  # Init path
+  data <- data %>%
+    mutate(tree_path=NA)
+
+  # Root nodes
+  current <- data %>%
+    filter(is.na(!!col_parent_id)) %>%
+    select(!!col_id, tree_path = !!col_lemma)
+
+  while(nrow(current) > 0) {
+    print(paste0(nrow(current), " nodes processed."))
+
+    # Update path of current batch
+    data <- data %>%
+      left_join(select(current,!!col_id,.tree_path_new=tree_path),by=quo_name(col_id)) %>%
+      mutate(tree_path = ifelse(is.na(.tree_path_new), tree_path, .tree_path_new)) %>%
+      select(-.tree_path_new)
+
+    # Get children of current batch and create path
+    current <- data %>%
+      inner_join(select(current, !!col_id,.tree_parent_path = tree_path),by=join_by_parent) %>%
+      mutate(tree_path = paste0(.tree_parent_path, " / " , !!col_lemma)) %>%
+      select(!!col_id, tree_path)
+  }
+
+  return(data)
+}
 
 #' Create tree IDs - disambiguate IDs of different node types to avoid collision between IDs
 #'
@@ -244,74 +436,3 @@ tree_disambiguate_ids <- function(.data, id, parent, type, levels) {
 }
 
 
-
-#' Transfer tree_thread (ID of root node) to all children of root nodes
-#'
-#' @param data All nodes (e.g. posts and comments)
-#' @param col_id The column holding IDs of the nodes
-#' @param col_parent The column holding IDs of the parent nodes
-#' @param col_order The column used for ordering the nodes inside of a level
-#' @return
-#' @examples
-#' @export
-fp_getthreads <- function(data,col_id,col_parent,col_order=NULL) {
-  # Quoting
-  col_id <- enquo(col_id)
-  col_parent <- enquo(col_parent)
-  col_order <- enquo(col_order)
-  if (quo_is_null(col_order)) {
-    col_order <- col_id
-  }
-
-  # Prepare columns
-  data <- mutate(data,.tree_id=!!col_id)
-  data <- mutate(data,.tree_parent=!!col_parent)
-
-  # Prepare roots
-  roots <- data %>%
-    anti_join(data,by=c(".tree_parent"=".tree_id")) %>%
-    mutate(tree_thread=.tree_id,tree_level=0,tree_order=0)
-
-  # First level
-  .level <- 1
-  children <- data %>%
-    inner_join(select(roots,.tree_id,tree_thread),by=c(".tree_parent"=".tree_id")) %>%
-    mutate(tree_level=.level) %>%
-
-    group_by(.tree_parent) %>%
-    arrange(!!col_order) %>%
-    mutate(tree_order=row_number()) %>%
-    ungroup()
-
-  cat("Level ",.level,". ",sep="")
-  cat(nrow(children)," nodes addes.\n\n",sep="")
-
-  while (TRUE) {
-
-    .level <- .level + 1
-    cat("Level ",.level,". ",sep="")
-
-    children.next <- data %>%
-      anti_join(children,by=c(".tree_id")) %>%
-      inner_join(select(children,tree_thread,.tree_id,.parent_order=tree_order),by=c(".tree_parent"=".tree_id")) %>%
-      mutate(tree_level=.level) %>%
-
-      group_by(.tree_parent) %>%
-      arrange(!!col_order) %>%
-      mutate(tree_order= row_number()) %>%
-      ungroup() %>%
-      select(-.parent_order)
-
-    children <- dplyr::bind_rows(children,children.next)
-
-    cat(nrow(children.next)," nodes addes.\n\n",sep="")
-
-    if (!nrow(children.next))
-      break
-  }
-
-  bind_rows(roots,children) %>%
-    arrange(tree_thread,tree_order) %>%
-    select(-.tree_id,-.tree_parent)
-
-}
