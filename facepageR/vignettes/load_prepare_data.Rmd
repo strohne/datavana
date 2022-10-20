@@ -40,7 +40,19 @@ Now you can access the various functions that allow you to read data. Depending 
 `fp_read_csv2()` works the same way as the read_csv2 function from the tidyverse package. So you'll see a tibble containing a representation of the data in your csv file. 
 
 ```{r}
+library(tidyverse)
+library(tidygraph)
+
 data <- fp_read_csv2("../data/exampledata.csv")
+
+# Reconstruct tree variables 
+# (omit the seed nodes, otherwise they will be the root of the threads)
+threads <- data %>% 
+  filter(level > 0) %>% 
+  tree_add_level(id, parent_id, created_time)  %>% 
+  tree_add_mptt()
+
+
 ```
 
 However, you do not have to export your data collected with Facepager as a csv file.
