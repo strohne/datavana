@@ -401,28 +401,28 @@ unescape_html <- function(str){
 sm_canonical2epi <- function(data) {
 
   # Create structure
-  epi_projects <- sm_create_projects(threads)
-  epi_articles <- sm_create_articles(threads)
-  epi_sections <- sm_create_sections(threads)
+  epi_projects <- sm_create_projects(data)
+  epi_articles <- sm_create_articles(data)
+  epi_sections <- sm_create_sections(data)
 
   # Create content
   epi_items  <- bind_rows(
-    sm_create_text_items(threads, 1),
-    sm_create_search_items(threads, 2),
-    sm_create_metrics_items(threads, 3),
+    sm_create_text_items(data, 1),
+    sm_create_search_items(data, 2),
+    sm_create_metrics_items(data, 3),
 
-    sm_create_property_items(threads, platform, 4, T),
-    sm_create_property_items(threads, seed_domain, 5, T),
-    sm_create_property_items(threads, author_id, 6, F),
-    sm_unnest_property_items(threads, tags, 7)
+    sm_create_property_items(data, platform, 4, T),
+    sm_create_property_items(data, seed_domain, 5, T),
+    sm_create_property_items(data, author_id, 6, F),
+    sm_unnest_property_items(data, tags, 7)
   )
 
   # Create properties
   epi_props  <- bind_rows(
-    sm_create_properties(threads, platform, platform),
-    sm_create_properties(threads, seed_domain, seed_domain),
-    sm_create_properties(threads, author_id,author_name),
-    sm_unnest_property_properties(threads, tags)
+    sm_create_properties(data, platform, platform),
+    sm_create_properties(data, seed_domain, seed_domain),
+    sm_create_properties(data, author_id,author_name),
+    sm_unnest_property_properties(data, tags)
   )
 
 
