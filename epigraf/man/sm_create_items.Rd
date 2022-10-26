@@ -6,6 +6,9 @@
 \usage{
 sm_create_items(msg, itemtype, sortno)
 }
+\arguments{
+\item{msg}{message}
+}
 \description{
 Create sections_id, articles_id, type and sortno fields
 }

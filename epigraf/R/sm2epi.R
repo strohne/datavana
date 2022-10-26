@@ -1,35 +1,11 @@
-#
-# Prepare posts & comments for Epi import
-# v0.1
-#
-
-# Packages ----
-
-#' @import tidyverse
-#' @import jsonlite
-
-#
-# helper functions ----
-#
-
-# rm(list=ls())
-# source("../../0_helper/likehelper.R")
-
-
-
-#
-# Epi functions ----
-#
-
-
-
-
-
-#' Anonymize
+#' Anonymize authors
+#'
+#' Anonymizing authornames
 #' @export
 #' @param msg Dataframe with the columns:
 #'            platform, author_id, ...
 #' @return Dataframe with the columns platform, author_id, author_name, ...
+
 sm_pseudonyms <- function(msg) {
 
   letters.consonant <- c("b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","z")
@@ -208,7 +184,7 @@ sm_create_sections <- function(msg) {
 
 #' Create sections_id, articles_id, type and sortno fields
 #' @export
-#' @param msg
+#' @param msg message
 sm_create_items <- function(msg, itemtype, sortno) {
 
   msg %>%
@@ -346,9 +322,9 @@ sm_create_properties <- function(msg, col_id, col_lemma) {
 
 #' Fix xml attributes and entities
 #' @export
-#' @param data
-#' @param column
-#' @return
+#' @param data data
+#' @param column column
+
 sm_cleanhtml <- function(data, column) {
   column <- enquo(column)
 
@@ -371,7 +347,7 @@ sm_cleanhtml <- function(data, column) {
 #' Convert a social media dataset from its canonical form
 #' to the form expected by Epigraf
 #'
-#' @param data Datafram containing a social media dataset in its canonical form
+#' @param data Dataframe containing a social media dataset in its canonical form
 #' @return Dataframe containing project, articles, sections, items and properties rows
 #' @export
 sm_canonical2epi <- function(data) {

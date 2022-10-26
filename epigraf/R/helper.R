@@ -1,5 +1,6 @@
 #' Remove HTML entities
 #' @export
+#'
 unescape_html <- function(str){
   if (is.na(str)) {
     return (str)

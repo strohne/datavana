@@ -8,7 +8,7 @@ to the form expected by Epigraf}
 sm_canonical2epi(data)
 }
 \arguments{
-\item{data}{Datafram containing a social media dataset in its canonical form}
+\item{data}{Dataframe containing a social media dataset in its canonical form}
 }
 \value{
 Dataframe containing project, articles, sections, items and properties rows

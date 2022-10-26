@@ -2,9 +2,11 @@ Package: epigraf
 Title: Convert text to epigraf article
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+    person("Jakob", "Jünger", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: Convert canonical SM datasets to Epigraf structure for import. 
+            To learn more about epigraf, start with the vignettes: 
+            https://github.com/strohne/datavana/tree/main/epigraf.
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8

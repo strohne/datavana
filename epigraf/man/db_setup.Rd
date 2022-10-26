@@ -14,6 +14,17 @@ db_setup(
   database = ""
 )
 }
+\arguments{
+\item{host}{host}
+
+\item{port}{port}
+
+\item{username}{username}
+
+\item{password}{password}
+
+\item{database}{database}
+}
 \description{
 Save database connection settings to environment variables.
 Environment variables are prefixed with "epi_" and used in db_connect()

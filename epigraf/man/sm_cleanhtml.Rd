@@ -6,6 +6,11 @@
 \usage{
 sm_cleanhtml(data, column)
 }
+\arguments{
+\item{data}{data}
+
+\item{column}{column}
+}
 \description{
 Fix xml attributes and entities
 }

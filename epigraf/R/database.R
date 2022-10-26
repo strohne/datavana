@@ -6,11 +6,11 @@ library(tidyverse)
 #' Environment variables are prefixed with "epi_" and used in db_connect()
 #' to establish the connection.
 #'
-#' @param host
-#' @param port
-#' @param username
-#' @param password
-#' @param database
+#' @param host host
+#' @param port port
+#' @param username username
+#' @param password password
+#' @param database database
 #' @export
 db_setup <- function(host="localhost", port=3306, username="root", password="root", database="") {
   settings <- as.list(environment())
