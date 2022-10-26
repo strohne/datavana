@@ -1,4 +1,6 @@
 
+# "epi" functions
+
 #' Convert text to epigraf article
 #' @param text Dataframe with the columns id, project, caption and content
 #' @return Dataframe with article, section and item
@@ -9,14 +11,13 @@
 #' caption="My first text",
 #' content="Words are letters with glue"))
 
-
 epi_text2article  <- function(text)
-  { if (!requireNamespace("tidyverse", quietly = TRUE)) {
-    stop(
-      "Package \"tidyverse\" must be installed to use this function.",
-      call. = FALSE
-    )
-    }
+{ if (!requireNamespace("tidyverse", quietly = TRUE)) {
+  stop(
+    "Package \"tidyverse\" must be installed to use this function.",
+    call. = FALSE
+  )
+}
   projects <- tibble(
     table="projects",
     type="default",
@@ -59,4 +60,17 @@ epi_text2article  <- function(text)
 
 }
 
+#' Create a clean IRI
+#'
+#' @param table The table name
+#' @param type If NA, the type will be omitted.
+#' @param fragment The IRI fragment that will be cleaned
+#' @export
 
+epi_create_iri <- function(table, type, fragment) {
+  paste0(
+    table, "/",
+    ifelse(is.na(type),"",paste0(type, "/")),
+    str_to_lower(str_remove_all(fragment,"[^a-zA-Z0-9_-]"))
+  )
+}

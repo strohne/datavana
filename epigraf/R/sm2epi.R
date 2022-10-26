@@ -1,5 +1,5 @@
 #
-# Aufbereitung der Posts & Kommentare fÃ¼r den Epi-Import
+# Prepare posts & comments for Epi import
 # v0.1
 #
 
@@ -9,7 +9,7 @@
 #' @import jsonlite
 
 #
-# Hilfsfunktionen ----
+# helper functions ----
 #
 
 # rm(list=ls())
@@ -22,22 +22,10 @@
 #
 
 
-# Create a clean IRI
-#'
-#' @param table The table name
-#' @param type If NA, the type will be omitted.
-#' @param fragment The IRI fragment that will be cleaned
-#' @export
-epi_create_iri <- function(table, type, fragment) {
-  paste0(
-    table, "/",
-    ifelse(is.na(type),"",paste0(type, "/")),
-    str_to_lower(str_remove_all(fragment,"[^a-zA-Z0-9_-]"))
-  )
-}
 
 
-# Anonymisieren
+
+#' Anonymize
 #' @export
 #' @param msg Dataframe with the columns:
 #'            platform, author_id, ...
@@ -77,9 +65,9 @@ sm_pseudonyms <- function(msg) {
 }
 
 
-# Create project rows
+#' Create project rows
 #'
-# Creates a project row for each sample
+#' Creates a project row for each sample
 #' @export
 #' @param msg Dataframe with the columns:
 #'            sample_name, ...
@@ -97,7 +85,7 @@ sm_create_projects <- function(msg) {
 }
 
 
-# Create property items from a column with semicolon separated values
+#' Create property items from a column with semicolon separated values
 #' @export
 #' @param msg Dataframe
 sm_unnest_property_items <- function(msg, col_id, sortno, first=F) {
@@ -112,7 +100,7 @@ sm_unnest_property_items <- function(msg, col_id, sortno, first=F) {
 
 }
 
-# Create properties from a column with semicolon separated values
+#' Create properties from a column with semicolon separated values
 #' @export
 #' @param msg Dataframe
 sm_unnest_property_properties <- function(msg, col_id) {
@@ -127,7 +115,7 @@ sm_unnest_property_properties <- function(msg, col_id) {
 
 }
 
-# Creates an article row from the first message in each thread
+#' Creates an article row from the first message in each thread
 #' @export
 #' @param msg Dataframe with the following columns:
 #'            platform, tree_thread, tree_pos,
@@ -173,7 +161,7 @@ sm_create_articles <- function(msg) {
 }
 
 
-# Creates a section for each message in a thread
+#' Creates a section for each message in a thread
 #' @export
 #' @param msg Dataframe with the following columns:
 #'            platform, tree_thread, tree_pos,
@@ -218,7 +206,7 @@ sm_create_sections <- function(msg) {
 }
 
 
-# Create sections_id, articles_id, type and sortno fields
+#' Create sections_id, articles_id, type and sortno fields
 #' @export
 #' @param msg
 sm_create_items <- function(msg, itemtype, sortno) {
@@ -242,7 +230,7 @@ sm_create_items <- function(msg, itemtype, sortno) {
     )
 }
 
-# Create items with the message content
+#' Create items with the message content
 #' @export
 #' @param msg Dataframe
 sm_create_text_items <- function(msg, sortno) {
@@ -260,7 +248,7 @@ sm_create_text_items <- function(msg, sortno) {
 }
 
 
-# Create items from caption and text for the full text search
+#' Create items from caption and text for the full text search
 #' @export
 #' @param msg Dataframe
 sm_create_search_items <- function(msg, sortno) {
@@ -273,7 +261,7 @@ sm_create_search_items <- function(msg, sortno) {
 
 
 
-# Create items containing metrics
+#' Create items containing metrics
 #' @export
 #' @param msg Dataframe
 sm_create_metrics_items <- function(msg, sortno) {
@@ -356,7 +344,7 @@ sm_create_properties <- function(msg, col_id, col_lemma) {
     select(table, id, type, lemma, name)
 }
 
-# Fix xml attributes and entities
+#' Fix xml attributes and entities
 #' @export
 #' @param data
 #' @param column
@@ -379,18 +367,6 @@ sm_cleanhtml <- function(data, column) {
   # ))
 
 }
-
-# Remove HTML entities
-#' @export
-unescape_html <- function(str){
-  if (is.na(str)) {
-    return (str)
-  } else {
-    return (xml2::xml_text(xml2::read_html(paste0("<x>", str, "</x>"))))
-  }
-}
-
-
 
 #' Convert a social media dataset from its canonical form
 #' to the form expected by Epigraf
