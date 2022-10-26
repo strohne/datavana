@@ -27,7 +27,7 @@ db_setup <- function(host="localhost", port=3306, username="root", password="roo
 #' @param db Name of the database as string.
 #'           Leave empty to use the database
 #'           name from the environment settings.
-#'@export
+#' @export
 db_connect <- function(db=NULL) {
   if (missing(db)) {
     db <- Sys.getenv("epi_dbname")
@@ -46,6 +46,7 @@ db_connect <- function(db=NULL) {
 }
 
 #' Get the database name from a connection object
+#'
 #' @param con A connection object
 #' @export
 db_name <- function(con) {
@@ -54,12 +55,12 @@ db_name <- function(con) {
 
 
 #
-# Get tables from a database
-#
+#' Get tables from a database
+#'
 #' @param db A connection object (object) or the database name (character)
 #' @param table Table name
 #' @export
-#
+
 db_table <- function(table, db){
   # Check if db is character --> open db connection
   if (is.character(db)){
@@ -90,8 +91,8 @@ db_table <- function(table, db){
 }
 
 #
-# Get codings from database
-#
+#' Get codings from database
+#'
 #' @param db A connection object (object) or the database name (character)
 #' @return A dataframe containing links and items.
 #' @details Queries the database to join the items, properties, types, articles and links tables.
@@ -174,15 +175,15 @@ db_get_codings <- function(db){
 }
 
 #
-# Get codes from database
-#
+#' Get codes from database
+#'
 #' @param db A connection object (object) or the database name (character)
 #' @return A data frame containing the properties.
 #' @details Queries the database to get the properties.
 #'          The property types are added as root nodes
 #'          and if the lemma is empty, it is replaced by the name
 #' @export
-#'
+
 db_get_codes <- function(db){
 
   # Check if db is character --> open db connection

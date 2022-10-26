@@ -44,7 +44,7 @@ post <- tibble(
     content="Words are letters with glue")
 
 # Converting data into epigraf article 
-epidata <- textToArticle(post)
+epidata <- epi_text2article(post)
 
 ```
 
