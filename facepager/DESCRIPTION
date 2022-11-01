@@ -1,0 +1,31 @@
+Package: facepager
+Title: Analyze Facepager Data with R
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Functions to analyze the database files of Facepager.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1.9000
+VignetteBuilder: knitr
+LazyData: true
+Imports:
+  tidyverse,
+  RSQLite,
+  dplyr,
+  ggplot2,
+  lubridate,
+  stringr,
+  rlang,
+  readr,
+  tidyr,
+  jsonlite,
+  tidygraph,
+  tokenizers
+Suggests:
+  testthat (>= 3.0.0),
+  knitr,
+  rmarkdown
+Config/testthat/edition: 3

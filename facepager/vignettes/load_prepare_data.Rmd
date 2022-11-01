@@ -1,0 +1,87 @@
+---
+title: "load_prepare_data"
+output: rmarkdown::html_vignette
+description: >
+  This vignette explains the different ways that the facepageR package offers to load and prepare data collected using Facepager.
+vignette: >
+  %\VignetteIndexEntry{load_prepare_data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(tidyverse)
+library(jsonlite)
+```
+
+
+This vignette explains the different ways that the facepageR package offers to load and prepare data collected using Facepager.
+As with all other packages you'll have to install the package and load the library first.
+```{r setup}
+library(facepageR)
+```
+
+Now you can access the various functions that allow you to read data. Depending on the format of your data, you can use different functions. In total you can load the following data types:
+
+* csv files
+
+* one Facepager database or multiple Facepager databases at the same time (file extension .db)
+
+*  certain columns from a Facepager database
+
+
+
+### Load a CSV file with `fp_read_csv2()`
+
+`fp_read_csv2()` works the same way as the read_csv2 function from the tidyverse package. So you'll see a tibble containing a representation of the data in your csv file. 
+
+```{r}
+data <- fp_read_csv2("../data/exampledata.csv")
+```
+
+However, you do not have to export your data collected with Facepager as a csv file.
+
+
+### Load a complete fp database with `fp_loaddatabase()`
+
+With `fp_loaddatabase()` it is also possible to load the data directly from the .db file of the Facepager database.
+
+```{r}
+data <- fp_loaddatabase("../data/exampledata.db")
+```
+
+
+### Load multiple fp databases with `fp_loaddatabases()`
+
+In case you have performed several data collections with Facepager and accordingly have several .db files, you can load them easily with `fp_loaddatabases()` at the same time.This way you get one big combined dataset instead of loading the Facepager databases individually.
+
+```{r}
+data <- fp_loaddatabase("../data/exampledata.db", "../data/exampledata2.db")
+```
+
+
+### Load single data from a fp database with `fp_load_nodes()`
+
+To avoid having to load all the columns of the Facepager database each time (for example, if you already know you are going to delete them anyway), you can use `fp_load_nodes()` to load only specific `fields`.
+
+```{r}
+data <- fp_load_nodes("../data/exampledata.db", fields = 'querytype, querytime, objecttype')
+```
+
+### Convert JSON data in the response to columns of a data frame with `fp_parse_response_data()`
+
+All previous functions deal with the basic reading of data. But, as you can see in the loaded data, most of your detailed data is located in the response column in JSON format. Therefore you need to convert the JSON data in the response to own columns with `fp_parse_response_data()`.
+
+```{r}
+# eigentlich: fp_parse_response_data(data)
+# aber Fehlermeldung: 
+# Error in names(x) <- value : 
+#   'names' attribute [1] must be the same length as the vector [0] 
+# Calls: <Anonymous> ... eval -> eval -> fp_parse_response_data -> colnames<-
+```
+
+
