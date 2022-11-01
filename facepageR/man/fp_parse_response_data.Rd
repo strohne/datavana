@@ -2,9 +2,12 @@
 % Please edit documentation in R/fp_parse_response_data.R
 \name{fp_parse_response_data}
 \alias{fp_parse_response_data}
+\alias{fp_from_ndjson}
 \title{convert response data to columns of a data frame}
 \usage{
 fp_parse_response_data(nodes, plain = F, prefix = "response.")
+
+fp_from_ndjson(data)
 }
 \arguments{
 \item{nodes}{the fields/columns originally collected by Facepager,

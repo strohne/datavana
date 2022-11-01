@@ -6,4 +6,5 @@
 private/
 *.gz
 .DS_Store
-facepageR/.DS_Store
+facepager/.DS_Store
+facepager/R/.DS_Store

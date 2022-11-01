@@ -6,5 +6,5 @@
 #' @examples
 #' @export
 fp_read_csv2 <- function(filename) {
-  read_csv2(filename, na=c("None",""))
+  read_csv2(filename,na="None")
 }
