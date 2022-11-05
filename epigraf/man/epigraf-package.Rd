@@ -6,7 +6,14 @@
 \alias{epigraf-package}
 \title{epigraf: Convert text to epigraf article}
 \description{
-Convert canonical SM datasets to Epigraf structure for import. To learn more about epigraf, start with the vignettes: https://github.com/strohne/datavana/tree/main/epigraf.
+Convert canonical social media datasets to Epigraf structure for import. To learn more about epigraf, start with the vignettes on Github.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/strohne/datavana/tree/main/epigraf}
+}
+
 }
 \author{
 \strong{Maintainer}: Jakob JÃ¼nger \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
