@@ -1,4 +1,4 @@
-#' Convert JSON response data to columns of a data frame
+#' convert response data to columns of a data frame
 #' @import jsonlite
 #' @description As you can see in the loaded data,
 #' most of your data is in JSON format in the response column.
@@ -6,28 +6,30 @@
 #' @param nodes the fields/columns originally collected by Facepager,
 #' which are all together in the response column,
 #' can be for example "created_at", "text"/ "message", "favorite_count"/ "like_count" etc.
-#' @param plain Only keep atomic columns, remove data frames and lists
+#' @param plain ...
 #' @param prefix name of the columns
-#' @return A data frame containing the data of the Facepager database
+#' @return a data frame containing the data of the fp database
 #'  with all response data as own columns
 #' @examples
 #' @export
 fp_parse_response_data <- function (nodes, plain = F, prefix="response.") {
   responses = fp_from_ndjson(nodes$response)
-  responses = jsonlite::flatten(responses, recursive = T)
 
-  if (plain) {
-    responses <- select_if(responses,~!is.data.frame(.))
-    responses <- select_if(responses,~!is.list(.))
-  }
+  responses = jsonlite::flatten(responses,recursive = T)
+  # if (plain) {
+  #   responses <- select_if(responses,~!is.data.frame(.))
+  #   responses <- select_if(responses,~!is.list(.))
+  # }
 
   colnames(responses) = paste0(prefix,colnames(responses))
-
-  bind_cols(select(nodes,-response),responses)
-}
+  nodes = bind_cols(select(nodes,-response),responses)
+  rm(responses)
+  nodes
+  }
 
 #' helper function for fp_parse_response_data()
 #' @import jsonlite
+#' @rdname fp_parse_response_data
 #' @export
 fp_from_ndjson <- function(data) {
   data[data == "[]"] = "{}"

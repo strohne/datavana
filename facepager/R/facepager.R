@@ -1,6 +1,6 @@
 #' @description
-#' To learn more about the facepageR package, start with the vignettes:
-#' `browseVignettes(package = "facepageR")`.
+#' To learn more about the facepager package, start with the vignettes:
+#' `browseVignettes(package = "facepager")`.
 #' They are divided into:
 #' load and prepare data,
 #' understand the data structure and

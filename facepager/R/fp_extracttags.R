@@ -1,4 +1,5 @@
 #' get tags (urls, mentions, hashtags)
+#' @import tokenizers
 #' @param data the loaded data from Facepager
 #' @param col_text the column from which the tags should be extracted
 #' @param prefix=NA when transformatting, the values are not prefixed with a character

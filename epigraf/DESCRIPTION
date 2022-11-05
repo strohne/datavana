@@ -4,9 +4,8 @@ Version: 0.0.0.9000
 Authors@R: 
     person("Jakob", "Jünger", , "first.last@example.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Convert canonical SM datasets to Epigraf structure for import. 
-            To learn more about epigraf, start with the vignettes: 
-            https://github.com/strohne/datavana/tree/main/epigraf.
+Description: Convert canonical social media datasets to Epigraf structure for import. 
+            To learn more about epigraf, start with the vignettes on Github. 
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
@@ -19,3 +18,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+URL: https://github.com/strohne/datavana/tree/main/epigraf
