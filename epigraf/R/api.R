@@ -49,7 +49,7 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
   if (!is.na(database)) {
     url$path <- paste0("epi/",database,endpoint,extension)
   } else {
-    url$path <- endpoint
+    url$path <- paste0(endpoint, extension)
   }
 
   build_url(url)
