@@ -2,18 +2,25 @@
 % Please edit documentation in R/fp_load_databases.R
 \name{fp_load_database}
 \alias{fp_load_database}
-\title{Load a fp database}
+\title{Load a complete Facepager database}
 \usage{
-fp_load_database(dbname, shard = NA)
+fp_load_database(filename, fields = "*", rename = TRUE, shard = NA)
 }
 \arguments{
-\item{shard}{prefix ids to load multiple databases}
+\item{filename}{Name of the Facepager database, e.g. "posts.db".}
 
-\item{filename}{name of the fp database you want to load (file extension db)}
+\item{fields}{A character vector of fields to load or "*" to load all fields.
+Possible candidates are:
+objectid, objecttype, querystatus, querytype, querytime, queryparamse
+id, parent_id, level, childcount, response.}
+
+\item{rename}{Rename the columns to match the names in Facepager's CSV files}
+
+\item{shard}{When loading multiple databases, give the ids a prefix. This way, the same numerical IDs from different databases don't come into conflict.}
 }
 \value{
-a data frame containing the data of the fp database
+A data frame containing the data of the database
 }
 \description{
-Load a fp database
+Load a complete Facepager database
 }

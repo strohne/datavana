@@ -2,24 +2,26 @@
 % Please edit documentation in R/fp_load_databases.R
 \name{fp_load_nodes}
 \alias{fp_load_nodes}
-\title{Load data from a fp database}
+\title{Load all nodes from a Facepager database}
 \usage{
-fp_load_nodes(dbname, fields = "*", .progress = NULL, shard = NA)
+fp_load_nodes(filename, fields = "*", rename = T, .progress = NULL)
 }
 \arguments{
-\item{dbname}{name of the fp database you want to load data from (file extension db)}
+\item{filename}{Name of the Facepager database, e.g. "post.db"}
 
-\item{fields}{select your collected fields you want to load
-(you can only load fields you have collected via facepager)
-e.g. object_id, object_type, query_status, query_type, query_time etc.}
+\item{fields}{A character vector of fields to load or "*" to load all fields.
+Possible candidates are:
+objectid, objecttype, querystatus, querytype, querytime, queryparamse
+id, parent_id, level, childcount, response.
+The response field contains the data in JSON format.}
+
+\item{rename}{Rename the columns to match the names in Facepager's CSV files}
 
 \item{.progress}{progress bar displays estimated time remaining}
-
-\item{shard}{prefix ids to load multiple databases}
 }
 \value{
 A data frame containing the data of the selected fields of the fp database.
 }
 \description{
-Load data from a fp database
+Load all nodes from a Facepager database
 }

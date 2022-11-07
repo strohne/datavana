@@ -10,9 +10,9 @@ fp_status(data)
 \item{data}{the loaded data from Facepager}
 }
 \value{
-a tibble with 5 columns: level, querytype, querystatus, objecttype  and n
+a tibble with 5 columns: level, query_type, query_status, object_type  and n
 }
 \description{
 These details include the numbers of
-levels, querytypes, querystatus and objecttypes.
+levels, query types, query status and object types.
 }

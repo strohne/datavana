@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(tidyverse)
+library(tidygraph)
 library(jsonlite)
 ```
 
@@ -41,12 +42,19 @@ Now you can access the various functions that allow you to read data. Depending 
 
 ```{r}
 data <- fp_read_csv2("../data/exampledata.csv")
+
+# Reconstruct tree variables 
+# (omit the seed nodes, otherwise they will be the root of the threads)
+threads <- data %>% 
+  filter(level > 0) %>% 
+  tree_add_level(id, parent_id, created_time)  %>% 
+  tree_add_mptt()
 ```
 
 However, you do not have to export your data collected with Facepager as a csv file.
 
 
-### Load a complete fp database with `fp_loaddatabase()`
+### Load a complete database with `fp_loaddatabase()`
 
 With `fp_loaddatabase()` it is also possible to load the data directly from the .db file of the Facepager database.
 
@@ -55,7 +63,7 @@ data <- fp_loaddatabase("../data/exampledata.db")
 ```
 
 
-### Load multiple fp databases with `fp_loaddatabases()`
+### Load multiple databases with `fp_loaddatabases()`
 
 In case you have performed several data collections with Facepager and accordingly have several .db files, you can load them easily with `fp_loaddatabases()` at the same time.This way you get one big combined dataset instead of loading the Facepager databases individually.
 
@@ -82,6 +90,7 @@ All previous functions deal with the basic reading of data. But, as you can see 
 # Error in names(x) <- value : 
 #   'names' attribute [1] must be the same length as the vector [0] 
 # Calls: <Anonymous> ... eval -> eval -> fp_parse_response_data -> colnames<-
+data <- fp_parse_response_data(data)
 ```
 
 

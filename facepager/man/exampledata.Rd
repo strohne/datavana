@@ -3,7 +3,7 @@
 \docType{data}
 \name{exampledata}
 \alias{exampledata}
-\title{Sample data from BBC Facebook page - posts and comments}
+\title{Example Data from 2 Facebook pages - posts and comments}
 \format{
 An object of class \code{"data.frame"}
 \describe{
@@ -22,6 +22,11 @@ was it able to collect data, was there an error message, etc.?}
 \item{created_time}{time of publication }
 \item{like_count}{like count of the comments}
 \item{comment_count}{comment count of the comments (replies)}
+\item{shares.count}{shares count of the posts}
+\item{comments.summary.total_count}{comment count of the posts}
+\item{permalink_url}{URL of the posts}
+\item{reactions.summary.total_count}{reaction count of the posts}
+\item{attachments.data.*.title}{caption of the post, picture etc.}
 }
 }
 \usage{
@@ -30,11 +35,12 @@ data(exampledata)
 \description{
 A small dataset generated as an example,
 where the unit of analysis is either a post or a comment.
-It contains information for 20 posts and their comments posted in September 2022
+It contains information for 2 posts per page and their comments posted in November 2022
 to illustrate the use of the package.
-The dataset is in the state as exported directly from Facepager.
+The dataset is exactly in the same state as you export it from Facepager as a csv file.
+This means that the columns are named as they were requested from the API.
 }
 \references{
-This data set was created as an example for the facepageR package.
+This data set was created as an example for the facepager package.
 }
 \keyword{datasets}

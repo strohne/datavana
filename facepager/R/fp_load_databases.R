@@ -1,49 +1,71 @@
-#' Load a fp database
-#' @param filename name of the fp database you want to load (file extension db)
-#' @param shard prefix ids to load multiple databases
-#' @return a data frame containing the data of the fp database
+#' Load a complete Facepager database
+#' @param filename Name of the Facepager database, e.g. "posts.db".
+#' @param fields A character vector of fields to load or "*" to load all fields.
+#'               Possible candidates are:
+#'               objectid, objecttype, querystatus, querytype, querytime, queryparamse
+#'               id, parent_id, level, childcount, response.
+#' @param rename Rename the columns to match the names in Facepager's CSV files
+#' @param shard When loading multiple databases, give the ids a prefix. This way, the same numerical IDs from different databases don't come into conflict.
+#' @return A data frame containing the data of the database
 #' @examples
 #' @export
-fp_load_database <- function(dbname,shard=NA) {
+fp_load_database <- function(filename, fields="*", rename=TRUE, shard=NA) {
 
   # Load data
-  fields <- "objectid,objecttype,id,parent_id,level,childcount,
-             querystatus,querytype,querytime,response"
-  data <- fp_load_nodes(dbname, fields)
+  data <- fp_load_nodes(filename, fields, rename)
 
   if (!is.na(shard)) {
     data <- data %>%
-      mutate(id=paste0(shard,"_",id),
-             parent_id=ifelse(is.na(parent_id),NA,paste0(shard,"_",parent_id)))
+      mutate(
+        id = paste0(shard, "_", id),
+        parent_id = ifelse(is.na(parent_id), NA, paste0(shard,"_",parent_id))
+      )
   }
-
 
   return (data)
 }
 
-#' Load data from a fp database
+
+#' Load all nodes from a Facepager database
 #' @import RSQLite
-#' @param dbname name of the fp database you want to load data from (file extension db)
-#' @param fields select your collected fields you want to load
-#' (you can only load fields you have collected via facepager)
-#' e.g. object_id, object_type, query_status, query_type, query_time etc.
+#' @param filename Name of the Facepager database, e.g. "post.db"
+#' @param fields A character vector of fields to load or "*" to load all fields.
+#'               Possible candidates are:
+#'               objectid, objecttype, querystatus, querytype, querytime, queryparamse
+#'               id, parent_id, level, childcount, response.
+#'               The response field contains the data in JSON format.
+#' @param rename Rename the columns to match the names in Facepager's CSV files
 #' @param .progress progress bar displays estimated time remaining
-#' @param shard prefix ids to load multiple databases
 #' @return A data frame containing the data of the selected fields of the fp database.
 #' @examples
 
 #' @export
-fp_load_nodes <- function(dbname, fields = '*',.progress=NULL, shard=NA) {
-  db.con = dbConnect(RSQLite::SQLite(), dbname=dbname,flags=SQLITE_RO)
+fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL) {
+  db.con = dbConnect(RSQLite::SQLite(), dbname=filename,flags=SQLITE_RO)
 
-  statement = paste0('select ',fields,' from Nodes')
-  db.nodes = dbGetQuery( db.con,statement )
+  fields <- paste0(fields, collapse=",")
+  statement = paste0('select ', fields, ' from Nodes')
+  db.nodes = dbGetQuery( db.con, statement)
   dbDisconnect(db.con)
 
   data <- as_tibble(db.nodes)
 
+
+  if (rename) {
+    data <- data %>%
+      rename(
+        object_id=objectid,
+        object_type=objecttype,
+        query_status=querystatus,
+        query_type=querytype,
+        query_time=querytime,
+        query_params = queryparams
+      )
+  }
+
   if (!is.null(.progress))
     .progress$tick()$print()
+
 
   if (!is.na(shard)) {
     data <- data %>%
@@ -55,35 +77,32 @@ fp_load_nodes <- function(dbname, fields = '*',.progress=NULL, shard=NA) {
 }
 
 
-#' Load multiple fp databases
-#' @import tidyverse
-#' @param filenames names of the fp databases you want to load
+#' Load multiple Facepager databases
+#' @import purrr
+#' @param filenames A character vector containing the names of the databases
 #' @param fields select your collected fields you want to load
 #' (you can only load fields you have collected via facepager)
 #' e.g. objectid, object_type, query_status, query_type, query_time etc.
 #' @return A data frame containing the data of multiple fp databases
 #' @examples
 #' @export
-fp_load_databases <- function(filenames, fields=NULL) {
+fp_load_databases <- function(filenames, fields="*", rename=TRUE) {
 
-  # Load data
-  if (is.null(fields)) {
-    fields <- "objectid,objecttype,id,parent_id,level,childcount,
-               querystatus,querytype,querytime,response"
-  }
-
+  fields <- paste0(fields, collapse=",")
   .progress <- progress_estimated(length(filenames),min_time = 1)
   .progress$print()
 
-  shard=ifelse(length(filenames) > 0,"file",NULL)
-  data <- tidyverse::map_df(filenames,fp_load_nodes, fields,.id=shard,.progress=.progress)
+  # Load data
+  shard=ifelse(length(filenames) > 0,"file", NULL)
+  data <- purrr::map_df(filenames,fp_load_nodes, fields, rename, .id=shard, .progress=.progress)
 
   if (length(filenames) > 0) {
     data <- data %>%
-      mutate(id=paste0(file,"_",id),
-             parent_id=ifelse(is.na(parent_id),NA,paste0(file,"_",parent_id)))
+      mutate(
+        id=paste0(file,"_",id),
+        parent_id=ifelse(is.na(parent_id),NA,paste0(file,"_",parent_id))
+      )
   }
-
 
   .progress$stop()$print()
 

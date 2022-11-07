@@ -3,7 +3,7 @@
 \name{fp_parse_response_data}
 \alias{fp_parse_response_data}
 \alias{fp_from_ndjson}
-\title{convert response data to columns of a data frame}
+\title{Convert JSON response data to columns of a data frame}
 \usage{
 fp_parse_response_data(nodes, plain = F, prefix = "response.")
 
@@ -14,12 +14,12 @@ fp_from_ndjson(data)
 which are all together in the response column,
 can be for example "created_at", "text"/ "message", "favorite_count"/ "like_count" etc.}
 
-\item{plain}{...}
+\item{plain}{Only keep atomic columns, remove data frames and lists}
 
 \item{prefix}{name of the columns}
 }
 \value{
-a data frame containing the data of the fp database
+A data frame containing the data of the Facepager database
 with all response data as own columns
 }
 \description{

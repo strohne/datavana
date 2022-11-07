@@ -2,12 +2,12 @@
 % Please edit documentation in R/fp_load_databases.R
 \name{fp_load_databases}
 \alias{fp_load_databases}
-\title{Load multiple fp databases}
+\title{Load multiple Facepager databases}
 \usage{
-fp_load_databases(filenames, fields = NULL)
+fp_load_databases(filenames, fields = "*", rename = TRUE)
 }
 \arguments{
-\item{filenames}{names of the fp databases you want to load}
+\item{filenames}{A character vector containing the names of the databases}
 
 \item{fields}{select your collected fields you want to load
 (you can only load fields you have collected via facepager)
@@ -17,5 +17,5 @@ e.g. objectid, object_type, query_status, query_type, query_time etc.}
 A data frame containing the data of multiple fp databases
 }
 \description{
-Load multiple fp databases
+Load multiple Facepager databases
 }
