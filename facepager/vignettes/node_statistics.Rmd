@@ -38,6 +38,10 @@ First of all, you can view how many child nodes were collected per object ID/par
 
 ```{r}
 fp_children_bynode(example)
+
+# Fehlermeldung:
+# Error in UseMethod("filter") : 
+# no applicable method for 'filter' applied to an object of class "function"
 ```
 
 This number includes all children of a parent, including duplicates.
@@ -50,6 +54,10 @@ If you want to find out how many single or different children an Object ID produ
 ```{r}
 childcount <- fp_childcount(example)
 print(childcount)
+
+# Fehlermeldung:
+# Error in UseMethod("filter") : 
+# no applicable method for 'filter' applied to an object of class "function"
 ```
 
 The duplicates that are excluded here are considered with `fp_duplicates()`.
@@ -71,6 +79,11 @@ children <- fp_children(example)
 print(children)
 # hier klappt irgendwas nicht, hier wird mir beim testen dieselbe tibble angezeigt wie bei childcount
 # was muss denn hier als Parameter hin? man muss die genauen columns angeben für target, paginierung und created oder?
+
+# Fehlermeldung:
+# Error in UseMethod("filter") : 
+# no applicable method for 'filter' applied to an object of class "function"
+
 ```
 
 
@@ -84,6 +97,10 @@ fp_nodesperseed(example,
                 col_created = quo(created_time))
 
 # Fehlermeldung:
+# Error in `inner_join()`:
+# ! Can't join on `x$parent_id` x `y$parent_id` because of incompatible types.
+# ℹ `x$parent_id` is of type <character>>.
+# ℹ `y$parent_id` is of type <double>>.
 
 ```
 
@@ -100,6 +117,10 @@ fp_nodesperseed(example,
 
 ```{r}
 fp_getparents(example)
+
+# Fehlermeldung:
+# Error in UseMethod("filter") : 
+# no applicable method for 'filter' applied to an object of class "function"
 ```
 
 
@@ -115,5 +136,9 @@ fp_getparents(example)
 
 ```{r}
 fp_duplicates(example)
+
+# Fehlermeldung:
+# Error in UseMethod("filter") : 
+# no applicable method for 'filter' applied to an object of class "function"
 ```
 
