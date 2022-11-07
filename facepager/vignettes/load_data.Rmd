@@ -20,7 +20,7 @@ library(jsonlite)
 ```
 
 
-This vignette explains the different ways that the facepageR package offers to load and prepare data collected using Facepager.
+This vignette explains the different ways that the facepager package offers to load and prepare data collected using Facepager.
 As with all other packages you'll have to install the package and load the library first.
 ```{r setup}
 # library(devtools)
@@ -29,6 +29,9 @@ library(facepager)
 
 # Load example data
 example <- read_csv2(system.file("extdata", "exampledata.csv", package = "facepager"))
+
+example_db <- fp_load_database(system.file("extdata", "exampledata.db", package = "facepager"))
+# db Dateien noch nicht im extdata ordner
 ```
 
 Now you can access the various functions that allow you to read data. Depending on the format of your data, you can use different functions. In total you can load the following data types:
@@ -46,7 +49,7 @@ Now you can access the various functions that allow you to read data. Depending 
 `fp_read_csv2()` works the same way as the read_csv2 function from the tidyverse package. So you'll see a tibble containing a representation of the data in your csv file. 
 
 ```{r}
-data <- fp_read_csv2("../data/exampledata.csv")
+data <- fp_read_csv2(system.file("extdata", "exampledata.csv", package = "facepager"))
 
 # Reconstruct tree variables 
 # (omit the seed nodes, otherwise they will be the root of the threads)
@@ -64,7 +67,8 @@ However, you do not have to export your data collected with Facepager as a csv f
 With `fp_loaddatabase()` it is also possible to load the data directly from the .db file of the Facepager database.
 
 ```{r}
-data <- fp_loaddatabase("../data/exampledata.db")
+data <- fp_loaddatabase(system.file("extdata", "exampledata.db", package = "facepager"))
+# db Datei noch nicht im extdata ordner
 ```
 
 
@@ -73,7 +77,13 @@ data <- fp_loaddatabase("../data/exampledata.db")
 In case you have performed several data collections with Facepager and accordingly have several .db files, you can load them easily with `fp_loaddatabases()` at the same time.This way you get one big combined dataset instead of loading the Facepager databases individually.
 
 ```{r}
-data <- fp_loaddatabase("../data/exampledata.db", "../data/exampledata2.db")
+filenames <- c(
+  system.file("extdata", "exampledata.db", package = "facepager"), 
+  system.file("extdata", "exampledata2.db", package = "facepager")
+  )
+
+data <- fp_loaddatabases(filenames)
+# db Dateien noch nicht im extdata ordner
 ```
 
 
@@ -82,7 +92,8 @@ data <- fp_loaddatabase("../data/exampledata.db", "../data/exampledata2.db")
 To avoid having to load all the columns of the Facepager database each time (for example, if you already know you are going to delete them anyway), you can use `fp_load_nodes()` to load only specific `fields`.
 
 ```{r}
-data <- fp_load_nodes("../data/exampledata.db", fields = 'querytype, querytime, objecttype')
+data <- fp_load_nodes(system.file("extdata", "exampledata.db", package = "facepager"), 
+                      fields = 'query_type, query_time, object_type')
 ```
 
 ### Convert JSON data in the response to columns of a data frame with `fp_parse_response_data()`
@@ -95,7 +106,7 @@ All previous functions deal with the basic reading of data. But, as you can see 
 # Error in names(x) <- value : 
 #   'names' attribute [1] must be the same length as the vector [0] 
 # Calls: <Anonymous> ... eval -> eval -> fp_parse_response_data -> colnames<-
-data <- fp_parse_response_data(data)
+data <- fp_parse_response_data(example)
 ```
 
 
