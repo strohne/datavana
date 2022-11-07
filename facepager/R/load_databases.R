@@ -94,7 +94,7 @@ fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL, shar
 
 
 #' Load multiple Facepager databases
-#' @import purrr map_df
+#' @importFrom  purrr map_df
 #' @param filenames A character vector containing the names of the databases
 #' @param fields select your collected fields you want to load
 #' (you can only load fields you have collected via facepager)

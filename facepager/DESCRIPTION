@@ -18,8 +18,7 @@ Imports:
   lubridate,
   stringr,
   rlang,
-  tidyr,
-  jsonlite,
+  tidyr, 
   purrr,
   tidygraph,
   tokenizers

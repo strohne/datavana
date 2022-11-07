@@ -79,15 +79,12 @@ print(children)
 If you want to look more closely at a certain period of time, you can use `fp_nodesperseed()`. This function makes it possible to specify an exact daterange (e.g. `daterange = ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin"`) and get exactly for it the children per parent (without duplicates).
 
 ```{r}
-# fp_nodesperseed(example,
-#                daterange = ymd(c("2022-09-28","2022-09-29"), tz="Europe/Berlin"),
-#                col_created = quo(created_time))
+fp_nodesperseed(example,
+                daterange = ymd(c("2022-11-01","2022-11-02"), tz="Europe/Berlin"),
+                col_created = quo(created_time))
 
 # Fehlermeldung:
-# Error in `dplyr::filter()`:
-# ! Problem while computing `..1 = object_type == "data"`.
-# Caused by error in `mask$eval_all_filter()`:
-# ! object 'object_type' not found
+
 ```
 
 

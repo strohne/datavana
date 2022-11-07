@@ -11,8 +11,8 @@ fp_getparents <- function(.data, level=0) {
   # Object ID and number of parent nodes
   parents <- data %>%
     dplyr::filter(level == !!level,
-                  objecttype %in% c("data","seed"),
-                  querystatus %in% c("","fetched (200)")) %>%
+                  object_type %in% c("data","seed"),
+                  query_status %in% c("","fetched (200)")) %>%
     group_by(parent_id) %>%
     mutate(no = row_number()) %>%
     ungroup()

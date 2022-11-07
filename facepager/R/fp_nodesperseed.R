@@ -1,5 +1,6 @@
 #' get the number of childnodes for each seed for a certain period of time
 #' @import dplyr
+#' @importFrom rlang quo_is_null
 #' @param .data the loaded data from Facepager
 #' @param col_created column with the date and time the data (post, tweet, etc.) was created at
 #' @param daterange=NULL the period of time you want to know, e.g. ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin")

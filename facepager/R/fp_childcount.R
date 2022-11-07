@@ -26,7 +26,7 @@ fp_childcount <- function(.data, .parents=NA, .silent=FALSE, level=0) {
   }
 
   .parents <- .data %>%
-    dplyr::filter(objecttype %in% c("data","unpacked"),querystatus=="fetched (200)") %>%
+    dplyr::filter(object_type %in% c("data","unpacked"),query_status=="fetched (200)") %>%
     right_join(.parents,by=c("parent_id")) %>%
     group_by(parent_objectid)  %>%
     summarize(

@@ -31,7 +31,7 @@ fp_duplicates <- function(data, level=0) {
 
   # Bei gleichen Eltern, auf zweiter Ebene
   dupl.children <- data %>%
-    dplyr::filter(objecttype %in% c("data","unpacked"),querystatus=="fetched (200)",level==!!level+1) %>%
+    dplyr::filter(object_type %in% c("data","unpacked"),query_status=="fetched (200)",level==!!level+1) %>%
     count(objectid,parent_id, sort=T) %>%  #level,querytype
     inner_join(parents,by=c("parent_id"))
 
@@ -53,7 +53,7 @@ fp_duplicates <- function(data, level=0) {
 
   # Unabhängig von Eltern, auf gleicher Ebene
   dupl.all <- data %>%
-    dplyr::filter(objecttype %in% c("data","unpacked"),querystatus=="fetched (200)",level==!!level+1) %>%
+    dplyr::filter(object_type %in% c("data","unpacked"),query_status=="fetched (200)",level==!!level+1) %>%
     count(objectid,sort=T)   #level,querytype,
 
 

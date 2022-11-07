@@ -1,6 +1,7 @@
 #' get the number of childnodes for each node shown in Facepager
 #' @import ggplot2
 #' @import tidyr
+#' @import dplyr
 #' @param data the loaded data from Facepager
 #' @param .global=T ...
 #' @param .maxlevel the node level
@@ -15,7 +16,7 @@ fp_children_bynode <- function(data, .global=T, .maxlevel=1) {
   parents <- fp_getparents(data)
 
   children.bynode <- data %>%
-    dplyr::filter(objecttype == "data",level == .maxlevel) %>%
+    dplyr::filter(object_type == "data",level == .maxlevel) %>%
     count(parent_id) %>% rename(children = n) %>%
     right_join(parents,by=c("parent_id")) %>%
     replace_na(list(children = 0)) %>%
