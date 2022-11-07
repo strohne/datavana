@@ -1,5 +1,4 @@
 #' get the number of childnodes for each seed for a certain period of time
-#' @import rlang
 #' @import dplyr
 #' @param .data the loaded data from Facepager
 #' @param col_created column with the date and time the data (post, tweet, etc.) was created at

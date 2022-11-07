@@ -18,7 +18,7 @@ library(tidyverse)
 ```
 
 
-This vignette explains the different possibilities of the facepageR package to find out more about the Facepager query itself.
+This vignette explains the different possibilities of the facepager package to find out more about the Facepager query itself.
 As with all other packages you'll have to install the package and load the library first.
 
 ```{r setup}

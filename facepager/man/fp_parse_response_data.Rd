@@ -3,11 +3,14 @@
 \name{fp_parse_response_data}
 \alias{fp_parse_response_data}
 \alias{fp_from_ndjson}
+\alias{fp_get_response_value}
 \title{Convert JSON response data to columns of a data frame}
 \usage{
 fp_parse_response_data(nodes, plain = F, prefix = "response.")
 
 fp_from_ndjson(data)
+
+fp_get_response_value(nodes, col, .split = TRUE, .progress = NULL)
 }
 \arguments{
 \item{nodes}{the fields/columns originally collected by Facepager,

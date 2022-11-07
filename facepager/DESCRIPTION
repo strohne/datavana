@@ -18,12 +18,11 @@ Imports:
   lubridate,
   stringr,
   rlang,
-  readr,
   tidyr,
   jsonlite,
+  purrr,
   tidygraph,
-  tokenizers,
-  purrr
+  tokenizers
 Suggests:
   testthat (>= 3.0.0),
   knitr,

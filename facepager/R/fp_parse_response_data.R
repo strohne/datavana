@@ -1,5 +1,5 @@
 #' Convert JSON response data to columns of a data frame
-#' @import jsonlite
+#' @importFrom jsonlite flatten
 #' @description As you can see in the loaded data,
 #' most of your data is in JSON format in the response column.
 #' Therefore you need to convert the JSON data in the response to columns of a data frame.
@@ -26,7 +26,7 @@ fp_parse_response_data <- function (nodes, plain = F, prefix="response.") {
   }
 
 #' helper function for fp_parse_response_data()
-#' @import jsonlite
+#' @importFrom jsonlite stream_in
 #' @rdname fp_parse_response_data
 #' @export
 fp_from_ndjson <- function(data) {
@@ -38,6 +38,7 @@ fp_from_ndjson <- function(data) {
 
 #' helper function for fp_parse_response_data()
 #' @import tidyverse
+#' @rdname fp_parse_response_data
 #' @export
 fp_get_response_value <- function(nodes, col, .split=TRUE,.progress=NULL) {
 

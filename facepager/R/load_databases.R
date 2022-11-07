@@ -23,6 +23,18 @@ fp_load_database <- function(filename, fields="*", rename=TRUE, shard=NA) {
       )
   }
 
+  if (rename) {
+    data <- data %>%
+      rename(
+        object_id=objectid,
+        object_type=objecttype,
+        query_status=querystatus,
+        query_type=querytype,
+        query_time=querytime,
+        query_params = queryparams
+      )
+  }
+
   return (data)
 }
 
@@ -82,7 +94,7 @@ fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL, shar
 
 
 #' Load multiple Facepager databases
-#' @import purrr
+#' @import purrr map_df
 #' @param filenames A character vector containing the names of the databases
 #' @param fields select your collected fields you want to load
 #' (you can only load fields you have collected via facepager)
@@ -105,6 +117,18 @@ fp_load_databases <- function(filenames, fields="*", rename=TRUE) {
       mutate(
         id=paste0(file,"_",id),
         parent_id=ifelse(is.na(parent_id),NA,paste0(file,"_",parent_id))
+      )
+  }
+
+  if (rename) {
+    data <- data %>%
+      rename(
+        object_id=objectid,
+        object_type=objecttype,
+        query_status=querystatus,
+        query_type=querytype,
+        query_time=querytime,
+        query_params = queryparams
       )
   }
 
