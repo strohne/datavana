@@ -1,8 +1,8 @@
 ---
-title: "understand_data_structure"
+title: "node_statistics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{understand_data_structure}
+  %\VignetteIndexEntry{node_statistics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,12 +12,17 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(dplyr)
+library(tidyverse)
 ```
 
 ```{r setup}
-library(facepageR)
-data <- fp_loaddatabase("../data/exampledata.db")
-print(data)
+# library(devtools)
+# install_github("strohne/datavana/facepager")
+library(facepager)
+
+# Load example data
+example <- read_csv2(system.file("extdata", "exampledata.csv", package = "facepager"))
 ```
 
 
@@ -32,7 +37,7 @@ As you may already know, Facepager always collects data on multiple levels, also
 First of all, you can view how many child nodes were collected per object ID/parent node. With `fp_children_bynode()` you get the exact number of children per "parent_objectid". Additionally you get the position of the dataset in Facepager with "parent_no" and a boxplot for the distribution of the number of children.
 
 ```{r}
-fp_children_bynode(data)
+fp_children_bynode(example)
 ```
 
 This number includes all children of a parent, including duplicates.
@@ -43,7 +48,7 @@ This number includes all children of a parent, including duplicates.
 If you want to find out how many single or different children an Object ID produces, you can use `fp_childcount()`. Using this function, the duplicates are not included in the count.
 
 ```{r}
-childcount <- fp_childcount(data)
+childcount <- fp_childcount(example)
 print(childcount)
 ```
 
@@ -62,7 +67,7 @@ The duplicates that are excluded here are considered with `fp_duplicates()`.
 * if children are missing (if there is a target, how many children should be collected)
 
 ```{r}
-children <- fp_children(data)
+children <- fp_children(example)
 print(children)
 # hier klappt irgendwas nicht, hier wird mir beim testen dieselbe tibble angezeigt wie bei childcount
 # was muss denn hier als Parameter hin? man muss die genauen columns angeben für target, paginierung und created oder?
@@ -74,7 +79,7 @@ print(children)
 If you want to look more closely at a certain period of time, you can use `fp_nodesperseed()`. This function makes it possible to specify an exact daterange (e.g. `daterange = ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin"`) and get exactly for it the children per parent (without duplicates).
 
 ```{r}
-# fp_nodesperseed(data,
+# fp_nodesperseed(example,
 #                daterange = ymd(c("2022-09-28","2022-09-29"), tz="Europe/Berlin"),
 #                col_created = quo(created_time))
 
@@ -97,7 +102,7 @@ If you want to look more closely at a certain period of time, you can use `fp_no
 * and which ID they have been assigned to ("parent_id"). 
 
 ```{r}
-fp_getparents(data)
+fp_getparents(example)
 ```
 
 
@@ -112,6 +117,6 @@ fp_getparents(data)
 3. on the level of the children independent of the parent.
 
 ```{r}
-fp_duplicates(data)
+fp_duplicates(example)
 ```
 

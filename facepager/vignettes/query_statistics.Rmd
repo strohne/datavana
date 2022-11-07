@@ -1,8 +1,8 @@
 ---
-title: "query_details"
+title: "query_statistics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{query_details}
+  %\VignetteIndexEntry{query_statistics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(lubridate)
+library(tidyverse)
 
 ```
 
@@ -21,8 +22,12 @@ This vignette explains the different possibilities of the facepageR package to f
 As with all other packages you'll have to install the package and load the library first.
 
 ```{r setup}
-library(facepageR)
-data <- fp_loaddatabase("../data/exampledata.db")
+# library(devtools)
+# install_github("strohne/datavana/facepager")
+library(facepager)
+
+# Load example data
+example <- read_csv2(system.file("extdata", "exampledata.csv", package = "facepager"))
 
 ```
 
@@ -41,7 +46,7 @@ With `fp_status()` you can get a first overview of your query and its results.
 * And how many nodes actually contain data ("data")?
 
 ```{r}
-fp_status(data)
+fp_status(example)
 ```
 
 
@@ -59,5 +64,5 @@ Especially if you are conducting surveys over a long period of time, it can be u
 * How many queries were sent per day?
 
 ```{r}
-fp_timing(data)
+fp_timing(example)
 ```

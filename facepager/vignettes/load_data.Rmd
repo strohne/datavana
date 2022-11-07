@@ -1,10 +1,10 @@
 ---
-title: "load_prepare_data"
+title: "load_data"
 output: rmarkdown::html_vignette
 description: >
   This vignette explains the different ways that the facepageR package offers to load and prepare data collected using Facepager.
 vignette: >
-  %\VignetteIndexEntry{load_prepare_data}
+  %\VignetteIndexEntry{load_data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,7 +23,12 @@ library(jsonlite)
 This vignette explains the different ways that the facepageR package offers to load and prepare data collected using Facepager.
 As with all other packages you'll have to install the package and load the library first.
 ```{r setup}
-library(facepageR)
+# library(devtools)
+# install_github("strohne/datavana/facepager")
+library(facepager)
+
+# Load example data
+example <- read_csv2(system.file("extdata", "exampledata.csv", package = "facepager"))
 ```
 
 Now you can access the various functions that allow you to read data. Depending on the format of your data, you can use different functions. In total you can load the following data types:
@@ -32,7 +37,7 @@ Now you can access the various functions that allow you to read data. Depending 
 
 * one Facepager database or multiple Facepager databases at the same time (file extension .db)
 
-*  certain columns from a Facepager database
+* certain columns from a Facepager database
 
 
 

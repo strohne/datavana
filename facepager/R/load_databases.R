@@ -1,3 +1,4 @@
+
 #' Load a complete Facepager database
 #' @param filename Name of the Facepager database, e.g. "posts.db".
 #' @param fields A character vector of fields to load or "*" to load all fields.
@@ -36,11 +37,12 @@ fp_load_database <- function(filename, fields="*", rename=TRUE, shard=NA) {
 #'               The response field contains the data in JSON format.
 #' @param rename Rename the columns to match the names in Facepager's CSV files
 #' @param .progress progress bar displays estimated time remaining
+#' @param shard When loading multiple databases, give the ids a prefix. This way, the same numerical IDs from different databases don't come into conflict.
 #' @return A data frame containing the data of the selected fields of the fp database.
 #' @examples
 
 #' @export
-fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL) {
+fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL, shard=NA) {
   db.con = dbConnect(RSQLite::SQLite(), dbname=filename,flags=SQLITE_RO)
 
   fields <- paste0(fields, collapse=",")
@@ -69,8 +71,10 @@ fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL) {
 
   if (!is.na(shard)) {
     data <- data %>%
-      mutate(id=paste0(shard,"_",id),
-             parent_id=ifelse(is.na(parent_id),NA,paste0(shard,"_",parent_id)))
+      mutate(
+        id=paste0(shard,"_",id),
+        parent_id=ifelse(is.na(parent_id),NA,paste0(shard,"_",parent_id))
+        )
   }
 
   return (data)
