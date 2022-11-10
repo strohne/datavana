@@ -46,11 +46,14 @@ post <- tibble(
 # Converting data into epigraf article 
 epidata <- epi_text2article(post)
 
+# Display 
+epidata
+
 ```
 
 
 ## A simple example II 
-The following example shows how to convert a social media dataset into an Epigraf import file. 
+The following example shows how to convert a social media dataset into an Epigraf import file. The social media dataset follows a canoncial structure. 
 
 ```{r, eval=TRUE}
 library(tidyverse)
