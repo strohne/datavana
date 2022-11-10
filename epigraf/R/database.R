@@ -61,7 +61,7 @@ db_name <- function(con) {
 #' @param table Table name
 #' @export
 
-db_table <- function(table, db){
+db_table <- function(table, db, deleted=FALSE){
   # Check if db is character --> open db connection
   if (is.character(db)){
     con <- db_connect(db)
@@ -70,7 +70,12 @@ db_table <- function(table, db){
   }
 
   # Construct SQL
-  sql <- paste0("SELECT * FROM ", table, " WHERE deleted = 0")
+  sql <- paste0("SELECT * FROM ", table)
+
+  if (deleted == FALSE){
+    sql <- paste0(sql, " WHERE deleted = 0")
+  }
+
 
   # get table
   table <- as_tibble(
