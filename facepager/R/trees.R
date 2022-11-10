@@ -37,6 +37,7 @@ tree_bind_ancestors <- function(.data, .tree, id, parent_id) {
 #' @param col_id The column holding IDs of the nodes
 #' @param col_parent The column holding IDs of the parent nodes
 #' @param col_stack The column that will hold the ancestors IDs
+#' @export
 #'
 tree_stack_ancestors <- function(data, col_id, col_parent, col_stack) {
 
