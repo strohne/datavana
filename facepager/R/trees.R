@@ -44,7 +44,7 @@ tree_stack_ancestors <- function(data, col_id, col_parent, col_stack) {
   # Quoting
   col_id <- enquo(col_id)
   col_parent <- enquo(col_parent)
-  col_main <- enquo(col_main)
+  col_stack <- enquo(col_stack)
 
   # Prepare temporary columns (for easier joins)
   data <- mutate(data,.tree_id=!!col_id)
@@ -82,7 +82,7 @@ tree_stack_ancestors <- function(data, col_id, col_parent, col_stack) {
   # Remove columns and return data
   data_stacked %>%
     select(-.tree_id,-.tree_parent) %>%
-    rename(!!col_main := .tree_main)
+    rename(!!col_stack := .tree_main)
 }
 
 
