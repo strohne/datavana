@@ -7,7 +7,7 @@ Installation:
 
 ```
 library(devtools)
-install_github("strohne/datavana/facepageR")
+install_github("strohne/datavana/facepager")
 ```
 
 
