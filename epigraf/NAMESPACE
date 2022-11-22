@@ -39,3 +39,4 @@ export(tree_disambiguate_ids)
 
 export(unescape_html)
 export(drop_empty_columns)
+export(parse_json)

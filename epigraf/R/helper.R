@@ -15,3 +15,15 @@ unescape_html <- function(str){
 drop_empty_columns <- function(df) {
   select_if(df, ~{any(!is.na(.))})
 }
+
+
+#' Parse JSON columns
+#'
+#' @importFrom jsonlite stream_in
+#' @export
+parse_json <- function(data) {
+  data[data == "[]"] = "{}"
+  data[is.na(data)] = "{}"
+
+  jsonlite::stream_in(textConnection(data))
+}
