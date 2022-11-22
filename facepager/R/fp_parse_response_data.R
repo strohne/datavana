@@ -33,7 +33,8 @@ fp_from_ndjson <- function(data) {
   data[data == "[]"] = "{}"
   data[is.na(data)] = "{}"
 
-  jsonlite::stream_in(textConnection(data))}
+  jsonlite::stream_in(textConnection(data))
+}
 
 
 #' helper function for fp_parse_response_data()
