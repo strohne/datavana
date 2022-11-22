@@ -8,3 +8,10 @@ unescape_html <- function(str){
     return (xml2::xml_text(xml2::read_html(paste0("<x>", str, "</x>"))))
   }
 }
+
+#' Remove empty columns
+#' @export
+#'
+drop_empty_columns <- function(df) {
+  select_if(df, ~{any(!is.na(.))})
+}
