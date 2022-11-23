@@ -32,7 +32,6 @@ tree_bind_ancestors <- function(.data, .tree, id, parent_id) {
 #' As an example: a node on level 2 will be present two times,
 #'   1. the node containing the parent_id in the col_stack column
 #'   2. the node containing the parents parent_id in the col_stack column
-#
 #' @param data All nodes
 #' @param col_id The column holding IDs of the nodes
 #' @param col_parent The column holding IDs of the parent nodes
