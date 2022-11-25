@@ -74,3 +74,125 @@ epi_create_iri <- function(table, type, fragment) {
     str_to_lower(str_remove_all(fragment,"[^a-zA-Z0-9_-]"))
   )
 }
+
+# Export to Epi
+
+#' Function to create properties
+#'
+#' Creates properties table.
+#'
+#' @param propertytype A string containing the name of the property
+#' @param lemmata A string with one lemma or a list of lemmata
+#' @param names A string with the name of the lemma - optional
+#' @param irifragments A string with the irifragment - optional
+#' @export
+epi_create_properties <- function(propertytype, lemmata, names=NA, irifragments=NA){
+
+  # create properties table
+  properties <- tibble(
+    lemma = lemmata,
+    name = names,
+    irifragment = irifragments
+  )
+
+  iri_path = paste0("properties/", propertytype, "/")
+
+  # create ids from irifragment or row-number
+  properties <- properties %>%
+    mutate(
+      id = case_when(
+        !is.na(irifragment) ~ paste0(iri_path, irifragment),
+        TRUE ~ paste0(iri_path,  row_number()
+        )
+      )
+    )
+
+  # add name if given, else create name from lemma
+  properties <- properties %>%
+    mutate(name = ifelse(!is.na(name), name, lemma))
+
+  # select relevant columns
+  properties <- select(properties, id, lemma, name)
+
+  return(properties)
+
+}
+
+
+
+#' Create sections
+#'
+#' Creates a section for each row in the input data frame
+#'
+#' @param data A data frame containing the columns articletype and norm_iri
+#' @param sectiontype A string with the sectiontype
+#' @export
+epi_create_sections <- function(data, sectiontype, name=NA){
+  tibble(
+    articles_id = paste0("articles/", data$articletype, "/", data$norm_iri),
+    id = paste0("sections/", sectiontype, "/", data$norm_iri),
+    name = name
+  )
+}
+
+
+#' Create one empty item for each section
+#'
+#' @param sections A data frame containing the sections
+#' @param itemtype A string with the name for the itemtype
+#' @export
+epi_create_empty_items <- function(sections, itemtype) {
+
+
+  sections %>%
+    select(
+      sections_id = id,
+      articles_id
+    ) %>%
+    mutate(
+      id = paste0(
+        "items/",
+        itemtype,"/",
+        str_extract(sections_id,"[^/]+$")
+      )
+    ) %>%
+    select(id, sections_id, articles_id)
+
+}
+
+#' Create filled items and properties from values
+#'
+#' @param data A data frame containing the columns articletype and norm_iri
+#' @param col_articletype The column in data specifying the articletype
+#' @param col_value The column in data specifying the value
+#' @param col_prop The column in data containing the propertytype
+#' @param sectiontype A string with the name of the section
+#' @param itemtype A string with the name of the itemtype
+#' @export
+epi_create_property_items <- function(data, col_articletype, col_value, col_prop, sectiontype, itemtype ){
+
+  col_articletype <- enquo(col_articletype)
+  col_value <- enquo(col_value)
+  col_prop <- enquo(col_prop)
+
+  props <- create_properties("coding-sample",distinct(data, !!col_prop) %>%  pull() )
+
+  items <- data %>%
+
+    mutate(
+      id = paste0("items/",itemtype,"/",norm_iri),
+      sections_id = paste0("sections/", sectiontype, "/", norm_iri),
+      articles_id = paste0("articles/", !!col_articletype, "/", norm_iri)
+    ) %>%
+
+    mutate(
+      value = !!col_value,
+      properties_lemma = !!col_prop
+
+    ) %>%
+    left_join(select(props,properties_id=id,properties_lemma=lemma),by="properties_lemma") %>%
+    select(id, sections_id, articles_id, properties_id, value)
+
+  bind_rows(props, items)
+}
+

@@ -1,3 +1,5 @@
+library(httr)
+
 #
 # Functions for API access to Epigraf
 #
@@ -27,7 +29,7 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
   token <- Sys.getenv("epi_apitoken")
   verbose <- Sys.getenv("epi_verbose") == "TRUE"
 
-  url <- parse_url(server)
+  url <- httr::parse_url(server)
   url$query$token <- token
 
   # Add query parameters
@@ -54,7 +56,7 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
     url$path <- paste0(endpoint, extension)
   }
 
-  url <- build_url(url)
+  url <- httr::build_url(url)
   if (verbose == "TRUE") {
     print(url)
   }
@@ -142,6 +144,9 @@ api_job_create <- function(endpoint, params, database, payload=NULL) {
 
   body <- content(resp)
   job_id <- purrr::pluck(body,"job_id",.default = NA)
+
+  error <- F
+  message <- NA
 
   # Request error
   if (resp$status_code != 200)

@@ -11,8 +11,13 @@ export(db_get_codings)
 export(db_name)
 export(db_setup)
 export(db_table)
+
 export(epi_create_iri)
 export(epi_text2article)
+export(epi_create_properties)
+export(epi_create_sections)
+export(epi_create_empty_items)
+export(epi_create_property_items)
 
 export(sm_canonical2epi)
 export(sm_cleanhtml)
