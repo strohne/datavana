@@ -4,7 +4,7 @@
 \alias{db_table}
 \title{Get tables from a database}
 \usage{
-db_table(table, db)
+db_table(table, db, deleted = FALSE)
 }
 \arguments{
 \item{table}{Table name}
