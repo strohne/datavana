@@ -6,6 +6,10 @@ export(api_buildurl)
 export(api_job_create)
 export(api_job_execute)
 
+export(api_patch_properties)
+export(api_patch_sections)
+export(api_patch_items)
+
 export(db_connect)
 export(db_get_codes)
 export(db_get_codings)
@@ -13,6 +17,9 @@ export(db_name)
 export(db_setup)
 export(db_table)
 
+
+export(epi_is_irifragment)
+export(epi_is_iripath)
 
 export(epi_create_iri)
 export(epi_text2article)

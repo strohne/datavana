@@ -1,5 +1,3 @@
-library(httr)
-
 #
 # Functions for API access to Epigraf
 #
@@ -7,7 +5,7 @@ library(httr)
 
 #' Save API connection settings to environment variables.
 #' @param apiserver URL of the Epigraf server (including https-protocol)
-#' @param  apitoken Access token
+#' @param apitoken Access token
 #' @param verbose Show debug messages and the built URLs
 #' @export
 api_setup <- function(apiserver, apitoken, verbose=F) {
@@ -65,16 +63,6 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
 
 }
 
-#' Merge list elements by their name
-#'
-#'@param l A list of lists to merge
-#'@return A merged list
-#'@export
-merge_lists <- function(l) {
-  keys <- unique(unlist(lapply(l, names)))
-  l <- setNames(do.call(mapply, c(FUN=c, lapply(l, `[`, keys))), keys)
-  as.list(l)
-}
 
 #' Download tabular data
 #'
@@ -180,13 +168,12 @@ api_job_create <- function(endpoint, params, database, payload=NULL) {
 
   # 2. Execute job
   api_job_execute(job_id)
-
 }
 
 #' Execute a job
 #'
 #' @param job_id The job ID
-#' @return void
+#' @return Whether the job was finished without error.
 #' @export
 api_job_execute <- function(job_id) {
   verbose <- Sys.getenv("epi_verbose") == "TRUE"
@@ -258,4 +245,117 @@ api_job_execute <- function(job_id) {
     }
 
   }
+
+  return (invisible((polling == F) & (error == F)))
 }
+
+#' Patch properties
+#'
+#' Update properties in the database using the API.
+#' Existing properties will be updated, missing properties will be created.
+#'
+#' @param database The database name
+#' @param propertytype The property type (character)
+#' @param lemmata A vector of lemmata (character).
+#' @param irifragments Optional. A vector of IRI fragments (character).
+#' @export
+api_patch_properties <- function(database, propertytype, lemmata, irifragments=NA){
+  properties <- epi_create_properties(propertytype, lemmata, NA, irifragments)
+  api_job_create("articles/import", NA, database,list(data=properties))
+}
+
+#' Patch sections
+#'
+#' Update sections in the database using the API.
+#' Existing sections will be updated, missing sections will be created.
+#' Section IRI fragments will be derived from the article IRI fragments.
+#'
+#' @param database The database name
+#' @param sections A dataframe with the columns
+#'                 article (must be a a valid IRI path) and
+#'                 section (either a valid IRI path or a section type)
+#'                 Additional columns such as name will be written to the section.
+#' @export
+api_patch_sections <- function(sections, database) {
+
+  stopifnot(epi_is_iripath(sections$article, "articles"))
+
+  # Article IRI path
+  sections <- sections %>%
+    rename(id=section,articles_id=article)
+
+  # Section IRI path
+  if (!all(epi_is_iripath(sections$id, "sections"))) {
+    sections <- sections %>%
+      mutate(articles_iri = str_extract(articles_id,"[^/]+$")) %>%
+      mutate(id = paste0("sections/", id, "/",articles_iri)) %>%
+      select(-articles_iri)
+  }
+  stopifnot(epi_is_iripath(sections$id, "sections"))
+
+  sections <- sections %>%
+    select(id, articles_id, everything()) %>%
+    na.omit()
+
+  api_job_create("articles/import", NA, database,list(data=sections))
+}
+
+
+
+#' Patch items
+#'
+#' Existing items will be updated, missing items will be created.
+#' The section IRI fragments and the item IRI iri fragments will be derived from the
+#' article IRI fragments. The item IRI will be suffixed by the sortno value (default=1).
+#'
+#' @param items Dataframe with the columns
+#'              article (must be a valid IRI path),
+#'              section (either a valid IRI path or a section type),
+#'              item (the item type).
+#'              sortno (to address multiple items in a section, optional, defaults to 1)
+#'              Additional columns such as properties_id or value will be
+#'              written to the item.
+#' @param database The database name
+#' @export
+api_patch_items <- function(items, database) {
+
+  stopifnot(epi_is_iripath(items$article, "articles"))
+  stopifnot(stringr::str_detect(items$item, "^[a-z0-9_-]+$"))
+
+  items <- items %>%
+    rename(
+      articles_id=article,
+      sections_id=section,
+      itemtype=item
+    )
+
+
+  if (! "sortno" %in% colnames(items)) {
+    items$sortno <- 1
+  }
+
+  # Section IRI path
+  if (!all(epi_is_iripath(items$sections_id, "sections"))) {
+    items <- items %>%
+      mutate(articles_iri = str_extract(articles_id,"[^/]+$")) %>%
+      mutate(sections_id = paste0("sections/", sections_id, "/",articles_iri)) %>%
+      select(-articles_iri)
+  }
+
+  stopifnot(epi_is_iripath(items$sections_id, "sections"))
+
+  items <- items %>%
+    mutate(
+      articles_iri = str_extract(articles_id,"[^/]+$"),
+      norm_iri = paste0(articles_iri,"~",sortno),
+      id = paste0("items/", itemtype, "/",norm_iri),
+    ) %>%
+    select(-itemtype,-norm_iri,-articles_iri) %>%
+    select(id, sections_id, articles_id, everything()) %>%
+    na.omit()
+
+  stopifnot(epi_is_iripath(items$sections_id, "sections"))
+
+  api_job_create("articles/import", NA, database,list(data=items))
+}
+

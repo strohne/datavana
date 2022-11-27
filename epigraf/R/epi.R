@@ -71,8 +71,40 @@ epi_create_iri <- function(table, type, fragment) {
   paste0(
     table, "/",
     ifelse(is.na(type),"",paste0(type, "/")),
-    str_to_lower(str_remove_all(fragment,"[^a-zA-Z0-9_-]"))
+    str_remove_all(str_to_lower(fragment),"[^a-z0-9_~-]")
   )
+}
+
+#' Check whether the provided vector contains a valid IRI path
+#'
+#' @param iripath The vector that will be proofed
+#' @param table Check whether the path contains the table. Leave empty to allow all tables.
+#' @param type Check whether the path contains the type.  Leave empty to allow all types.
+#' @export
+epi_is_iripath <- function(iripath, table=NA, type=NA) {
+
+  if (is.na(table)) {
+    table <- "(projects|articles|sections|items|properties)"
+  }
+
+  if (is.na(type)) {
+    type <- "([a-z0-9_-]+)"
+  }
+
+  fragment <- "([a-zA-Z0-9_~-]+)"
+
+  stringr::str_detect(iripath,paste0("^",table,"/",type,"/",fragment,"$"))
+
+}
+
+
+#' Check whether the provided vector contains a valid IRI fragment
+#'
+#' @param iripath The vector that will be proofed
+#' @export
+epi_is_irifragment <- function(irifragment) {
+  stringr::str_detect(irifragment,"^[a-z0-9_~-]+$")
+
 }
 
 # Export to Epi
@@ -81,10 +113,10 @@ epi_create_iri <- function(table, type, fragment) {
 #'
 #' Creates properties table.
 #'
-#' @param propertytype A string containing the name of the property
-#' @param lemmata A string with one lemma or a list of lemmata
-#' @param names A string with the name of the lemma - optional
-#' @param irifragments A string with the irifragment - optional
+#' @param propertytype The property type (character)
+#' @param lemmata A vector of lemmata (character).
+#' @param names Optional. A vector of  names (character).
+#' @param irifragments Optional. A vector of IRI fragments (character).
 #' @export
 epi_create_properties <- function(propertytype, lemmata, names=NA, irifragments=NA){
 
@@ -126,6 +158,7 @@ epi_create_properties <- function(propertytype, lemmata, names=NA, irifragments=
 #'
 #' @param data A data frame containing the columns articletype and norm_iri
 #' @param sectiontype A string with the sectiontype
+#' @param name The section name. Leave empty to use the name defined in the Epigraf domain model.
 #' @export
 epi_create_sections <- function(data, sectiontype, name=NA){
   tibble(
