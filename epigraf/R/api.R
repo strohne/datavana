@@ -74,6 +74,9 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
 #' @export
 api_table <- function(table, params=c(), db, maxpages=1) {
 
+  verbose <- Sys.getenv("epi_verbose") == "TRUE"
+
+
   data = data.frame()
   page = 1
 
@@ -83,18 +86,46 @@ api_table <- function(table, params=c(), db, maxpages=1) {
     url = api_buildurl(table, params, db, "csv")
 
     print (paste0("Fetching page ", page ," from ", table,"."))
+    message <- NA
 
     rows <- tryCatch(
       {
-        rows <- read_delim(url, delim=";", show_col_types=F)
+
+        if (verbose)  {
+          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"))
+        } else {
+          resp <- GET(url)
+        }
+
+
+        if (resp$status_code == 200) {
+          body <- content(resp,as="text")
+          rows <- read_delim(I(body), delim=";", show_col_types=F)
+        }
+
+        else if (resp$status_code == 404) {
+          message <- "No more data found."
+          rows <- data.frame()
+        }
+
+        else {
+          rows <- data.frame()
+          message <- content(resp)
+        }
+
+        rows
       },
       error=function(msg) {
-        print(msg)
-        return(NA)
+        message <- msg
+        data.frame()
       }
     )
 
-    if (!is.na(rows) && (nrow(rows) > 0)) {
+    if (!is.na(message)) {
+      print(message)
+    }
+
+    if (nrow(rows) > 0) {
       data <- bind_rows(data, rows)
       fetchmore <- (page < maxpages)
       page <- page + 1
