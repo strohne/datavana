@@ -1,8 +1,8 @@
 ---
-title: "query_statistics"
+title: "statistics"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{query_statistics}
+  %\VignetteIndexEntry{statistics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

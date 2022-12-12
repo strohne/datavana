@@ -343,6 +343,7 @@ tree_add_mptt <- function(.data) {
 
 
 #' Add a column holding the path of each node.
+#'
 #' The path is created by concatenating all col_lemma values up to the root node.
 #' Lemmata are concatenated using a slash - existing slashes are replaced by the entity &#47;.
 #'
@@ -392,10 +393,12 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
 }
 
 
-#' Create tree IDs - disambiguate IDs of different node types to avoid collision between IDs
+#' Create tree IDs
 #'
-#' TODO: test and refine
+#' @description
+#' Disambiguate IDs of different node types to avoid collision between IDs.
 #'
+#' @details
 #' @param id Column holding the ID of the node
 #' @param parent Column holding the parent ID of the node
 #' @param type Column holding the type of the node. Every level needs a different type, e.g. "page", "post", "comment" or "reply".

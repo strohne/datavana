@@ -21,3 +21,6 @@ tree_disambiguate_ids(.data, id, parent, type, levels)
 \description{
 TODO: test and refine
 }
+\details{
+Work in progress
+}

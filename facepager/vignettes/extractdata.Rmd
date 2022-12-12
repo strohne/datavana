@@ -1,8 +1,8 @@
 ---
-title: "node_statistics"
+title: "extractdata"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{node_statistics}
+  %\VignetteIndexEntry{extractdata}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

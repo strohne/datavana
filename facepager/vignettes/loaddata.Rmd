@@ -1,10 +1,10 @@
 ---
-title: "load_data"
+title: "loaddata"
 output: rmarkdown::html_vignette
 description: >
-  This vignette explains the different ways that the facepageR package offers to load and prepare data collected using Facepager.
+  This vignette explains the different ways that the facepager package offers to load and prepare data collected using Facepager.
 vignette: >
-  %\VignetteIndexEntry{load_data}
+  %\VignetteIndexEntry{loaddata}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -28,6 +28,7 @@ As with all other packages you'll have to install the package and load the libra
 # install_github("strohne/datavana/facepager")
 library(facepager)
 
+
 ```
 
 Now you can access the various functions that allow you to read data. Depending on the format of your data, you can use different functions. In total you can load the following data types:
@@ -47,12 +48,6 @@ Now you can access the various functions that allow you to read data. Depending 
 ```{r}
 data <- fp_read_csv2(system.file("extdata", "example.csv", package = "facepager"))
 
-# Reconstruct tree variables 
-# (omit the seed nodes, otherwise they will be the root of the threads)
-threads <- data %>% 
-  filter(level > 0) %>% 
-  tree_add_level(id, parent_id, created_time)  %>% 
-  tree_add_mptt()
 ```
 
 However, you do not have to export your data collected with Facepager as a csv file.
@@ -70,7 +65,6 @@ data <- fp_load_database(system.file("extdata", "example.db", package = "facepag
 data <- fp_parse_response_data(data)
 
 ```
-
 
 In case you have performed several data collections with Facepager and accordingly have several .db files, you can load them easily with `fp_loaddatabases()` at the same time.This way you get one big combined dataset instead of loading the Facepager databases individually.
 
