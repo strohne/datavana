@@ -78,17 +78,6 @@ fp_load_databases <- function(filenames, fields="*", rename=TRUE) {
       )
   }
 
-  if (rename) {
-    data <- data %>%
-      rename(
-        object_id=objectid,
-        object_type=objecttype,
-        query_status=querystatus,
-        query_type=querytype,
-        query_time=querytime,
-        query_params = queryparams
-      )
-  }
 
   .progress$stop()$print()
 
