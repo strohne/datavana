@@ -1,44 +1,3 @@
-
-#' Load a complete Facepager database
-#' @param filename Name of the Facepager database, e.g. "posts.db".
-#' @param fields A character vector of fields to load or "*" to load all fields.
-#'               Possible candidates are:
-#'               objectid, objecttype, querystatus, querytype, querytime, queryparamse
-#'               id, parent_id, level, childcount, response.
-#' @param rename Rename the columns to match the names in Facepager's CSV files
-#' @param shard When loading multiple databases, give the ids a prefix. This way, the same numerical IDs from different databases don't come into conflict.
-#' @return A data frame containing the data of the database
-#' @examples
-#' @export
-fp_load_database <- function(filename, fields="*", rename=TRUE, shard=NA) {
-
-  # Load data
-  data <- fp_load_nodes(filename, fields, rename)
-
-  if (!is.na(shard)) {
-    data <- data %>%
-      mutate(
-        id = paste0(shard, "_", id),
-        parent_id = ifelse(is.na(parent_id), NA, paste0(shard,"_",parent_id))
-      )
-  }
-
-  if (rename) {
-    data <- data %>%
-      rename(
-        object_id=objectid,
-        object_type=objecttype,
-        query_status=querystatus,
-        query_type=querytype,
-        query_time=querytime,
-        query_params = queryparams
-      )
-  }
-
-  return (data)
-}
-
-
 #' Load all nodes from a Facepager database
 #' @import RSQLite
 #' @param filename Name of the Facepager database, e.g. "post.db"
@@ -52,9 +11,8 @@ fp_load_database <- function(filename, fields="*", rename=TRUE, shard=NA) {
 #' @param shard When loading multiple databases, give the ids a prefix. This way, the same numerical IDs from different databases don't come into conflict.
 #' @return A data frame containing the data of the selected fields of the fp database.
 #' @examples
-
 #' @export
-fp_load_nodes <- function(filename, fields = '*', rename=T, .progress=NULL, shard=NA) {
+fp_load_database <- function(filename, fields = '*', rename=T, .progress=NULL, shard=NA) {
   db.con = dbConnect(RSQLite::SQLite(), dbname=filename,flags=SQLITE_RO)
 
   fields <- paste0(fields, collapse=",")
@@ -110,7 +68,7 @@ fp_load_databases <- function(filenames, fields="*", rename=TRUE) {
 
   # Load data
   shard=ifelse(length(filenames) > 0,"file", NULL)
-  data <- purrr::map_df(filenames,fp_load_nodes, fields, rename, .id=shard, .progress=.progress)
+  data <- purrr::map_df(filenames,fp_load_database, fields, rename, .id=shard, .progress=.progress)
 
   if (length(filenames) > 0) {
     data <- data %>%
