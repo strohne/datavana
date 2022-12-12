@@ -20,6 +20,7 @@ export(db_table)
 
 export(epi_is_irifragment)
 export(epi_is_iripath)
+export(epi_clean_irifragment)
 
 export(epi_create_iri)
 export(epi_text2article)
@@ -56,6 +57,8 @@ export(merge_lists)
 export(parse_json)
 export(unescape_html)
 
+import(tidyverse)
 import(tidygraph)
 importFrom(jsonlite,stream_in)
+import(RMySQL)
 

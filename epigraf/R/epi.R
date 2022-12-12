@@ -71,8 +71,28 @@ epi_create_iri <- function(table, type, fragment) {
   paste0(
     table, "/",
     ifelse(is.na(type),"",paste0(type, "/")),
-    str_remove_all(str_to_lower(fragment),"[^a-z0-9_~-]")
+    epi_clean_irifragment(fragment)
   )
+}
+
+
+#' Create a clean IRI fragment
+#'
+#' Replaces all non alphanumeric characters by hyphens
+#' and converts the input to lowercase
+#'
+#' @param iri The dirty IRI fragment that will be cleaned
+#' @export
+epi_clean_irifragment <- function(fragment) {
+  fragment %>%
+    str_to_lower() %>%
+    str_replace_all(
+      c("ä"="ae","ö"="oe","ü"="ue","ß"="ss")
+    ) %>%
+    str_replace_all("[^a-z0-9_~-]","-") %>%
+    str_replace_all("-+","-") %>%
+    str_remove("^-") %>%
+    str_remove("-$")
 }
 
 #' Check whether the provided vector contains a valid IRI path

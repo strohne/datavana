@@ -84,6 +84,7 @@ api_table <- function(table, params=c(), db, maxpages=1) {
   while (fetchmore) {
     params["page"] <- page
     url = api_buildurl(table, params, db, "csv")
+    ext <- ".csv"
 
     print (paste0("Fetching page ", page ," from ", table,"."))
     message <- NA
@@ -92,16 +93,17 @@ api_table <- function(table, params=c(), db, maxpages=1) {
       {
 
         if (verbose)  {
-          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"))
+          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"), accept(ext))
         } else {
-          resp <- GET(url)
+          resp <- GET(url, accept(ext))
         }
 
 
         if (resp$status_code == 200) {
           body <- content(resp,as="text")
-          rows <- read_delim(I(body), delim=";", show_col_types=F)
+          rows <- read_delim(I(body), delim=";", col_types = cols(.default = col_character()))
         }
+
 
         else if (resp$status_code == 404) {
           message <- "No more data found."
@@ -110,7 +112,7 @@ api_table <- function(table, params=c(), db, maxpages=1) {
 
         else {
           rows <- data.frame()
-          message <- content(resp)
+          message <- paste0("Error ",resp$status_code,": ", content(resp))
         }
 
         rows
@@ -136,6 +138,7 @@ api_table <- function(table, params=c(), db, maxpages=1) {
 
   print (paste0("Fetched ", nrow(data) ," records from ", table,"."))
 
+  data <- type_convert(data)
   data
 }
 
@@ -293,6 +296,27 @@ api_job_execute <- function(job_id) {
 api_patch_properties <- function(database, propertytype, lemmata, irifragments=NA){
   properties <- epi_create_properties(propertytype, lemmata, NA, irifragments)
   api_job_create("articles/import", NA, database,list(data=properties))
+}
+
+
+#' Patch articles
+#'
+#' Update articles in the database using the API.
+#' Existing articles will be updated, missing articles will be created.
+#'
+#' @param sections A dataframe with the column id (must be a a valid IRI path).
+#'                 Additional columns such as norm_data will be written to the article#' @param database The database name
+#' @export
+api_patch_articles <- function(articles, database) {
+
+  stopifnot(epi_is_iripath(articles$id, "articles"))
+
+  # Article IRI path
+  articles <- articles %>%
+    select(id, everything()) %>%
+    na.omit()
+
+  api_job_create("articles/import", NA, database,list(data=articles))
 }
 
 #' Patch sections

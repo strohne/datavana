@@ -1,7 +1,3 @@
-# Packages
-library(RMySQL)
-library(tidyverse)
-
 #' Save database connection settings to environment variables.
 #' Environment variables are prefixed with "epi_" and used in db_connect()
 #' to establish the connection.
@@ -54,13 +50,30 @@ db_name <- function(con) {
 }
 
 
+#' Get list of all databases
+#'
+#' @param epi Only keep databases with the epi-prefix.
+#' @export
+db_databases <- function(epi = FALSE) {
+  con <- db_connect()
+  dbs = dbGetQuery(con,"SHOW DATABASES;")
+  dbDisconnect(con)
+  rm(con)
+
+  if (epi) {
+    dbs <- filter(dbs, str_starts(Database,"epi_"))
+  }
+
+  return(dbs)
+}
+
+
 #
 #' Get tables from a database
 #'
 #' @param db A connection object (object) or the database name (character)
 #' @param table Table name
 #' @export
-
 db_table <- function(table, db, deleted=FALSE){
   # Check if db is character --> open db connection
   if (is.character(db)){
@@ -188,7 +201,6 @@ db_get_codings <- function(db){
 #'          The property types are added as root nodes
 #'          and if the lemma is empty, it is replaced by the name
 #' @export
-
 db_get_codes <- function(db){
 
   # Check if db is character --> open db connection
