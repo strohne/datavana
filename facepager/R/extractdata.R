@@ -137,7 +137,7 @@ fp_children <- function(.data, col_target=NA,col_paging=NA,col_created=NA,timest
 }
 
 #' Helper function for fp_children()
-#'
+#' @rdname fp_children
 #' @export
 fp_coverage <- function(.data, col_target, .parents=NA, level=0) {
 
@@ -195,7 +195,7 @@ fp_coverage <- function(.data, col_target, .parents=NA, level=0) {
 
 
 #' Helper function for fp_children()
-#'
+#' @rdname fp_children
 #' @export
 fp_paging <- function(.data, col_paging,.parents=NA,level=0) {
 
@@ -235,6 +235,7 @@ fp_paging <- function(.data, col_paging,.parents=NA,level=0) {
 
 
 #' helper function for fp_children()
+#' @rdname fp_children
 #' @export
 fp_created <- function(.data, col_created,timestamp=FALSE,.parents=NA,level=0) {
   # Erstes und letztes Post auslesen

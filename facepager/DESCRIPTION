@@ -21,7 +21,8 @@ Imports:
   tidyr, 
   purrr,
   tidygraph,
-  tokenizers
+  tokenizers,
+  jsonlite
 Suggests:
   testthat (>= 3.0.0),
   knitr,

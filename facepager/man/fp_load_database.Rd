@@ -33,3 +33,6 @@ A data frame containing the data of the selected fields of the fp database.
 \description{
 Load all nodes from a Facepager database
 }
+\examples{
+data_db <- fp_load_database(system.file("extdata", "example.db", package = "facepager"))
+}

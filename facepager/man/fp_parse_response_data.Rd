@@ -30,3 +30,7 @@ As you can see in the loaded data,
 most of your data is in JSON format in the response column.
 Therefore you need to convert the JSON data in the response to columns of a data frame.
 }
+\examples{
+data_db <- fp_load_database(system.file("extdata", "example.db", package = "facepager"))
+data_db <- fp_parse_response_data(data_db)
+}

@@ -2,6 +2,7 @@
 % Please edit documentation in R/statistics.R
 \name{fp_nodesperseed}
 \alias{fp_nodesperseed}
+\alias{fp_addseed}
 \title{get the number of childnodes for each seed for a certain period of time}
 \usage{
 fp_nodesperseed(
@@ -11,6 +12,8 @@ fp_nodesperseed(
   prefix = NA,
   col_seed = NULL
 )
+
+fp_addseed(.data)
 }
 \arguments{
 \item{.data}{the loaded data from Facepager}
@@ -28,4 +31,6 @@ a tibble ..?
 }
 \description{
 get the number of childnodes for each seed for a certain period of time
+
+helper function for fp_nodesperseed()
 }

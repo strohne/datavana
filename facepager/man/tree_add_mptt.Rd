@@ -11,9 +11,6 @@ tree_add_mptt(.data)
 \item{data}{Dataframe with the columns tree_id, tree_parent, tree_thread, tree_level, tree_order
 TODO: parameters?}
 }
-\value{
-
-}
 \description{
 Adds left and right values to the dataframe (modified preorder tree traversal)
 See https://www.sitepoint.com/hierarchical-data-database-3/

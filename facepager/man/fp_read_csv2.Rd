@@ -17,3 +17,6 @@ a tibble containing the data of the csv file
 \description{
 Load a CSV file
 }
+\examples{
+data <- fp_read_csv2(system.file("extdata", "example.csv", package = "facepager"))
+}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/trees.R
 \name{tree_disambiguate_ids}
 \alias{tree_disambiguate_ids}
-\title{Create tree IDs - disambiguate IDs of different node types to avoid collision between IDs}
+\title{Create tree IDs}
 \usage{
 tree_disambiguate_ids(.data, id, parent, type, levels)
 }
@@ -15,12 +15,6 @@ tree_disambiguate_ids(.data, id, parent, type, levels)
 
 \item{levels}{The hierarchy of the types, e.g. c("page","post","comment","reply")}
 }
-\value{
-
-}
 \description{
-TODO: test and refine
-}
-\details{
-Work in progress
+Disambiguate IDs of different node types to avoid collision between IDs.
 }

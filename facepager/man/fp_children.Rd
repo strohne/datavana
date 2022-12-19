@@ -2,6 +2,9 @@
 % Please edit documentation in R/extractdata.R
 \name{fp_children}
 \alias{fp_children}
+\alias{fp_coverage}
+\alias{fp_paging}
+\alias{fp_created}
 \title{Get the collected data per Object ID}
 \usage{
 fp_children(
@@ -12,6 +15,12 @@ fp_children(
   timestamp = F,
   level = 0
 )
+
+fp_coverage(.data, col_target, .parents = NA, level = 0)
+
+fp_paging(.data, col_paging, .parents = NA, level = 0)
+
+fp_created(.data, col_created, timestamp = FALSE, .parents = NA, level = 0)
 }
 \arguments{
 \item{.data}{the loaded data from Facepager}
@@ -32,4 +41,10 @@ a tibble with ?
 }
 \description{
 Get the collected data per Object ID
+
+Helper function for fp_children()
+
+Helper function for fp_children()
+
+helper function for fp_children()
 }

@@ -13,9 +13,6 @@ fp_extracttags(data, col_text, prefix = NA)
 
 \item{prefix=NA}{when transformatting, the values are not prefixed with a character}
 }
-\value{
-
-}
 \description{
 get tags (urls, mentions, hashtags)
 }

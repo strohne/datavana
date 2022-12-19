@@ -3,7 +3,7 @@
 #' @param filename name of the CSV file you want to load
 #' @param na define missing values as string 'None'
 #' @return a tibble containing the data of the csv file
-#' @examples
+#' @examples data <- fp_read_csv2(system.file("extdata", "example.csv", package = "facepager"))
 #' @export
 fp_read_csv2 <- function(filename) {
   read_csv2(filename, na=c("None",""))
@@ -21,7 +21,7 @@ fp_read_csv2 <- function(filename) {
 #' @param shard When loading multiple databases, give the ids a prefix. This way, the same numerical IDs from different databases don't come into conflict.
 #' @param .progress progress bar displays estimated time remaining#'
 #' @return A data frame containing the data of the selected fields of the fp database.
-#' @examples
+#' @examples data_db <- fp_load_database(system.file("extdata", "example.db", package = "facepager"))
 #' @export
 fp_load_database <- function(filename, fields = '*', rename=T, shard=NA, .progress=NULL) {
   db.con = dbConnect(RSQLite::SQLite(), dbname=filename,flags=SQLITE_RO)
@@ -104,7 +104,8 @@ fp_load_databases <- function(filenames, fields="*", rename=TRUE) {
 #' @param prefix name of the columns
 #' @return A data frame containing the data of the Facepager database
 #'  with all response data as own columns
-#' @examples
+#' @examples data_db <- fp_load_database(system.file("extdata", "example.db", package = "facepager"))
+#' data_db <- fp_parse_response_data(data_db)
 #' @export
 fp_parse_response_data <- function (nodes, plain = F, prefix="response.") {
   responses = fp_from_ndjson(nodes$response)

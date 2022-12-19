@@ -162,6 +162,7 @@ fp_nodesperseed <- function(.data,col_created,daterange=NULL,prefix=NA,col_seed=
 
 
 #' helper function for fp_nodesperseed()
+#' @rdname fp_nodesperseed
 #' @import dplyr
 #' @export
 fp_addseed <- function(.data) {
