@@ -1,0 +1,76 @@
+# Epigraf Package 
+
+## Why using Epigraf package? 
+
+The Epigraf package aims to make data work with [Epigraf](https://epigraf.inschriften.net/) easier. 
+Therefore it provides functions accessing Epigrafs API, preparing data for import into epigraf article format, and buliding and structering social media datasets. 
+
+## Installation 
+
+```
+library(devtools)
+install_github("strohne/datavana/epigraf")
+```
+## Accssesing Epigrafs API 
+
+| Function | Description |
+| -------- | ----------- |
+|`api_setup()` |
+| `api_buildurl()` |
+| `api_table()`  |
+| `api_job_create()` |
+| `api_job_execute()`  |
+| `api_patch_properties()` | 
+| `api_patch_articles()` | 
+| `api_patch_sections()` |
+| `api_patch_items()` |
+
+### Example
+
+## Epi functions: Converting data into epigraf article format 
+
+| Function | Description |
+| -------- | ----------- |
+| `epi_text2article()` |
+| `epi_create_iri()` |
+| `epi_clean_irifragment()`  |
+| `epi_is_iripath()` |
+| `epi_is_irifragment()`  |
+| `epi_create_properties()` | 
+| `epi_create_sections()` | 
+| `epi_create_empty_items()` |
+| `epi_create_property_items()` |
+
+### Example 
+
+## Working with social media datasets 
+
+We define the canonical form of a social media dataset as a table where each row is a post, comment or reply with the following columns:
+
+| Column          | Description                                                                                                                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sample\_name    | Give your sample a name, e.g. "sample1".                                                                                                                                                                        |
+| sample\_no      | The case number in your sample, e.g. 3.                                                                                                                                                                         |
+| platform        | The platform of the message, e.g. "Instagram".                                                                                                                                                                  |
+| msg\_type       | The message type, one of "page", "post", "comment" or "reply".                                                                                                                                                          |
+| tree\_thread    | All messages in a thread share the ID of of the initial post. You can use the platform specific ID, e.g. "B4fjlLNiWjW".                                                                                         |
+| tree\_id        | The platform specific ID of the message, e.g. "B4fjlLNiWjW".                                                                                                                                                    |
+| tree\_parent    | The platform specific ID of the parent message. The parent of a reply is its comment, the parent of the comment is its post and the parent of the post is the page (or stays empty). E.g. "B4fjlLNiWjW".        |
+| tree\_pos       | The number of the message in the thread, e.g. 117. In a sample, you usually don't include all messages of a thread. Based on the number you can see, how many messages come before or after a comment or reply. |
+| tree\_level        | The level of the message, beginning with pages on level 0, posts on level 1, comments on level 2 and replies on all deeper levels |
+| caption         | Caption of the post, comment or reply.                                                                                                                                                                          |
+| text            | Text of the post, comment or reply.                                                                                                                                                                             |
+| created         | Date and time the message was created in UTC-format, e.g. "2019-11-05T18:01:41Z".                                                                                                                               |
+| link            | A link to the original message, this helps you navigating to the platform.                                                                                                                                      |
+| author\_id      | A platform specific ID of the message author (you can anonymize it with the epigraf package).                                                                                                                   |
+| author\_name    | The name of the message author (you can anonymize it with the epigraf package).                                                                                                                                 |
+| tags            | A semicolon separated list of hastags or other tags you want to attach to the message. The tags can be used to filter messages in Epigraf.                                                                      |
+| count\_likes    | The number of likes the message received.                                                                                                                                                                       |
+| count\_dislikes | The number of dislikes the message received.                                                                                                                                                                    |
+| count\_shares   | The number of times the message was shared.                                                                                                                                                                     |
+| count\_comments | The number of answerts to the message.            
+| seed\_domain    | Give the pages that are provided by the same user or organization on different platforms a common name. For news outlets, as an example, the internet domain is a reasonable choice.                            |
+| seed\_handle    | The handle of the page or user profile where the thread started, e.g. the Twitter handle of a news outlet.                                                                                                      |
+
+### Example 
+
