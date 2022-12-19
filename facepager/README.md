@@ -20,7 +20,7 @@ Now you can access the various functions of the facepager package that allow you
 * certain columns from a Facepager database
 
 
-#### Example script to load different files
+### Example script to load different files
 
 *Please note that the system.file workaround is only used here to be able to use the example data of the package. Normally it is possible to read the data in the usual way only with the filename.*
 
@@ -56,7 +56,7 @@ Now you can access the various functions that allow you to go deeper into the di
 
 As you may already know, Facepager always collects data on multiple levels, also called [parent and child levels](https://github.com/strohne/Facepager/wiki/URLs,-Placeholders,-Nodes-and-Keys#nodes). The following functions mostly refer to these terms.
 
-#### Possible functions for data extraction
+### Possible functions for data extraction
 
 | Function | Description |
 | -------- | ----------- |
@@ -67,7 +67,7 @@ As you may already know, Facepager always collects data on multiple levels, also
 | `fp_extracttags()`: Get the tags included in the nodes (urls, mentions, hashtags) | Passt die Funktion wirklich hier hin? |
 
 
-#### Example script to extract data
+### Example script to extract data
 
 ```
 # get number of all child nodes (without duplicates)
@@ -94,7 +94,7 @@ fp_extracttags(data)
 Another bundle of functions from the Facepager Package concern the query itself. With these functions you get data with which you can evaluate the quality of the Facepager collection.
 
 
-#### Get status details of the query with `fp_status()`
+### Get status details of the query with `fp_status()`
 
 With `fp_status()` you can get a first overview of your query and its results.
 
@@ -108,7 +108,7 @@ With `fp_status()` you can get a first overview of your query and its results.
 fp_status(data_db)
 ```
 
-#### Get requests per minute with `fp_timing()`
+### Get requests per minute with `fp_timing()`
 
 Especially if you are conducting surveys over a long period of time, it can be useful to get an overview over time as well. With `fp_timing()` you get details and plots about the time distribution of the requests.
 
@@ -125,7 +125,7 @@ fp_timing(data_db)
 ```
 
 
-#### Get the number of childnodes for each seed for a certain period of time with `fp_nodesperseed()`
+### Get the number of childnodes for each seed for a certain period of time with `fp_nodesperseed()`
 
 If you want to look more closely at a certain period of time, you can use `fp_nodesperseed()`. This function makes it possible to specify an exact daterange (e.g. `daterange = ymd(c("2019-11-01","2020-02-01"),tz="Europe/Berlin"`) and get exactly for it the children per parent (without duplicates).
 
@@ -137,7 +137,7 @@ fp_nodesperseed(data,
 
 ```
 
-#### Evaluate duplicates on different node levels with `fp_duplicates()`
+### Evaluate duplicates on different node levels with `fp_duplicates()`
 
 If you want to check how many unique/duplicate nodes were collected, you can use `fp_duplicates()`. This function extracts duplicates at three different levels:
 
