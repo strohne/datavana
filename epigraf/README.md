@@ -13,37 +13,14 @@ install_github("strohne/datavana/epigraf")
 ```
 ## Accssesing Epigrafs API 
 
-| Function | Description |
-| -------- | ----------- |
-|`api_setup()` |
-| `api_buildurl()` |
-| `api_table()`  |
-| `api_job_create()` |
-| `api_job_execute()`  |
-| `api_patch_properties()` | 
-| `api_patch_articles()` | 
-| `api_patch_sections()` |
-| `api_patch_items()` |
-
 ### Example
 
 ## Epi functions: Converting data into epigraf article format 
 
-| Function | Description |
-| -------- | ----------- |
-| `epi_text2article()` |
-| `epi_create_iri()` |
-| `epi_clean_irifragment()`  |
-| `epi_is_iripath()` |
-| `epi_is_irifragment()`  |
-| `epi_create_properties()` | 
-| `epi_create_sections()` | 
-| `epi_create_empty_items()` |
-| `epi_create_property_items()` |
-
 ### Example 
 
 ## Working with social media datasets 
+
 
 We define the canonical form of a social media dataset as a table where each row is a post, comment or reply with the following columns:
 
