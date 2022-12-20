@@ -4,7 +4,6 @@
 #' @param data the loaded data from Facepager
 #' @return a tibble with 5 columns: level, query_type, query_status, object_type  and n
 #' @examples
-#' fp_status(data)
 #' @export
 fp_status <- function(data) {
   data %>%
@@ -24,7 +23,6 @@ fp_status <- function(data) {
 #' @return a list with Start, End, Duration, Active hours, Active minutes and Requests per day
 #'  a line plot with requests per minute as yvalue and the time es xvalue
 #' @examples
-#' fp_timing(data)
 #' @export
 fp_timing <- function(data, f.objecttype="data", f.querystatus="fetched (200)") {
 
@@ -82,7 +80,7 @@ return(pl)
 }
 
 
-#' Get the number of childnodes for each seed for a certain period of time
+#' get the number of childnodes for each seed for a certain period of time
 #' @import dplyr
 #' @importFrom rlang quo_is_null
 #' @param .data the loaded data from Facepager
@@ -92,7 +90,6 @@ return(pl)
 #' @param col_seed=NULL calculation is for each seed
 #' @return a tibble ..?
 #' @examples
-#' fp_nodesperseed(data, daterange = ymd(c("2022-11-01","2022-11-02"), tz="Europe/Berlin"), col_created = quo(created_time))
 #' @export
 fp_nodesperseed <- function(.data,col_created,daterange=NULL,prefix=NA,col_seed=NULL) {
   #For testing

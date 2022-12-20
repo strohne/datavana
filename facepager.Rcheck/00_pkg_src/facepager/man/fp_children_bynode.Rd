@@ -21,6 +21,3 @@ a boxplot
 \description{
 Get the number of childnodes for each node shown in Facepager
 }
-\examples{
-fp_children_bynode(data)
-}

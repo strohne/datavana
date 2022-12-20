@@ -2,7 +2,7 @@
 % Please edit documentation in R/extractdata.R
 \name{fp_extracttags}
 \alias{fp_extracttags}
-\title{Get tags included in the nodes}
+\title{get tags (urls, mentions, hashtags)}
 \usage{
 fp_extracttags(data, col_text, prefix = NA)
 }
@@ -13,12 +13,6 @@ fp_extracttags(data, col_text, prefix = NA)
 
 \item{prefix=NA}{when transformatting, the values are not prefixed with a character}
 }
-\value{
-Columns for the different tags: tags, urls, mentions, count_tags, count_urls, count_mentions, msg_length_chars, msg_length_words
-}
 \description{
-\code{fp_extracttags} can be used to extract all the tags like URLs, mentions or hashtags from the nodes
-}
-\examples{
-fp_extracttags(data, text)
+get tags (urls, mentions, hashtags)
 }

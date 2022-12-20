@@ -21,6 +21,3 @@ a tibble with 4 columns: parent_objectid, children, parent_no, file
 \description{
 Count the number of different children per Object ID (without duplicates).
 }
-\examples{
-fp_childcount(data)
-}

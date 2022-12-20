@@ -48,6 +48,3 @@ Helper function for fp_children()
 
 helper function for fp_children()
 }
-\examples{
-fp_children (data)
-}

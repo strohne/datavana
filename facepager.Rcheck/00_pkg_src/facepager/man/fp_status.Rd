@@ -16,6 +16,3 @@ a tibble with 5 columns: level, query_type, query_status, object_type  and n
 These details include the numbers of
 levels, query types, query status and object types.
 }
-\examples{
-fp_status(data)
-}

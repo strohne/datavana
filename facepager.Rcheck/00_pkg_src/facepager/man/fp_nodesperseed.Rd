@@ -3,7 +3,7 @@
 \name{fp_nodesperseed}
 \alias{fp_nodesperseed}
 \alias{fp_addseed}
-\title{Get the number of childnodes for each seed for a certain period of time}
+\title{get the number of childnodes for each seed for a certain period of time}
 \usage{
 fp_nodesperseed(
   .data,
@@ -30,10 +30,7 @@ fp_addseed(.data)
 a tibble ..?
 }
 \description{
-Get the number of childnodes for each seed for a certain period of time
+get the number of childnodes for each seed for a certain period of time
 
 helper function for fp_nodesperseed()
-}
-\examples{
-fp_nodesperseed(data, daterange = ymd(c("2022-11-01","2022-11-02"), tz="Europe/Berlin"), col_created = quo(created_time))
 }

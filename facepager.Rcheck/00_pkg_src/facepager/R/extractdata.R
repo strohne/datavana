@@ -5,6 +5,7 @@
 #' @param level=0 the node level
 #' @return a tibble with 3 columns: parent_id, parent_object, parent_no
 #' @examples
+#' data <- fp_read_csv2(system.file("extdata", "example.csv", package = "facepager"))
 #' fp_getparents(data)
 #' @export
 fp_getparents <- function(.data, level=0) {
@@ -36,15 +37,13 @@ fp_getparents <- function(.data, level=0) {
 }
 
 
-#' Get tags included in the nodes
+#' get tags (urls, mentions, hashtags)
 #' @import tokenizers
-#' @description `fp_extracttags` can be used to extract all the tags like URLs, mentions or hashtags from the nodes
 #' @param data the loaded data from Facepager
 #' @param col_text the column from which the tags should be extracted
 #' @param prefix=NA when transformatting, the values are not prefixed with a character
-#' @return Columns for the different tags: tags, urls, mentions, count_tags, count_urls, count_mentions, msg_length_chars, msg_length_words
+#' @return
 #' @examples
-#' fp_extracttags(data, text)
 #' @export
 fp_extracttags <- function(data, col_text, prefix=NA) {
   col_text <- enquo(col_text)
@@ -123,7 +122,6 @@ fp_extracttags <- function(data, col_text, prefix=NA) {
 #' @param level=0 the node level
 #' @return a tibble with ?
 #' @examples
-#' fp_children (data)
 #' @export
 fp_children <- function(.data, col_target=NA,col_paging=NA,col_created=NA,timestamp=F,level=0) {
 
@@ -298,7 +296,6 @@ fp_created <- function(.data, col_created,timestamp=FALSE,.parents=NA,level=0) {
 #' @return a tibble with 4 columns: parent_id, parent_no, parent_objectid, children
 #' @return a boxplot
 #' @examples
-#' fp_children_bynode(data)
 #' @export
 fp_children_bynode <- function(data, .global=T, .maxlevel=1) {
   # Für jeden Knoten so wie in Facepager angezeigt die Zahl
@@ -337,7 +334,6 @@ fp_children_bynode <- function(data, .global=T, .maxlevel=1) {
 #' @param level=0 the node level
 #' @return a tibble with 4 columns: parent_objectid, children, parent_no, file
 #' @examples
-#' fp_childcount(data)
 #' @export
 fp_childcount <- function(.data, .parents=NA, .silent=FALSE, level=0) {
   # .data <- data

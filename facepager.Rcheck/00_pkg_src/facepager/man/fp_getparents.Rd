@@ -18,5 +18,6 @@ a tibble with 3 columns: parent_id, parent_object, parent_no
 \code{fp_getparents()} can be used to get details about the parents.
 }
 \examples{
+data <- fp_read_csv2(system.file("extdata", "example.csv", package = "facepager"))
 fp_getparents(data)
 }

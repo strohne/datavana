@@ -22,6 +22,3 @@ a line plot with requests per minute as yvalue and the time es xvalue
 \description{
 Get requests per minute
 }
-\examples{
-fp_timing(data)
-}
