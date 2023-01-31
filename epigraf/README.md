@@ -3,7 +3,7 @@
 ## Why using Epigraf package? 
 
 The Epigraf package aims to make data work with [Epigraf](https://epigraf.inschriften.net/) easier. 
-Therefore it provides functions accessing Epigrafs API, preparing data for import into epigraf article format, and buliding and structering social media datasets. 
+It provides functions for data transfer using the Epigraf APIs: preparing data imports, e.g. from social media datasets, and preparing data analyses.
 
 ## Installation 
 
@@ -11,18 +11,54 @@ Therefore it provides functions accessing Epigrafs API, preparing data for impor
 library(devtools)
 install_github("strohne/datavana/epigraf")
 ```
-## Accssesing Epigrafs API 
 
-### Example
+## Access via the API
 
-## Epi functions: Converting data into epigraf article format 
+The endpoints for accessing article data can be found in the [Epigraf help](https://epigraf.inschriften.net/help/epiweb-api). To get an access token for nonpublic data access follow the instructions in the help. After loading the Epigraf package, you configure the connection to the API:
 
-### Example 
+```
+library(epigraf)
+api_setup("https://epigraf.inschriften.net/", "MYACCESSTOKEN")
+```
+
+Note: If you are working as a developer in a local environment, use the URL https://127.0.0.1/. The api_setup()-function provides a third parameter for enabling debug output.
+
+If you get an "Error 401" when using the following methods, check your permissions.
+
+First, try to get an article list. The following method fetches articles (first parameter) without any further search filters (second parameter) from the database epi_public (third parameter). Results are paginated, depending on the endpoint you only get the first 50 or 100 results in one requests. The last parameter defines the number of pages that are requested. Please be aware: at the moment the API is under development and not yet fast. Please don't stress the servers.
+
+```
+articles <- api_table("articles",c(), "epi_all",1)
+```
+
+
+## Writing data
+
+Categories used to annotate or tag articles are called properties in the Epigraf data model. You can create or update such properties with api_patch_properties(). The following command creates two categories, "Klösterlandschaften" with the IRI "properties/topics/monasteries" and "Hansestädte" with the IRI "properties/topics/hanseatic" (last three parameters) in the database epi_all (first parameter).
+
+
+api_patch_properties(
+  "epi_all",
+  "topics",
+  c("Klösterlandschaften","Hansestädte"),
+  c("monasteries", "hanseatic")
+)
+
+If a property with the given IRI already exists, it will not be created, but updated. This way you can change the labels.
+
+
+
 
 ## Working with social media datasets 
 
+Get started with loading the example data and diving into the data structure:
 
-We define the canonical form of a social media dataset as a table where each row is a post, comment or reply with the following columns:
+```
+library(tidyverse)
+threads <- read_csv2(system.file("extdata", "threads.csv", package = "epigraf"))
+```
+
+The data contains columns usually found in social media datasets. We define the canonical form of a social media dataset as a table where each row is a page, post, comment or reply with the following columns:
 
 | Column          | Description                                                                                                                                                                                                     |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -49,5 +85,25 @@ We define the canonical form of a social media dataset as a table where each row
 | seed\_domain    | Give the pages that are provided by the same user or organization on different platforms a common name. For news outlets, as an example, the internet domain is a reasonable choice.                            |
 | seed\_handle    | The handle of the page or user profile where the thread started, e.g. the Twitter handle of a news outlet.                                                                                                      |
 
-### Example 
+On this basis, data can be converted to the Epigraf import format.
 
+
+```
+library(tidyverse)
+library(epigraf)
+
+
+# Replace user names
+threads <- sm_pseudonyms(threads)
+
+# Convert to epi format
+threads <- sm_canonical2epi(threads)
+
+# Clean HTML content
+threads <- sm_cleanhtml(threads, content)
+```
+
+
+In the next step, the threads can be transferred into Epigraf.
+
+*to be continued*

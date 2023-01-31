@@ -287,11 +287,13 @@ api_job_execute <- function(job_id) {
 #'
 #' Update properties in the database using the API.
 #' Existing properties will be updated, missing properties will be created.
+#' Whether a property is considered as existing depends on the type and the IRI fragment.
+#' You can use these fields to overwrite existing data.
 #'
 #' @param database The database name
 #' @param propertytype The property type (character)
 #' @param lemmata A vector of lemmata (character).
-#' @param irifragments Optional. A vector of IRI fragments (character).
+#' @param irifragments Optional. A vector of IRI fragments (character) of the same length as the lemmata vector.
 #' @export
 api_patch_properties <- function(database, propertytype, lemmata, irifragments=NA){
   properties <- epi_create_properties(propertytype, lemmata, NA, irifragments)

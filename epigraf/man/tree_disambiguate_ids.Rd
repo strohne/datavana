@@ -15,6 +15,9 @@ tree_disambiguate_ids(.data, id, parent, type, levels)
 
 \item{levels}{The hierarchy of the types, e.g. c("page","post","comment","reply")}
 }
+\value{
+
+}
 \description{
 TODO: test and refine
 }

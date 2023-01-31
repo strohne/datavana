@@ -10,7 +10,7 @@ api_job_execute(job_id)
 \item{job_id}{The job ID}
 }
 \value{
-void
+Whether the job was finished without error.
 }
 \description{
 Execute a job
