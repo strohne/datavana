@@ -21,14 +21,16 @@ library(epigraf)
 api_setup("https://epigraf.inschriften.net/", "MYACCESSTOKEN")
 ```
 
+The access token is like a password, don't show it to anyone and make sure it is not printed in any logs or outputs.
+
 Note: If you are working as a developer in a local environment, use the URL https://127.0.0.1/. The api_setup()-function provides a third parameter for enabling debug output.
 
 If you get an "Error 401" when using the following methods, check your permissions.
 
-First, try to get an article list. The following method fetches articles (first parameter) without any further search filters (second parameter) from the database epi_public (third parameter). Results are paginated, depending on the endpoint you only get the first 50 or 100 results in one requests. The last parameter defines the number of pages that are requested. Please be aware: at the moment the API is under development and not yet fast. Please don't stress the servers.
+To warm up, try to get an article list. The following method fetches articles (first parameter) without any further search filters (second parameter) from the database epi_public (third parameter). Results are paginated, depending on the endpoint you only get the first 50 or 100 results in one requests. The last parameter defines the number of pages that are requested. Please be aware: at the moment the API is under development and not yet fast. Please don't stress the servers.
 
 ```
-articles <- api_table("articles",c(), "epi_all",1)
+articles <- api_table("articles",c(), "epi_all", 1)
 ```
 
 
@@ -36,16 +38,21 @@ articles <- api_table("articles",c(), "epi_all",1)
 
 Categories used to annotate or tag articles are called properties in the Epigraf data model. You can create or update such properties with api_patch_properties(). The following command creates two categories, "Klösterlandschaften" with the IRI "properties/topics/monasteries" and "Hansestädte" with the IRI "properties/topics/hanseatic" (last three parameters) in the database epi_all (first parameter).
 
-
+```
 api_patch_properties(
   "epi_all",
   "topics",
   c("Klösterlandschaften","Hansestädte"),
   c("monasteries", "hanseatic")
 )
+```
 
 If a property with the given IRI already exists, it will not be created, but updated. This way you can change the labels.
 
+If you used a new propertytype, "topics" in the example, you need to configure the type in the config menu of EpiWeb. Thereafter, you can see the new properties in EpiWeb by clicking the categories menu button. 
+
+Trouble shooting:
+- If you get the error "Error loading data from source" the data could not be uploaded to the server. Ask a developer for help.
 
 
 
