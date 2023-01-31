@@ -13,9 +13,11 @@ api_patch_properties(database, propertytype, lemmata, irifragments = NA)
 
 \item{lemmata}{A vector of lemmata (character).}
 
-\item{irifragments}{Optional. A vector of IRI fragments (character).}
+\item{irifragments}{Optional. A vector of IRI fragments (character) of the same length as the lemmata vector.}
 }
 \description{
 Update properties in the database using the API.
 Existing properties will be updated, missing properties will be created.
+Whether a property is considered as existing depends on the type and the IRI fragment.
+You can use these fields to overwrite existing data.
 }

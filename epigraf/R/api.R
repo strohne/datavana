@@ -283,6 +283,32 @@ api_job_execute <- function(job_id) {
   return (invisible((polling == F) & (error == F)))
 }
 
+
+#' Patch data
+#'
+#' Update records in the database using the API.
+#' Existing records will be updated, missing records will be created.
+#' The function supports uploading all data related to articles:
+#' articles, sections, items, links, footnotes, properties, projects, users, types.
+#' The IRI path in the ID column of the dataframe must contain the specific table name.
+#'
+#' @param data A dataframe with the column id (must be a a valid IRI path).
+#'              Additional columns such as norm_data will be written to the record.
+#' @param database The database name
+#' @export
+api_patch <- function(data, database) {
+
+  stopifnot(epi_is_iripath(data$id))
+
+  # IRI path
+  data <- data %>%
+    select(id, everything()) %>%
+    na.omit()
+
+  api_job_create("articles/import", NA, database,list(data=data))
+}
+
+
 #' Patch properties
 #'
 #' Update properties in the database using the API.
@@ -301,13 +327,36 @@ api_patch_properties <- function(database, propertytype, lemmata, irifragments=N
 }
 
 
+#' Patch types
+#'
+#' Update the types config in the database using the API.
+#' Existing types will be updated, missing types will be created.
+#'
+#' @param types A dataframe with the column id (must be a a valid IRI path).
+#'              Additional columns such as norm_data will be written to the article
+#' @param database The database name
+#' @export
+api_patch_types <- function(types, database) {
+
+  stopifnot(epi_is_iripath(types$id, "types"))
+
+  # Article IRI path
+  types <- types %>%
+    select(id, everything()) %>%
+    na.omit()
+
+  api_job_create("types/import", NA, database,list(data=types))
+}
+
+
 #' Patch articles
 #'
 #' Update articles in the database using the API.
 #' Existing articles will be updated, missing articles will be created.
 #'
 #' @param sections A dataframe with the column id (must be a a valid IRI path).
-#'                 Additional columns such as norm_data will be written to the article#' @param database The database name
+#'                 Additional columns such as norm_data will be written to the article
+#' @param database The database name
 #' @export
 api_patch_articles <- function(articles, database) {
 

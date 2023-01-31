@@ -7,8 +7,10 @@
 api_patch_articles(articles, database)
 }
 \arguments{
+\item{database}{The database name}
+
 \item{sections}{A dataframe with the column id (must be a a valid IRI path).
-Additional columns such as norm_data will be written to the article#' @param database The database name}
+Additional columns such as norm_data will be written to the article}
 }
 \description{
 Update articles in the database using the API.

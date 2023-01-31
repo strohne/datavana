@@ -104,7 +104,7 @@ epi_clean_irifragment <- function(fragment) {
 epi_is_iripath <- function(iripath, table=NA, type=NA) {
 
   if (is.na(table)) {
-    table <- "(projects|articles|sections|items|properties)"
+    table <- "(projects|articles|sections|items|properties|links|footnotes|types)"
   }
 
   if (is.na(type)) {
