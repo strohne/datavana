@@ -1,3 +1,22 @@
+#' Ask user to confirm script execution
+#'
+confirmAction <- function() {
+  user_input <- readline("Are you sure you want to proceed? (y/n)  ")
+  if(user_input != 'y')
+    stop('Canceled')
+}
+
+#' Check whether the URL is on a local server
+#'
+isLocalServer <- function(server) {
+  return (
+      startsWith(server,"https://127.0.0.1") ||
+      startsWith(server,"http://127.0.0.1") ||
+      startsWith(server,"https://localhost") ||
+      startsWith(server,"http://localhost")
+  )
+}
+
 #' Remove HTML entities
 #' @export
 #'

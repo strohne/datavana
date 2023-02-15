@@ -153,7 +153,13 @@ api_table <- function(table, params=c(), db, maxpages=1) {
 #' @export
 api_job_create <- function(endpoint, params, database, payload=NULL) {
   verbose <- Sys.getenv("epi_verbose") == "TRUE"
-  print ("Creating job")
+  server <- Sys.getenv("epi_apiserver")
+
+  print (paste0("Creating job on server ", server))
+  if (!isLocalServer(server)) {
+    confirmAction()
+  }
+
   # 1. Create job
   url = api_buildurl(endpoint, params, database)
 
@@ -295,15 +301,21 @@ api_job_execute <- function(job_id) {
 #' @param data A dataframe with the column id (must be a a valid IRI path).
 #'              Additional columns such as norm_data will be written to the record.
 #' @param database The database name
+#' @param table Check that the data only contains rows for a specific table
+#' @param type Check that the data only contains rows with a specific type
 #' @export
-api_patch <- function(data, database) {
+api_patch <- function(data, database, table=NA, type=NA) {
 
-  stopifnot(epi_is_iripath(data$id))
+  stopifnot(epi_is_iripath(data$id, table, type))
 
   # IRI path
   data <- data %>%
     select(id, everything()) %>%
     na.omit()
+
+  if ((nrow(data) == 0) || (ncol(data) == 0)) {
+    stop("Data is empty or contains NA values.")
+  }
 
   api_job_create("articles/import", NA, database,list(data=data))
 }
@@ -407,61 +419,68 @@ api_patch_sections <- function(sections, database) {
 }
 
 
-
-#' Patch items
+#' Patch items and create related properties, sections, articles and projects
 #'
-#' Existing items will be updated, missing items will be created.
-#' The section IRI fragments and the item IRI iri fragments will be derived from the
-#' article IRI fragments. The item IRI will be suffixed by the sortno value (default=1).
+#' @param data A dataframe with the column id containing a valid item IRI path.
+#'             Additional columns such as norm_data will be written to the record.
 #'
-#' @param items Dataframe with the columns
-#'              article (must be a valid IRI path),
-#'              section (either a valid IRI path or a section type),
-#'              item (the item type).
-#'              sortno (to address multiple items in a section, optional, defaults to 1)
-#'              Additional columns such as properties_id or value will be
-#'              written to the item.
+#'             Column names prefixed with "properties", "sections", "articles"
+#'             and "projects" followed by a dot (e.g. "properties.id",
+#'             "properties.lemma") indicate which other records will be patched.
 #' @param database The database name
 #' @export
-api_patch_items <- function(items, database) {
+api_patch_items <- function(data, database) {
 
-  stopifnot(epi_is_iripath(items$article, "articles"))
-  stopifnot(stringr::str_detect(items$item, "^[a-z0-9_-]+$"))
+  # Extract properties
+  rows <- data %>%
+    select(starts_with("properties.")) %>%
+    rename_all(~str_replace(.,"properties\\.","")) %>%
+    distinct()
 
-  items <- items %>%
-    rename(
-      articles_id=article,
-      sections_id=section,
-      itemtype=item
-    )
-
-
-  if (! "sortno" %in% colnames(items)) {
-    items$sortno <- 1
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    api_patch(rows, database, "properties")
   }
 
-  # Section IRI path
-  if (!all(epi_is_iripath(items$sections_id, "sections"))) {
-    items <- items %>%
-      mutate(articles_iri = str_extract(articles_id,"[^/]+$")) %>%
-      mutate(sections_id = paste0("sections/", sections_id, "/",articles_iri)) %>%
-      select(-articles_iri)
+  # Extract projects
+  rows <- data %>%
+    select(starts_with("projects.")) %>%
+    rename_all(~str_replace(.,"projects\\.","")) %>%
+    distinct()
+
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    api_patch(rows, database, "projects")
   }
 
-  stopifnot(epi_is_iripath(items$sections_id, "sections"))
+  # Extract articles
+  rows <- data %>%
+    select(starts_with("articles."),matches("^projects.id$")) %>%
+    rename_all(~str_replace(.,"articles\\.","")) %>%
+    rename_all(~str_replace(.,"\\.","_")) %>%
+    distinct()
 
-  items <- items %>%
-    mutate(
-      articles_iri = str_extract(articles_id,"[^/]+$"),
-      norm_iri = paste0(articles_iri,"~",sortno),
-      id = paste0("items/", itemtype, "/",norm_iri),
-    ) %>%
-    select(-itemtype,-norm_iri,-articles_iri) %>%
-    select(id, sections_id, articles_id, everything()) %>%
-    na.omit()
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    api_patch(rows, database, "articles")
+  }
 
-  stopifnot(epi_is_iripath(items$sections_id, "sections"))
+  # Extract sections
+  rows <- data %>%
+    select(starts_with("sections."),matches("^articles.id$")) %>%
+    rename_all(~str_replace(.,"sections\\.","")) %>%
+    rename_all(~str_replace(.,"\\.","_")) %>%
+    distinct()
 
-  api_job_create("articles/import", NA, database,list(data=items))
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    api_patch(rows, database, "sections")
+  }
+
+  # Extract items
+  rows <- data %>%
+    select(matches("^[a-z]+$"),matches("^articles\\.id|sections\\.id|properties\\.id$")) %>%
+    rename_all(~str_replace(.,"\\.","_"))
+
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    api_patch(rows, database, "items")
+  }
+
 }
 

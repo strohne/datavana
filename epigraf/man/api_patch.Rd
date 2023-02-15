@@ -4,13 +4,17 @@
 \alias{api_patch}
 \title{Patch data}
 \usage{
-api_patch(data, database)
+api_patch(data, database, table = NA, type = NA)
 }
 \arguments{
 \item{data}{A dataframe with the column id (must be a a valid IRI path).
 Additional columns such as norm_data will be written to the record.}
 
 \item{database}{The database name}
+
+\item{table}{Check that the data only contains rows for a specific table}
+
+\item{type}{Check that the data only contains rows with a specific type}
 }
 \description{
 Update records in the database using the API.

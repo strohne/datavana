@@ -2,23 +2,19 @@
 % Please edit documentation in R/api.R
 \name{api_patch_items}
 \alias{api_patch_items}
-\title{Patch items}
+\title{Patch items and create related properties, sections, articles and projects}
 \usage{
-api_patch_items(items, database)
+api_patch_items(data, database)
 }
 \arguments{
-\item{items}{Dataframe with the columns
-article (must be a valid IRI path),
-section (either a valid IRI path or a section type),
-item (the item type).
-sortno (to address multiple items in a section, optional, defaults to 1)
-Additional columns such as properties_id or value will be
-written to the item.}
+\item{data}{A dataframe with the column id containing a valid item IRI path.
+Additional columns such as norm_data will be written to the record.\preformatted{        Column names prefixed with "properties", "sections", "articles"
+        and "projects" followed by a dot (e.g. "properties.id",
+        "properties.lemma") indicate which other records will be patched.
+}}
 
 \item{database}{The database name}
 }
 \description{
-Existing items will be updated, missing items will be created.
-The section IRI fragments and the item IRI iri fragments will be derived from the
-article IRI fragments. The item IRI will be suffixed by the sortno value (default=1).
+Patch items and create related properties, sections, articles and projects
 }
