@@ -475,7 +475,7 @@ api_patch_items <- function(data, database) {
 
   # Extract items
   rows <- data %>%
-    select(matches("^[a-z]+$"),matches("^articles\\.id|sections\\.id|properties\\.id$")) %>%
+    select(matches("^[_a-z]+$"),matches("^articles\\.id|sections\\.id|properties\\.id$")) %>%
     rename_all(~str_replace(.,"\\.","_"))
 
   if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
