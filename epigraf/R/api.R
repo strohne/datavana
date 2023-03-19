@@ -4,6 +4,7 @@
 
 
 #' Save API connection settings to environment variables.
+#'
 #' @param apiserver URL of the Epigraf server (including https-protocol)
 #' @param apitoken Access token
 #' @param verbose Show debug messages and the built URLs
@@ -14,7 +15,20 @@ api_setup <- function(apiserver, apitoken, verbose=F) {
   do.call(Sys.setenv, settings)
 }
 
+#' Set silent mode
+#'
+#' In silent mode, all user prompts are automatically confirmed.
+#' Be careful, this will skip the prompt to confirm operations
+#' on the live server.
+#'
+#' @param silent Boolen
+#' @export
+api_silent <- function(silent = F) {
+  Sys.setenv("epi_silent" = silent)
+}
+
 #' Build base URL
+#'
 #' @param endpoint
 #' @param query
 #' @param database

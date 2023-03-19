@@ -1,6 +1,11 @@
 #' Ask user to confirm script execution
 #'
 confirmAction <- function() {
+  silent <- Sys.getenv("epi_silent")
+  if (silent == "TRUE") {
+    return (TRUE)
+  }
+
   user_input <- readline("Are you sure you want to proceed? (y/n)  ")
   if(user_input != 'y')
     stop('Canceled')
