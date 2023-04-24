@@ -324,8 +324,14 @@ api_patch <- function(data, database, table=NA, type=NA) {
 
   # IRI path
   data <- data %>%
-    select(id, everything()) %>%
-    na.omit()
+    dplyr::select(id, everything()) %>%
+
+    # Remove complete empty columns
+    dplyr::select(where(~!all(is.na(.x)))) %>%
+
+    # Remove rows where all values are NA
+    dplyr::filter(if_any(everything(), ~ !is.na(.)))
+
 
   if ((nrow(data) == 0) || (ncol(data) == 0)) {
     stop("Data is empty or contains NA values.")
@@ -335,115 +341,18 @@ api_patch <- function(data, database, table=NA, type=NA) {
 }
 
 
-#' Patch properties
+#' Patch data and create related properties, items, sections, articles and projects
 #'
-#' Update properties in the database using the API.
-#' Existing properties will be updated, missing properties will be created.
-#' Whether a property is considered as existing depends on the type and the IRI fragment.
-#' You can use these fields to overwrite existing data.
-#'
-#' @param database The database name
-#' @param propertytype The property type (character)
-#' @param lemmata A vector of lemmata (character).
-#' @param irifragments Optional. A vector of IRI fragments (character) of the same length as the lemmata vector.
-#' @export
-api_patch_properties <- function(database, propertytype, lemmata, irifragments=NA){
-  properties <- epi_create_properties(propertytype, lemmata, NA, irifragments)
-  api_job_create("articles/import", NA, database,list(data=properties))
-}
-
-
-#' Patch types
-#'
-#' Update the types config in the database using the API.
-#' Existing types will be updated, missing types will be created.
-#'
-#' @param types A dataframe with the column id (must be a a valid IRI path).
-#'              Additional columns such as norm_data will be written to the article
-#' @param database The database name
-#' @export
-api_patch_types <- function(types, database) {
-
-  stopifnot(epi_is_iripath(types$id, "types"))
-
-  # Article IRI path
-  types <- types %>%
-    select(id, everything()) %>%
-    na.omit()
-
-  api_job_create("types/import", NA, database,list(data=types))
-}
-
-
-#' Patch articles
-#'
-#' Update articles in the database using the API.
-#' Existing articles will be updated, missing articles will be created.
-#'
-#' @param sections A dataframe with the column id (must be a a valid IRI path).
-#'                 Additional columns such as norm_data will be written to the article
-#' @param database The database name
-#' @export
-api_patch_articles <- function(articles, database) {
-
-  stopifnot(epi_is_iripath(articles$id, "articles"))
-
-  # Article IRI path
-  articles <- articles %>%
-    select(id, everything()) %>%
-    na.omit()
-
-  api_job_create("articles/import", NA, database,list(data=articles))
-}
-
-#' Patch sections
-#'
-#' Update sections in the database using the API.
-#' Existing sections will be updated, missing sections will be created.
-#' Section IRI fragments will be derived from the article IRI fragments.
-#'
-#' @param database The database name
-#' @param sections A dataframe with the columns
-#'                 article (must be a a valid IRI path) and
-#'                 section (either a valid IRI path or a section type)
-#'                 Additional columns such as name will be written to the section.
-#' @export
-api_patch_sections <- function(sections, database) {
-
-  stopifnot(epi_is_iripath(sections$article, "articles"))
-
-  # Article IRI path
-  sections <- sections %>%
-    rename(id=section,articles_id=article)
-
-  # Section IRI path
-  if (!all(epi_is_iripath(sections$id, "sections"))) {
-    sections <- sections %>%
-      mutate(articles_iri = str_extract(articles_id,"[^/]+$")) %>%
-      mutate(id = paste0("sections/", id, "/",articles_iri)) %>%
-      select(-articles_iri)
-  }
-  stopifnot(epi_is_iripath(sections$id, "sections"))
-
-  sections <- sections %>%
-    select(id, articles_id, everything()) %>%
-    na.omit()
-
-  api_job_create("articles/import", NA, database,list(data=sections))
-}
-
-
-#' Patch items and create related properties, sections, articles and projects
-#'
-#' @param data A dataframe with the column id containing a valid item IRI path.
+#' @param data A dataframe with the column id containing a valid IRI path.
 #'             Additional columns such as norm_data will be written to the record.
 #'
-#'             Column names prefixed with "properties", "sections", "articles"
+#'             Column names prefixed with "properties", "items", "sections", "articles"
 #'             and "projects" followed by a dot (e.g. "properties.id",
-#'             "properties.lemma") indicate which other records will be patched.
+#'             "properties.lemma") will be extracted and patched as additional records
+#'
 #' @param database The database name
 #' @export
-api_patch_items <- function(data, database) {
+api_patch_wide <- function(data, database) {
 
   # Extract properties
   rows <- data %>%
@@ -489,11 +398,21 @@ api_patch_items <- function(data, database) {
 
   # Extract items
   rows <- data %>%
-    select(matches("^[_a-z]+$"),matches("^articles\\.id|sections\\.id|properties\\.id$")) %>%
-    rename_all(~str_replace(.,"\\.","_"))
+    select(starts_with("items.")) %>%
+    rename_all(~str_replace(.,"items\\.","")) %>%
+    distinct()
 
   if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
     api_patch(rows, database, "items")
+  }
+
+  # All other rows
+  rows <- data %>%
+    select(matches("^[_a-z]+$"),matches("^projects\\.id|articles\\.id|sections\\.id|items\\.id|properties\\.id$")) %>%
+    rename_all(~str_replace(.,"\\.","_"))
+
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    api_patch(rows, database)
   }
 
 }
