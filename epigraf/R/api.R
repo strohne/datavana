@@ -337,6 +337,8 @@ api_patch <- function(data, database, table=NA, type=NA) {
     stop("Data is empty or contains NA values.")
   }
 
+  print(paste0("Uploading ",nrow(data)," rows."))
+
   api_job_create("articles/import", NA, database,list(data=data))
 }
 
