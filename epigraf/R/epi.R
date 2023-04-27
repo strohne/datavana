@@ -1,64 +1,7 @@
+#
+# Functions for Epigraf data handling
+#
 
-# "epi" functions
-
-#' Convert text to epigraf article
-#' @param text Dataframe with the columns id, project, caption and content
-#' @return Dataframe with article, section and item
-#' @export
-#' @examples
-#' epi_text2article(
-#' tibble(id=1,project="Import",
-#' caption="My first text",
-#' content="Words are letters with glue"))
-
-epi_text2article  <- function(text)
-{ if (!requireNamespace("tidyverse", quietly = TRUE)) {
-  stop(
-    "Package \"tidyverse\" must be installed to use this function.",
-    call. = FALSE
-  )
-}
-  projects <- tibble(
-    table="projects",
-    type="default",
-    id= paste0("projects-int",unique(text$project)),
-    name=unique(text$project)
-  )
-
-
-  articles <- tibble(
-    table="articles",
-    type="default",
-    id= paste0("articles-int",text$id),
-    projects_id=paste0("projects-int",text$project),
-    name=text$caption,
-  )
-
-  sections <- tibble(
-    table="sections",
-    type="default",
-    id= paste0("sections-int",text$id),
-    articles_id= paste0("articles-int",text$id),
-    name="Text"
-  )
-
-  items <- tibble(
-    table="items",
-    type="default",
-    id= paste0("items-int",text$id),
-    sections_id= paste0("sections-int",text$id),
-    articles_id= paste0("articles-int",text$id),
-    content=text$content
-  )
-
-  bind_rows(
-    projects,
-    articles,
-    sections,
-    items
-  )
-
-}
 
 #' Create a clean IRI
 #'
@@ -127,7 +70,148 @@ epi_is_irifragment <- function(irifragment) {
 
 }
 
-# Export to Epi
+#' Select nested data from prefixed columns
+#'
+#' @param data A data frame
+#' @param cols_prefix All columns with the prefix will be selected,
+#'                    the prefix will be removed from the column name.
+#' @param cols_keep Convert the provided column names to underscored columns
+#' @return A dataframe containing all columns with the prefix without the prefix
+#'
+#' @export
+epi_extract_wide <- function(data, cols_prefix, cols_keep=c()) {
+
+  if (length(cols_keep) > 0) {
+    regex_keep <- paste0(cols_keep,"\\.id")
+    regex_keep <- paste0(regex_keep,collapse = "|")
+    regex_keep <- paste0("^", regex_keep, "$")
+  } else {
+    regex_keep <- "^$"
+  }
+
+
+  data <- data %>%
+    select(starts_with(paste0(cols_prefix, ".")), matches(regex_keep)) %>%
+    rename_all(~str_replace(.,paste0(cols_prefix, "\\."),"")) %>%
+    rename_all(~str_replace(.,"\\.","_")) %>%
+    distinct() %>%
+    dplyr::select(where(~!all(is.na(.x)))) %>%
+    dplyr::filter(if_any(everything(), ~ !is.na(.)))
+
+  # Remove data that only contains ID columns
+  if (length(setdiff(colnames(data), c("id", paste0(cols_keep,"_id")))) == 0) {
+    data <- tibble()
+  }
+
+  data
+
+}
+
+#' Convert wide to long format
+#'
+#' @param data A dataframe with the column id containing a valid IRI path.
+#'             and additional columns. The additional columns may contain nested
+#'             data in the following form:
+#'
+#'             Column names prefixed with "properties", "items", "sections",
+#'              "articles" and "projects" followed by a dot (e.g. "properties.id",
+#'             "properties.lemma") will be extracted and stacked to the dataframe.
+#'
+#' @return A dataframe with all input rows and the nested records stacked.
+#' @export
+epi_wide_to_long <- function(data) {
+
+  rows = tibble()
+
+  # Extract nested rows
+  rows <- bind_rows(rows,epi_extract_wide(data, "properties"))
+  rows <- bind_rows(rows,epi_extract_wide(data, "projects"))
+  rows <- bind_rows(rows,epi_extract_wide(data, "articles", c("projects")))
+  rows <- bind_rows(rows,epi_extract_wide(data, "sections", c("articles")))
+  rows <- bind_rows(rows,epi_extract_wide(data, "items", c("articles","sections")))
+
+  # All other rows
+  extracted <- data %>%
+    select(matches("^[_a-z]+$"),matches("^projects\\.id|articles\\.id|sections\\.id|items\\.id|properties\\.id$")) %>%
+    rename_all(~str_replace(.,"\\.","_"))
+
+  if ((nrow(extracted) > 0) && (ncol(extracted) > 0)) {
+    rows <- bind_rows(rows, extracted)
+  }
+
+  stopifnot(epi_is_iripath(rows$id))
+
+  # Create table columns
+  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
+    rows <- rows %>%
+      dplyr::filter(if_any(everything(), ~ !is.na(.))) %>%
+      mutate(table=str_extract(id,"^[^/]+")) %>%
+      select(table, id, everything())
+  }
+
+  rows
+}
+
+
+#' Convert text to epigraf article
+#' @param text Dataframe with the columns id, project, caption and content
+#' @return Dataframe with article, section and item
+#' @export
+#' @examples
+#' epi_text2article(
+#' tibble(id=1,project="Import",
+#' caption="My first text",
+#' content="Words are letters with glue"))
+
+epi_text2article  <- function(text)
+{ if (!requireNamespace("tidyverse", quietly = TRUE)) {
+  stop(
+    "Package \"tidyverse\" must be installed to use this function.",
+    call. = FALSE
+  )
+}
+  projects <- tibble(
+    table="projects",
+    type="default",
+    id= paste0("projects-int",unique(text$project)),
+    name=unique(text$project)
+  )
+
+
+  articles <- tibble(
+    table="articles",
+    type="default",
+    id= paste0("articles-int",text$id),
+    projects_id=paste0("projects-int",text$project),
+    name=text$caption,
+  )
+
+  sections <- tibble(
+    table="sections",
+    type="default",
+    id= paste0("sections-int",text$id),
+    articles_id= paste0("articles-int",text$id),
+    name="Text"
+  )
+
+  items <- tibble(
+    table="items",
+    type="default",
+    id= paste0("items-int",text$id),
+    sections_id= paste0("sections-int",text$id),
+    articles_id= paste0("articles-int",text$id),
+    content=text$content
+  )
+
+  bind_rows(
+    projects,
+    articles,
+    sections,
+    items
+  )
+
+}
+
 
 #' Function to create properties
 #'

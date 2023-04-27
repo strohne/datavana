@@ -304,6 +304,7 @@ api_job_execute <- function(job_id) {
 }
 
 
+
 #' Patch data
 #'
 #' Update records in the database using the API.
@@ -337,6 +338,10 @@ api_patch <- function(data, database, table=NA, type=NA) {
     stop("Data is empty or contains NA values.")
   }
 
+  if ((ncol(data) == 1) && (colnames(data) == "id")) {
+    stop("Skipped, the data only contains the ID column.")
+  }
+
   print(paste0("Uploading ",nrow(data)," rows."))
 
   api_job_create("articles/import", NA, database,list(data=data))
@@ -356,66 +361,8 @@ api_patch <- function(data, database, table=NA, type=NA) {
 #' @export
 api_patch_wide <- function(data, database) {
 
-  # Extract properties
-  rows <- data %>%
-    select(starts_with("properties.")) %>%
-    rename_all(~str_replace(.,"properties\\.","")) %>%
-    distinct()
-
-  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
-    api_patch(rows, database, "properties")
-  }
-
-  # Extract projects
-  rows <- data %>%
-    select(starts_with("projects.")) %>%
-    rename_all(~str_replace(.,"projects\\.","")) %>%
-    distinct()
-
-  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
-    api_patch(rows, database, "projects")
-  }
-
-  # Extract articles
-  rows <- data %>%
-    select(starts_with("articles."),matches("^projects.id$")) %>%
-    rename_all(~str_replace(.,"articles\\.","")) %>%
-    rename_all(~str_replace(.,"\\.","_")) %>%
-    distinct()
-
-  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
-    api_patch(rows, database, "articles")
-  }
-
-  # Extract sections
-  rows <- data %>%
-    select(starts_with("sections."),matches("^articles.id$")) %>%
-    rename_all(~str_replace(.,"sections\\.","")) %>%
-    rename_all(~str_replace(.,"\\.","_")) %>%
-    distinct()
-
-  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
-    api_patch(rows, database, "sections")
-  }
-
-  # Extract items
-  rows <- data %>%
-    select(starts_with("items.")) %>%
-    rename_all(~str_replace(.,"items\\.","")) %>%
-    distinct()
-
-  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
-    api_patch(rows, database, "items")
-  }
-
-  # All other rows
-  rows <- data %>%
-    select(matches("^[_a-z]+$"),matches("^projects\\.id|articles\\.id|sections\\.id|items\\.id|properties\\.id$")) %>%
-    rename_all(~str_replace(.,"\\.","_"))
-
-  if ((nrow(rows) > 0) && (ncol(rows) > 0)) {
-    api_patch(rows, database)
-  }
+  rows <- epi_wide_to_long(data)
+  api_patch(rows, database)
 
 }
 
