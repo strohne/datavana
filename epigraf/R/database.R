@@ -68,13 +68,54 @@ db_databases <- function(epi = FALSE) {
 }
 
 
+
 #
-#' Get tables from a database
+#' Construct filter conditions for the db_table() function
 #'
-#' @param db A connection object (object) or the database name (character)
 #' @param table Table name
+#' @param field Field name
+#' @param value A single value, a list of characters or a list of integers
 #' @export
-db_table <- function(table, db, deleted=FALSE){
+db_condition <- function(table, field, value) {
+
+  # preprocess value(s) for sql
+  # check if value is list
+  if (is.list(value)){
+
+    # if items in list are numeric --> collapse without ''
+    if (all(is.numeric(value))) {
+      collapsed_values = paste("(", paste(prop_ids, collapse = ","), ")",sep = "")
+    }
+
+    # if items in list are characters --> collapse  ''
+    else if (all(is.character(value))) {
+      collapsed_values = paste("('", paste(prop_ids, collapse = "','"), "')",sep = "")
+    }
+
+    # create statement of type "col in list"
+    statement = paste0(table, ".", field, " in ", collapsed_values)
+
+  } else{
+
+    # create statement of type "col = value"
+    statement = paste0(table, ".", field, " = ", value)
+
+  }
+
+  return (statement)
+}
+
+
+#
+#' Get data from a database table
+#'
+#' @param table Table name
+#' @param db A connection object (object) or the database name (character)
+#' @param deleted Deleted records are skipped by default. Set to TRUE, to get all records.
+#' @param cond A character or a character vector of conditions, e.g.
+#'                   "id = 10"
+#' @export
+db_table <- function(table, db, deleted=FALSE, cond=c()){
   # Check if db is character --> open db connection
   if (is.character(db)){
     con <- db_connect(db)
@@ -85,8 +126,17 @@ db_table <- function(table, db, deleted=FALSE){
   # Construct SQL
   sql <- paste0("SELECT * FROM ", table)
 
-  if (deleted == FALSE){
-    sql <- paste0(sql, " WHERE deleted = 0")
+  # Add deleted = 0 to the conditions vector
+  if (deleted == FALSE) {
+    conditions = c("deleted = 0", conditions)
+  }
+
+
+  # Add all conditions to the query
+  if (length(conditions) > 0) {
+    conditions <- paste0("(", conditions, ")")
+    conditions <- paste0(conditions, collapse = " AND ")
+    sql <- paste0(sql, " WHERE ", conditions)
   }
 
 
