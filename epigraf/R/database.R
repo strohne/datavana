@@ -79,28 +79,19 @@ db_databases <- function(epi = FALSE) {
 db_condition <- function(table, field, value) {
 
   # preprocess value(s) for sql
-  # check if value is list
-  if (is.list(value)){
 
-    # if items in list are numeric --> collapse without ''
-    if (all(is.numeric(value))) {
-      collapsed_values = paste("(", paste(prop_ids, collapse = ","), ")",sep = "")
-    }
-
-    # if items in list are characters --> collapse  ''
-    else if (all(is.character(value))) {
-      collapsed_values = paste("('", paste(prop_ids, collapse = "','"), "')",sep = "")
-    }
-
-    # create statement of type "col in list"
-    statement = paste0(table, ".", field, " in ", collapsed_values)
-
-  } else{
-
-    # create statement of type "col = value"
-    statement = paste0(table, ".", field, " = ", value)
-
+  # if items in list are numeric --> collapse without ''
+  if (all(is.numeric(value))) {
+    value = paste("(", paste(value, collapse = ","), ")",sep = "")
   }
+
+  # if items in list are characters --> collapse  ''
+  else if (all(is.character(value))) {
+    value = paste("('", paste(value, collapse = "','"), "')",sep = "")
+  }
+
+  # create statement of type "col in list"
+  statement = paste0(table, ".", field, " in ", value)
 
   return (statement)
 }
