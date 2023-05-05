@@ -128,15 +128,15 @@ db_table <- function(table, db, deleted=FALSE, cond=c()){
 
   # Add deleted = 0 to the conditions vector
   if (deleted == FALSE) {
-    conditions = c("deleted = 0", conditions)
+    cond = c("deleted = 0", cond)
   }
 
 
   # Add all conditions to the query
-  if (length(conditions) > 0) {
-    conditions <- paste0("(", conditions, ")")
-    conditions <- paste0(conditions, collapse = " AND ")
-    sql <- paste0(sql, " WHERE ", conditions)
+  if (length(cond) > 0) {
+    cond <- paste0("(", cond, ")")
+    cond <- paste0(cond, collapse = " AND ")
+    sql <- paste0(sql, " WHERE ", cond)
   }
 
 
