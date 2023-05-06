@@ -29,10 +29,10 @@ api_silent <- function(silent = F) {
 
 #' Build base URL
 #'
-#' @param endpoint
-#' @param query
-#' @param database
-#' @param format
+#' @param endpoint The endpoint, e.g. articles/import
+#' @param query Query parameters for the endpoint
+#' @param database The database name
+#' @param extension Extension added to the URL path, defaults to json.
 #' @export
 api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
 
@@ -318,10 +318,15 @@ api_job_execute <- function(job_id) {
 #' @param database The database name
 #' @param table Check that the data only contains rows for a specific table
 #' @param type Check that the data only contains rows with a specific type
+#' @param wide Convert wide format to long format
 #' @export
-api_patch <- function(data, database, table=NA, type=NA) {
+api_patch <- function(data, database, table=NA, type=NA, wide=T) {
 
-  stopifnot(epi_is_iripath(data$id, table, type))
+  if (wide) {
+    data <- epi_wide_to_long(data)
+  }
+
+  stopifnot(epi_is_iripath(data$id, table, type) | epi_is_id(data$id, table))
 
   # IRI path
   data <- data %>%

@@ -61,6 +61,23 @@ epi_is_iripath <- function(iripath, table=NA, type=NA) {
 }
 
 
+#' Check whether the provided vector contains valid IDs prefixed
+#' with table names. Example: articles-123
+#'
+#' @param ids The vector that will be proofed
+#' @param table Check whether the path contains the table. Leave empty to allow all tables.
+#' @export
+epi_is_id <- function(ids, table=NA) {
+
+  if (is.na(table)) {
+    table <- "(projects|articles|sections|items|properties|links|footnotes|types|users)"
+  }
+
+  fragment <- "([0-9]+)"
+
+  stringr::str_detect(ids,paste0("^",table,".",fragment,"$"))
+}
+
 #' Check whether the provided vector contains a valid IRI fragment
 #'
 #' @param iripath The vector that will be proofed
@@ -139,7 +156,7 @@ epi_wide_to_long <- function(data) {
     rows <- bind_rows(rows, extracted)
   }
 
-  stopifnot(epi_is_iripath(rows$id))
+  stopifnot(epi_is_iripath(rows$id) | epi_is_id(rows$id))
 
   # Create table columns
   if ((nrow(rows) > 0) && (ncol(rows) > 0)) {

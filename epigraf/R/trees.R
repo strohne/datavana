@@ -5,7 +5,6 @@
 #' @param id Column name of the id in .data and .tree
 #' @param parent_id Column name of the parent id in .data and .tree
 #' @return Data frame containing the nodes of .data and alle ancestors
-#' @examples
 #' @export
 tree_bind_ancestors <- function(.data, .tree, id, parent_id) {
   id <- enquo(id)
@@ -94,7 +93,6 @@ tree_stack_ancestors <- function(data, col_id, col_parent, col_stack) {
 #' @param col_parent The ID column of the parent node
 #' @param col_sort Column for sorting the nodes inside each parent. Leave empty to use the order in the dataset.
 #' @return Data frame with the additional columns tree_thread, tree_order and tree_level
-#' @examples
 #' @export
 tree_add_level <- function(.data, col_id, col_parent, col_sort=NULL) {
   col_id <- enquo(col_id)
@@ -198,7 +196,6 @@ tree_add_level <- function(.data, col_id, col_parent, col_sort=NULL) {
 #' @param col_parent The ID column of the parent node
 #' @param col_sort Column for sorting the nodes inside each parent. Leave empty to use the ID column.
 #' @return Data frame with the additional columns tree_thread, tree_order and tree_level
-#' @examples
 #' @export
 tree_add_level2 <- function(data, col_id, col_parent, col_sort=NULL) {
   # Quoting
@@ -270,7 +267,6 @@ tree_add_level2 <- function(data, col_id, col_parent, col_sort=NULL) {
 #' @param data Dataframe with the columns tree_id, tree_parent, tree_thread, tree_level, tree_order
 #'            TODO: parameters?
 #' @return
-#' @examples
 #' @export
 tree_add_mptt <- function(.data) {
   # Progress
@@ -400,7 +396,6 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
 #' @param type Column holding the type of the node. Every level needs a different type, e.g. "page", "post", "comment" or "reply".
 #' @param levels The hierarchy of the types, e.g. c("page","post","comment","reply")
 #' @return
-#' @examples
 #' @export
 tree_disambiguate_ids <- function(.data, id, parent, type, levels) {
   id <- enquo(id)
