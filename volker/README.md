@@ -7,7 +7,7 @@ As with all other packages you'll have to install the package and load the libra
 ```
 library(devtools)
 install_github("strohne/datavana/volker")
-library(facepager)
+library(volker)
 ```
 
 
