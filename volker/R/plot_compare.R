@@ -1,4 +1,4 @@
-#' Compare factor value by group
+#' Compare and plot factor value by group
 #'
 #' @param data A tibble
 #' @param col_category The column holding factor values
@@ -58,8 +58,7 @@ common_prefix <- function (x, ignore.case = FALSE)
 }
 
 
-#' Compare items
-#'
+#' Compare and plot items
 #' @param data A tibble containing item measures
 #' @param cols_items Tidyselect item variables (e.g. starts_with...)
 #' @param col_group Optional faceting variable

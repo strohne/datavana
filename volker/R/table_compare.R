@@ -1,4 +1,4 @@
-#' Compare factor value by group
+#' Compare & Table factor value by group
 #'
 #' @param data A tibble
 #' @param col_category The column holding factor values
@@ -16,7 +16,7 @@ table_compare_factor <- function(data, col_category, col_group) {
     ungroup()
 }
 
-#' Table items
+#' Compare & Table items
 #'
 #' @param data A tibble containing item measures
 #' @param cols_items Tidyselect item variables (e.g. starts_with...)
