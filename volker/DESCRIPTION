@@ -12,6 +12,5 @@ RoxygenNote: 7.2.3.9000
 LazyData: true
 Imports: 
   forcats,
-  stats,
   dplyr
 Suggests:
