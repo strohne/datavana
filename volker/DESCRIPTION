@@ -13,4 +13,3 @@ LazyData: true
 Imports: 
   forcats,
   dplyr
-Suggests:
