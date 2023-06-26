@@ -1,0 +1,290 @@
+* using log directory ‘/Users/datavana/Documents/GitHub/datavana/facepager.Rcheck’
+* using R version 4.1.2 (2021-11-01)
+* using platform: x86_64-apple-darwin17.0 (64-bit)
+* using session charset: UTF-8
+* using options ‘--no-manual --as-cran’
+* checking for file ‘facepager/DESCRIPTION’ ... OK
+* this is package ‘facepager’ version ‘0.0.0.9000’
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking for sufficient/correct file permissions ... OK
+* checking serialization versions ... OK
+* checking whether package ‘facepager’ can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking for future file timestamps ... OK
+* checking DESCRIPTION meta-information ... NOTE
+License components which are templates and need '+ file LICENSE':
+  MIT
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking dependencies in R code ... WARNING
+'::' or ':::' import not declared from: ‘progressr’
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+fp_addseed: no visible binding for global variable ‘object_type’
+fp_addseed: no visible binding for global variable ‘query_status’
+fp_addseed: no visible binding for global variable ‘level’
+fp_addseed: no visible binding for global variable ‘object_id’
+fp_addseed: no visible binding for global variable ‘seed’
+fp_childcount: no visible binding for global variable ‘object_type’
+fp_childcount: no visible binding for global variable ‘query_status’
+fp_childcount: no visible binding for global variable ‘parent_objectid’
+fp_childcount: no visible global function definition for ‘na.omit’
+fp_childcount: no visible binding for global variable ‘objectid’
+fp_childcount: no visible binding for global variable ‘parent_no’
+fp_children_bynode: no visible binding for global variable
+  ‘object_type’
+fp_children_bynode: no visible binding for global variable ‘level’
+fp_children_bynode: no visible binding for global variable ‘parent_id’
+fp_children_bynode: no visible binding for global variable ‘parent_no’
+fp_children_bynode: no visible binding for global variable
+  ‘parent_objectid’
+fp_children_bynode: no visible binding for global variable ‘children’
+fp_coverage: no visible binding for global variable ‘parent_objectid’
+fp_coverage: no visible binding for global variable ‘objectid’
+fp_coverage: no visible binding for global variable ‘response’
+fp_coverage: no visible binding for global variable ‘.’
+fp_coverage: no visible binding for global variable ‘children.target’
+fp_coverage: no visible binding for global variable ‘children’
+fp_coverage: no visible binding for global variable ‘children.missing’
+fp_coverage: no visible binding for global variable ‘parent_no’
+fp_coverage: no visible global function definition for ‘head’
+fp_coverage: no visible binding for global variable ‘children.rate’
+fp_coverage: no visible global function definition for ‘tail’
+fp_created: no visible binding for global variable ‘parent_objectid’
+fp_created: no visible binding for global variable ‘objecttype’
+fp_created: no visible binding for global variable ‘querystatus’
+fp_created: no visible binding for global variable ‘.’
+fp_created: no visible binding for global variable ‘created’
+fp_duplicates: no visible binding for global variable ‘parent_objectid’
+fp_duplicates: no visible binding for global variable ‘object_type’
+fp_duplicates: no visible binding for global variable ‘query_status’
+fp_duplicates: no visible binding for global variable ‘objectid’
+fp_duplicates: no visible binding for global variable ‘parent_id’
+fp_extracttags: no visible global function definition for ‘:=’
+fp_extracttags: no visible binding for global variable ‘urls’
+fp_extracttags: no visible binding for global variable ‘tags’
+fp_extracttags: no visible binding for global variable ‘mentions’
+fp_extracttags: no visible binding for global variable ‘count_tags’
+fp_extracttags: no visible binding for global variable ‘count_urls’
+fp_extracttags: no visible binding for global variable ‘count_mentions’
+fp_extracttags: no visible binding for global variable
+  ‘msg_length_chars’
+fp_extracttags: no visible binding for global variable
+  ‘msg_length_words’
+fp_get_response_value: no visible binding for global variable ‘.’
+fp_get_response_value: no visible binding for global variable ‘jstring’
+fp_get_response_value: no visible global function definition for
+  ‘spread_values’
+fp_get_response_value: no visible global function definition for
+  ‘extract2’
+fp_getparents: no visible binding for global variable ‘data’
+fp_getparents: no visible binding for global variable ‘object_type’
+fp_getparents: no visible binding for global variable ‘query_status’
+fp_getparents: no visible binding for global variable ‘parent_id’
+fp_getparents: no visible binding for global variable ‘objectid’
+fp_getparents: no visible binding for global variable ‘no’
+fp_load_database: no visible binding for global variable ‘objectid’
+fp_load_database: no visible binding for global variable ‘objecttype’
+fp_load_database: no visible binding for global variable ‘querystatus’
+fp_load_database: no visible binding for global variable ‘querytype’
+fp_load_database: no visible binding for global variable ‘querytime’
+fp_load_database: no visible binding for global variable ‘queryparams’
+fp_load_database: no visible binding for global variable ‘parent_id’
+fp_nodesperseed: no visible global function definition for ‘set_names’
+fp_paging: no visible binding for global variable ‘parent_objectid’
+fp_paging: no visible binding for global variable ‘objecttype’
+fp_paging: no visible binding for global variable ‘querystatus’
+fp_paging: no visible binding for global variable ‘.’
+fp_paging: no visible binding for global variable ‘offcuts’
+fp_paging: no visible binding for global variable ‘cursor’
+fp_parse_response_data: no visible binding for global variable
+  ‘response’
+fp_read_csv2: no visible global function definition for ‘read_csv2’
+fp_status: no visible binding for global variable ‘level’
+fp_status: no visible binding for global variable ‘query_type’
+fp_status: no visible binding for global variable ‘query_status’
+fp_status: no visible binding for global variable ‘object_type’
+fp_timing: no visible binding for global variable ‘query_status’
+fp_timing: no visible binding for global variable ‘object_type’
+fp_timing: no visible binding for global variable ‘query_time’
+fp_timing: no visible binding for global variable ‘query_day’
+fp_timing: no visible binding for global variable ‘query_minute’
+fp_timing: no visible binding for global variable ‘timeslot’
+fp_timing: no visible global function definition for ‘rollmean’
+fp_timing: no visible global function definition for ‘na.omit’
+fp_timing: no visible binding for global variable ‘perhour’
+tree_add_level: no visible global function definition for ‘:=’
+tree_add_level: no visible global function definition for ‘set_names’
+tree_add_level: no visible binding for global variable ‘.tree_comp’
+tree_add_level: no visible binding for global variable ‘tree_order’
+tree_add_level: no visible binding for global variable ‘tree_thread’
+tree_add_level: no visible binding for global variable ‘tree_level’
+tree_add_level2: no visible binding for global variable ‘.tree_id’
+tree_add_level2: no visible binding for global variable ‘tree_thread’
+tree_add_level2: no visible binding for global variable ‘.tree_parent’
+tree_add_level2: no visible binding for global variable ‘tree_order’
+tree_add_level2: no visible binding for global variable ‘.parent_order’
+tree_add_mptt: no visible binding for global variable ‘tree_level’
+tree_add_mptt: no visible binding for global variable
+  ‘tree_descendants’
+tree_add_mptt: no visible binding for global variable ‘tree_thread’
+tree_add_mptt: no visible binding for global variable ‘tree_parent’
+tree_add_mptt: no visible binding for global variable ‘tree_id’
+tree_add_mptt: no visible binding for global variable
+  ‘tree_tmp_descendants’
+tree_add_mptt: no visible binding for global variable ‘tree_order’
+tree_add_mptt: no visible binding for global variable ‘tree_no’
+tree_add_mptt: no visible binding for global variable ‘tree_rgt’
+tree_add_mptt: no visible binding for global variable ‘tree_lft’
+tree_add_mptt: no visible binding for global variable ‘tree_parent_lft’
+tree_add_path: no visible global function definition for ‘set_names’
+tree_add_path: no visible global function definition for ‘:=’
+tree_add_path: no visible binding for global variable ‘tree_path’
+tree_add_path: no visible binding for global variable ‘.tree_path_new’
+tree_add_path: no visible binding for global variable
+  ‘.tree_parent_path’
+tree_bind_ancestors: no visible global function definition for
+  ‘set_names’
+tree_disambiguate_ids: no visible binding for global variable
+  ‘msg_type’
+tree_disambiguate_ids: no visible binding for global variable ‘tree_id’
+tree_disambiguate_ids: no visible binding for global variable
+  ‘tree_parent’
+tree_stack_ancestors: no visible binding for global variable ‘.tree_id’
+tree_stack_ancestors: no visible binding for global variable
+  ‘.tree_parent’
+tree_stack_ancestors: no visible binding for global variable
+  ‘.tree_main.y’
+tree_stack_ancestors: no visible global function definition for ‘:=’
+tree_stack_ancestors: no visible binding for global variable
+  ‘.tree_main’
+Undefined global functions or variables:
+  . .parent_order .tree_comp .tree_id .tree_main .tree_main.y
+  .tree_parent .tree_parent_path .tree_path_new := children
+  children.missing children.rate children.target count_mentions
+  count_tags count_urls created cursor data extract2 head jstring level
+  mentions msg_length_chars msg_length_words msg_type na.omit no
+  object_id object_type objectid objecttype offcuts parent_id parent_no
+  parent_objectid perhour query_day query_minute query_status
+  query_time query_type queryparams querystatus querytime querytype
+  read_csv2 response rollmean seed set_names spread_values tags tail
+  timeslot tree_descendants tree_id tree_level tree_lft tree_no
+  tree_order tree_parent tree_parent_lft tree_path tree_rgt tree_thread
+  tree_tmp_descendants urls
+Consider adding
+  importFrom("stats", "na.omit")
+  importFrom("utils", "data", "head", "tail")
+to your NAMESPACE file.
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd line widths ... NOTE
+Rd file 'fp_load_databases.Rd':
+  \examples lines wider than 100 characters:
+     data <- fp_load_databases(system.file("extdata", "example.db", package = "facepager"), system.file("extdata", "example.db", package = " ... [TRUNCATED]
+
+These lines will be truncated in the PDF manual.
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... WARNING
+Undocumented arguments in documentation object 'fp_childcount'
+  ‘.parents’ ‘.silent’ ‘level’
+Documented arguments not in \usage in documentation object 'fp_childcount':
+  ‘.parents=NA’ ‘.silent=FALSE’ ‘level=0’
+
+Undocumented arguments in documentation object 'fp_children'
+  ‘col_target’ ‘col_paging’ ‘col_created’ ‘level’ ‘.parents’
+Documented arguments not in \usage in documentation object 'fp_children':
+  ‘col_target=NA’ ‘col_paging=NA’ ‘col_created=NA’ ‘level=0’
+
+Undocumented arguments in documentation object 'fp_children_bynode'
+  ‘.global’
+Documented arguments not in \usage in documentation object 'fp_children_bynode':
+  ‘.global=T’
+
+Undocumented arguments in documentation object 'fp_extracttags'
+  ‘prefix’
+Documented arguments not in \usage in documentation object 'fp_extracttags':
+  ‘prefix=NA’
+
+Undocumented arguments in documentation object 'fp_getparents'
+  ‘.data’ ‘level’
+Documented arguments not in \usage in documentation object 'fp_getparents':
+  ‘level=0’
+
+Undocumented arguments in documentation object 'fp_load_databases'
+  ‘rename’
+
+Undocumented arguments in documentation object 'fp_nodesperseed'
+  ‘daterange’ ‘prefix’ ‘col_seed’
+Documented arguments not in \usage in documentation object 'fp_nodesperseed':
+  ‘daterange=NULL’ ‘prefix=NA’ ‘col_seed=NULL’
+
+Undocumented arguments in documentation object 'fp_parse_response_data'
+  ‘data’ ‘col’ ‘.split’ ‘.progress’
+
+Documented arguments not in \usage in documentation object 'fp_read_csv2':
+  ‘na’
+
+Undocumented arguments in documentation object 'tree_add_level2'
+  ‘data’
+Documented arguments not in \usage in documentation object 'tree_add_level2':
+  ‘.data’
+
+Undocumented arguments in documentation object 'tree_add_mptt'
+  ‘.data’
+
+Undocumented arguments in documentation object 'tree_add_path'
+  ‘col_parent_id’
+Documented arguments not in \usage in documentation object 'tree_add_path':
+  ‘col_parent’
+
+Undocumented arguments in documentation object 'tree_disambiguate_ids'
+  ‘.data’
+
+Functions with \usage entries need to have the appropriate \alias
+entries, and all their arguments documented.
+The \usage entries must correspond to syntactically valid R code.
+See chapter ‘Writing R documentation files’ in the ‘Writing R
+Extensions’ manual.
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking examples ... ERROR
+Running examples in ‘facepager-Ex.R’ failed
+The error most likely occurred in:
+
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: fp_getparents
+> ### Title: Get the Object IDs and number of parent nodes
+> ### Aliases: fp_getparents
+> 
+> ### ** Examples
+> 
+> data <- fp_read_csv2(system.file("extdata", "example.csv", package = "facepager"))
+Error in read_csv2(filename, na = c("None", "")) : 
+  could not find function "read_csv2"
+Calls: fp_read_csv2
+Execution halted
+* checking for non-standard things in the check directory ... OK
+* checking for detritus in the temp directory ... OK
+* DONE
+Status: 1 ERROR, 2 WARNINGs, 3 NOTEs

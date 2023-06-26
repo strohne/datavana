@@ -1,0 +1,19 @@
+Package: facepager
+Title: Analyze Facepager Data with R
+Version: 0.0.0.9000
+Authors@R: 
+    person("Datavana Team", role = c("aut", "cre"), email="jakob.juenger@uni-muenster.de",comment = c(ORCID = "0000-0003-1860-6695"))
+Description: Functions to analyze the database files of Facepager.
+License: MIT
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1.9000
+VignetteBuilder: knitr
+Imports: tidyverse, RSQLite, dplyr, ggplot2, lubridate, stringr, rlang,
+        tidyr, purrr, tidygraph, tokenizers, jsonlite
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2022-12-20 11:08:01 UTC; datavana
+Author: Datavana Team [aut, cre] (<https://orcid.org/0000-0003-1860-6695>)
+Maintainer: Datavana Team <jakob.juenger@uni-muenster.de>

@@ -99,7 +99,7 @@ epi_is_irifragment <- function(irifragment) {
 epi_extract_wide <- function(data, cols_prefix, cols_keep=c()) {
 
   if (length(cols_keep) > 0) {
-    regex_keep <- paste0(cols_keep,"\\.id")
+    regex_keep <- c(paste0(cols_keep,"\\.id"),paste0(cols_keep,"_id"))
     regex_keep <- paste0(regex_keep,collapse = "|")
     regex_keep <- paste0("^", regex_keep, "$")
   } else {
