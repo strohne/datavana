@@ -1,6 +1,6 @@
 #' Compare and plot factor value by group
 #'
-#' @param data A tibble
+#' @param data A tibble containing data
 #' @param col_category The column holding factor values
 #' @param col_group The column holding groups to compare
 #' @param relative Show absolute (F) or relative values (T)
@@ -26,6 +26,7 @@ plot_compare_factor <- function(data, col_category, col_group, relative=F) {
     mutate(!!col_category := forcats::fct_rev(!!col_category)) %>%
     ggplot(aes(!!col_category,y=!!col_value,fill=!!col_group)) +
     geom_col() +
+    scale_fill_brewer(type="seq") +
     geom_text(aes(label=n),position=position_stack(vjust=0.5)) +
 
     coord_flip()
