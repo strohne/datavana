@@ -312,3 +312,44 @@ db_get_codes <- function(db){
 
   return(codes)
 }
+
+
+#'Extract latitude and longitude values from items
+#'
+#'@param itemtype The itemtype
+#' @return A data frame containing the geolocations
+#' @details Geolocation data is extracted from the
+#'          JSON data contained in the value field.
+#' @export
+db_geolocations <- function (db, itemtype="geolocations")
+{
+  if (is.character(db)) {
+    con <- db_connect(db)
+  }
+  else {
+    con <- db
+  }
+  sql <- paste0("
+    SELECT
+      articles_id,
+      id AS item_id,
+      sortno,
+      published,
+      CAST(JSON_VALUE(`value`,'$.lat') AS DOUBLE)  AS lat,
+      CAST(JSON_VALUE(`value`,'$.lng') AS DOUBLE) AS lng
+    FROM items WHERE
+      itemtype = '", itemtype, "' AND
+      deleted=0
+  ")
+
+  table <- as_tibble(dbGetQuery(con, sql))
+
+  table <- mutate_if(table, is.character, .funs = function(x) {
+    return(`Encoding<-`(x, "UTF-8"))
+  })
+  if (is.character(db)) {
+    dbDisconnect(con)
+  }
+  return(table)
+}
+
