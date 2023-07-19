@@ -53,7 +53,7 @@ epidata
 
 
 ## A simple example II 
-The following example shows how to convert a social media dataset into an Epigraf import file. The social media dataset follows a canoncial structure. 
+The following example shows how to convert a social media dataset into an Epigraf import file. The social media dataset follows the canoncial structure described on the project page.
 
 ```{r, eval=TRUE}
 library(tidyverse)

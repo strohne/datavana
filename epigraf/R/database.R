@@ -1,7 +1,3 @@
-# Packages
-library(RMySQL)
-library(tidyverse)
-
 #' Save database connection settings to environment variables.
 #' Environment variables are prefixed with "epi_" and used in db_connect()
 #' to establish the connection.
@@ -54,14 +50,63 @@ db_name <- function(con) {
 }
 
 
-#
-#' Get tables from a database
+#' Get list of all databases
 #'
-#' @param db A connection object (object) or the database name (character)
-#' @param table Table name
+#' @param epi Only keep databases with the epi-prefix.
 #' @export
+db_databases <- function(epi = FALSE) {
+  con <- db_connect()
+  dbs = dbGetQuery(con,"SHOW DATABASES;")
+  dbDisconnect(con)
+  rm(con)
 
-db_table <- function(table, db, deleted=FALSE){
+  if (epi) {
+    dbs <- filter(dbs, str_starts(Database,"epi_"))
+  }
+
+  return(dbs)
+}
+
+
+
+#
+#' Construct filter conditions for the db_table() function
+#'
+#' @param table Table name
+#' @param field Field name
+#' @param value A single value, a list of characters or a list of integers
+#' @export
+db_condition <- function(table, field, value) {
+
+  # preprocess value(s) for sql
+
+  # if items in list are numeric --> collapse without ''
+  if (all(is.numeric(value))) {
+    value = paste("(", paste(value, collapse = ","), ")",sep = "")
+  }
+
+  # if items in list are characters --> collapse  ''
+  else if (all(is.character(value))) {
+    value = paste("('", paste(value, collapse = "','"), "')",sep = "")
+  }
+
+  # create statement of type "col in list"
+  statement = paste0(table, ".", field, " in ", value)
+
+  return (statement)
+}
+
+
+#
+#' Get data from a database table
+#'
+#' @param table Table name
+#' @param db A connection object (object) or the database name (character)
+#' @param deleted Deleted records are skipped by default. Set to TRUE, to get all records.
+#' @param cond A character or a character vector of conditions, e.g.
+#'                   "id = 10"
+#' @export
+db_table <- function(table, db, deleted=FALSE, cond=c()){
   # Check if db is character --> open db connection
   if (is.character(db)){
     con <- db_connect(db)
@@ -72,8 +117,17 @@ db_table <- function(table, db, deleted=FALSE){
   # Construct SQL
   sql <- paste0("SELECT * FROM ", table)
 
-  if (deleted == FALSE){
-    sql <- paste0(sql, " WHERE deleted = 0")
+  # Add deleted = 0 to the conditions vector
+  if (deleted == FALSE) {
+    cond = c("deleted = 0", cond)
+  }
+
+
+  # Add all conditions to the query
+  if (length(cond) > 0) {
+    cond <- paste0("(", cond, ")")
+    cond <- paste0(cond, collapse = " AND ")
+    sql <- paste0(sql, " WHERE ", cond)
   }
 
 
@@ -188,7 +242,6 @@ db_get_codings <- function(db){
 #'          The property types are added as root nodes
 #'          and if the lemma is empty, it is replaced by the name
 #' @export
-
 db_get_codes <- function(db){
 
   # Check if db is character --> open db connection
@@ -259,3 +312,44 @@ db_get_codes <- function(db){
 
   return(codes)
 }
+
+
+#'Extract latitude and longitude values from items
+#'
+#'@param itemtype The itemtype
+#' @return A data frame containing the geolocations
+#' @details Geolocation data is extracted from the
+#'          JSON data contained in the value field.
+#' @export
+db_geolocations <- function (db, itemtype="geolocations")
+{
+  if (is.character(db)) {
+    con <- db_connect(db)
+  }
+  else {
+    con <- db
+  }
+  sql <- paste0("
+    SELECT
+      articles_id,
+      id AS item_id,
+      sortno,
+      published,
+      CAST(JSON_VALUE(`value`,'$.lat') AS DOUBLE)  AS lat,
+      CAST(JSON_VALUE(`value`,'$.lng') AS DOUBLE) AS lng
+    FROM items WHERE
+      itemtype = '", itemtype, "' AND
+      deleted=0
+  ")
+
+  table <- as_tibble(dbGetQuery(con, sql))
+
+  table <- mutate_if(table, is.character, .funs = function(x) {
+    return(`Encoding<-`(x, "UTF-8"))
+  })
+  if (is.character(db)) {
+    dbDisconnect(con)
+  }
+  return(table)
+}
+
