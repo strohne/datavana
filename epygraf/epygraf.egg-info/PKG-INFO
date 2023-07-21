@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: epygraf
+Version: 0.0.1
+Summary: Epygraf - analyse epigraf data with python
+Author: Jakob Jünger und Chantal Gärtner
+Author-email: <youremail@email.com>
+Keywords: python,first package
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+
+The Epygraf package aims to make data work with Epigraf easier. It provides functions for data transfer using the Epigraf APIs: preparing data imports, e.g. from social media datasets, and preparing data analyses with Python.
