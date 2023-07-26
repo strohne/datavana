@@ -11,5 +11,19 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3.9000
 LazyData: true
 Imports: 
-  forcats,
-  dplyr
+    forcats,
+    dplyr,
+    rlang,
+    lifecycle,
+    cli,
+    glue,
+    withr,
+    magrittr,
+    tidyr,
+    tidyselect
+Depends: 
+    R (>= 2.10)
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

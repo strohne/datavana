@@ -33,7 +33,7 @@ table_compare_items <- function(data, cols_items, col_group) {
     value = lapply(data,attributes)
   ) %>%
     mutate(label=as.character(label)) %>%
-    unnest_longer(value) %>%
+    tidyr::unnest_longer(value) %>%
     filter(value_id != "comment", value_id != "class" ) %>%
     mutate(value = as.character(value))
 
@@ -46,7 +46,7 @@ table_compare_items <- function(data, cols_items, col_group) {
   # Calculate
   data_grouped <- data %>%
 
-    pivot_longer(all_of(cols_items), names_to="item",values_to="value_id") %>%
+    tidyr::pivot_longer(tidyselect::all_of(cols_items), names_to="item",values_to="value_id") %>%
 
     count(!!col_group,item,value_id) %>%
     group_by(!!col_group,item) %>%
@@ -66,6 +66,8 @@ table_compare_items <- function(data, cols_items, col_group) {
     mutate(item=forcats::fct_reorder(item,no, .desc=T)) %>%
 
     mutate(value=paste0(value_id, " ", value))
+
+  data_grouped
 }
 
 
