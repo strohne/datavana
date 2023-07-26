@@ -9,3 +9,5 @@ private/
 facepager/.DS_Store
 facepager/R/.DS_Store
 facepager.Rcheck
+
+.ipynb_checkpoints
