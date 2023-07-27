@@ -1,3 +1,7 @@
+url: ~
+template:
+  bootstrap: 5
+
   reference:
 - title: api
   desc: >
@@ -23,4 +27,3 @@
     Functions to convert social media data.
   contents:
   - starts_with("sm")
-
