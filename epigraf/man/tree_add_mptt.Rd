@@ -12,7 +12,7 @@ tree_add_mptt(.data)
 TODO: parameters?}
 }
 \value{
-
+Dataframe with lft and rght values
 }
 \description{
 Adds left and right values to the dataframe (modified preorder tree traversal)

@@ -9,10 +9,12 @@ epi_wide_to_long(data)
 \arguments{
 \item{data}{A dataframe with the column id containing a valid IRI path.
 and additional columns. The additional columns may contain nested
-data in the following form:\preformatted{        Column names prefixed with "properties", "items", "sections",
+data in the following form:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{        Column names prefixed with "properties", "items", "sections",
          "articles" and "projects" followed by a dot (e.g. "properties.id",
         "properties.lemma") will be extracted and stacked to the dataframe.
-}}
+}\if{html}{\out{</div>}}}
 }
 \value{
 A dataframe with all input rows and the nested records stacked.

@@ -266,7 +266,7 @@ tree_add_level2 <- function(data, col_id, col_parent, col_sort=NULL) {
 #'
 #' @param data Dataframe with the columns tree_id, tree_parent, tree_thread, tree_level, tree_order
 #'            TODO: parameters?
-#' @return
+#' @return Dataframe with lft and rght values
 #' @export
 tree_add_mptt <- function(.data) {
   # Progress
@@ -395,7 +395,7 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
 #' @param parent Column holding the parent ID of the node
 #' @param type Column holding the type of the node. Every level needs a different type, e.g. "page", "post", "comment" or "reply".
 #' @param levels The hierarchy of the types, e.g. c("page","post","comment","reply")
-#' @return
+#' @return A dataframe with new IDs
 #' @export
 tree_disambiguate_ids <- function(.data, id, parent, type, levels) {
   id <- enquo(id)

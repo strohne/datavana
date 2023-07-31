@@ -8,10 +8,12 @@ api_patch_wide(data, database)
 }
 \arguments{
 \item{data}{A dataframe with the column id containing a valid IRI path.
-Additional columns such as norm_data will be written to the record.\preformatted{        Column names prefixed with "properties", "items", "sections", "articles"
+Additional columns such as norm_data will be written to the record.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{        Column names prefixed with "properties", "items", "sections", "articles"
         and "projects" followed by a dot (e.g. "properties.id",
         "properties.lemma") will be extracted and patched as additional records
-}}
+}\if{html}{\out{</div>}}}
 
 \item{database}{The database name}
 }
