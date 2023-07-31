@@ -1,0 +1,29 @@
+url: ~
+template:
+  bootstrap: 5
+
+  reference:
+- title: api
+  desc: >
+    Functions to interact with the Epigraf API
+  contents:
+  - starts_with("api")
+
+- title: db
+  desc: >
+    Get data directly from the database.
+  contents:
+  - starts_with("db")
+
+- title: tree
+  desc: >
+    Helper functions for handling tree data.
+  contents:
+  - starts_with("tree")
+
+
+- title: sm
+  desc: >
+    Functions to convert social media data.
+  contents:
+  - starts_with("sm")
