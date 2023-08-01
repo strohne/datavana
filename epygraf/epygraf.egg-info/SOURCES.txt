@@ -1,4 +1,4 @@
-setup_epygraf.py
+setup.py
 database/__init__.py
 database/database.py
 epygraf.egg-info/PKG-INFO
