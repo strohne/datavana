@@ -16,5 +16,7 @@ Example:
 Given you have direct access to the servers, you can get alle article records of a database:
 
 ```
+from epygraf import *
+
 db_table("articles")
 ```
