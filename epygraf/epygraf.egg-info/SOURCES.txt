@@ -1,7 +1,8 @@
 setup.py
-database/__init__.py
-database/database.py
+epygraf/__init__.py
+epygraf/db.py
 epygraf.egg-info/PKG-INFO
 epygraf.egg-info/SOURCES.txt
 epygraf.egg-info/dependency_links.txt
+epygraf.egg-info/requires.txt
 epygraf.egg-info/top_level.txt

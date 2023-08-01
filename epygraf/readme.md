@@ -7,7 +7,7 @@ The Epygraf package makes working with Epigraf data from Python easier.
 
 ## Usage
 
-There are two ways to acces Epigraf data: 
+There are two ways to access Epigraf data: 
 
 a) API: Used to access data and create jobs from outside the server
 b) Direct database access: Presumes you have a direct connection to the database server, e.g. in a development environment
