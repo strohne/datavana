@@ -21,10 +21,10 @@ In Jupyter, after installing or changing the package, don't forget to restart th
 
 There are two ways to access Epigraf data: 
 
-a) API: Used to access data and create jobs from outside the server. 
-b) Direct database access: Presumes you have a direct connection to the database server, e.g. in a development environment. 
+- **API**: Used to access data and create jobs from outside the server. 
+- **Database**: Presumes you have a direct connection to the database server, e.g. in a development environment. 
 
-## Database access
+## Database functions
 
 Given you have direct access to an Epigraf server, 
 you can show all article records from the epi_all-database 
@@ -58,6 +58,6 @@ articles.articletype.value_counts()
 ```
 
 
-## API
+## API functions
 
 *to be added*
