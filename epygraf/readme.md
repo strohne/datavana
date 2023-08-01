@@ -42,10 +42,10 @@ setup the connection settings first:
 
 ```
 epi.db.setup(
-    host="localhost",
-	port=3306, 
-	username="root", 
-	password="root"
+    host="localhost", 
+    port=3306, 
+    username="root", 
+    password="root" 
 )
 ```
 
