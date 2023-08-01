@@ -21,8 +21,8 @@ In Jupyter, after installing or changing the package, don't forget to restart th
 
 There are two ways to access Epigraf data: 
 
-a) API: Used to access data and create jobs from outside the server
-b) Direct database access: Presumes you have a direct connection to the database server, e.g. in a development environment
+a) API: Used to access data and create jobs from outside the server. 
+b) Direct database access: Presumes you have a direct connection to the database server, e.g. in a development environment. 
 
 ## Database access
 
