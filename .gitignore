@@ -11,3 +11,4 @@ facepager/R/.DS_Store
 facepager.Rcheck
 
 .ipynb_checkpoints
+__pycache__

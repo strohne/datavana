@@ -15,7 +15,7 @@ def setup(host="localhost", port=3306, username="root", password="root", databas
     """
     settings['host'] = host
     settings['port'] = port
-    settings['username'] = root
+    settings['username'] = username
     settings['password'] = password
     settings['database'] = database
 
