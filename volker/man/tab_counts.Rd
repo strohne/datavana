@@ -9,7 +9,7 @@ tab_counts(data, col, .quiet = F)
 \arguments{
 \item{data}{A tibble}
 
-\item{col}{The columns holding values to count}
+\item{col}{The column holding values to count}
 
 \item{.quiet}{Set to true to suppress printing the output}
 }
