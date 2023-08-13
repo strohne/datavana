@@ -1,6 +1,6 @@
 #' A reduced skimmer for metric variables
-skim_metrics <- skim_with(
-  numeric = sfl(
+skim_metrics <- skimr::skim_with(
+  numeric = skimr::sfl(
     min = ~ base::min(., na.rm = T),
     q1 = ~ stats::quantile(., probs = 0.25, na.rm = TRUE, names = FALSE),
     median = ~ stats::median(., na.rm = T),
@@ -9,9 +9,9 @@ skim_metrics <- skim_with(
     mean = ~ base::mean(., na.rm=T),
     sd = ~ stats::sd(., na.rm=T)
   ),
-  base = sfl(
+  base = skimr::sfl(
     n = length,
-    missing = n_missing
+    missing = skimr::n_missing
   ),
   append = FALSE
 )

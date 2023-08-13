@@ -7,24 +7,22 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
+```{r Setup, include=}
 
-```{r setup}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+
 library(tidyverse)
 library(volker)
 theme_set(theme_bw())
+
 data <- volker::chatgpt
 
 ```
-```{r}
+
+```{r Descriptives}
 
 
-table_compare_items(data, starts_with("cg_adoption_"), sd_geschlecht)
+tab_compare_items(data, starts_with("cg_adoption_"), sd_geschlecht)
 
 plot_compare_items(data, starts_with("cg_adoption_"), sd_geschlecht)
 

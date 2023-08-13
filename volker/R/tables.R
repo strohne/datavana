@@ -8,19 +8,19 @@
 tab_counts <- function(data, col, .quiet = F) {
 
   result <- data %>%
-    count({{col}}) %>%
-    mutate(
+    dplyr::count({{col}}) %>%
+    dplyr::mutate(
       p = n / sum(n)
     ) %>%
-    mutate(
-      p_val = if_else(
+    dplyr::mutate(
+      p_val = dplyr::if_else(
         is.na({{col}}),
         NA_real_,
         n / sum( na.omit(.)$n)
       )
     ) %>%
-    mutate(
-      {{col}} := replace_na({{col}},"Fehlend")
+    dplyr::mutate(
+      {{col}} := tidyr::replace_na({{col}},"Fehlend")
     )
 
   result <- result %>%
@@ -28,15 +28,15 @@ tab_counts <- function(data, col, .quiet = F) {
 
   if (!.quiet) {
     result %>%
-      mutate(
+      dplyr::mutate(
         p = round(p * 100,0),
         p_val = round(p_val * 100,0)
       ) %>%
-      rename(
+      dplyr::rename(
         `%` = p,
         `Gültige %` = p_val
       ) %>%
-      kable() %>%
+      knitr::kable() %>%
       print()
   }
 
@@ -55,13 +55,13 @@ tab_metrics <- function(data, cols_values, digits = 1, .quiet = F) {
   cols_values <- enquo(cols_values)
 
   result <- data %>%
-    select(!!!cols_values) %>%
+    dplyr::select(!!cols_values) %>%
     skim_metrics()
 
   if (!.quiet) {
     result %>%
-      select(
-        " "=skim_variable,
+      dplyr::select(
+        " " = skim_variable,
         Min = numeric.min,
         Q1 = numeric.q1,
         Median = numeric.median,
@@ -70,7 +70,7 @@ tab_metrics <- function(data, cols_values, digits = 1, .quiet = F) {
         n,
         missing
       ) %>%
-      kable(digits=digits) %>%
+      knitr::kable(digits=digits) %>%
       print()
   }
 
@@ -98,7 +98,7 @@ tab_means <- function(data, cols_groups, cols_values, digits = 1, .quiet = F) {
   vals <- enquo(cols_values)
 
   all <- data %>%
-    dplyr::select(!!!vals) %>%
+    dplyr::select(!!vals) %>%
     skimr::skim_without_charts() %>%
     dplyr::select(skim_variable, all=numeric.mean)
 
@@ -110,8 +110,9 @@ tab_means <- function(data, cols_groups, cols_values, digits = 1, .quiet = F) {
       data %>%
         dplyr::filter(!is.na(!!sym(col))) %>%
         dplyr::group_by(!!sym(col)) %>%
-        dplyr::select(!!!vals) %>%
+        dplyr::select(!!sym(col),!!vals) %>%
         skimr::skim_without_charts() %>%
+        dplyr::ungroup() %>%
         dplyr::select(skim_variable, !!sym(col), numeric.mean) %>%
         tidyr::pivot_wider(
           names_from = !!sym(col),
@@ -130,7 +131,7 @@ tab_means <- function(data, cols_groups, cols_values, digits = 1, .quiet = F) {
 
   if (!.quiet) {
     result %>%
-      kable(digits=digits) %>%
+      knitr::kable(digits=digits) %>%
       print()
   }
 
@@ -149,10 +150,10 @@ tab_compare_factor <- function(data, col_category, col_group) {
   col_group <- enquo(col_group)
 
   data <- data %>%
-    count(!!col_group,!!col_category) %>%
-    group_by(!!col_category) %>%
-    mutate(p = n / sum(n)) %>%
-    ungroup()
+    dplyr::count(!!col_group,!!col_category) %>%
+    dplyr::group_by(!!col_category) %>%
+    dplyr::mutate(p = n / sum(n)) %>%
+    dplyr::ungroup()
 }
 
 #' Compare & Table items
@@ -171,40 +172,40 @@ tab_compare_items <- function(data, cols_items, col_group) {
     label = sapply(data,attr,"comment"),
     value = lapply(data,attributes)
   ) %>%
-    mutate(label=as.character(label)) %>%
+    dplyr::mutate(label=as.character(label)) %>%
     tidyr::unnest_longer(value) %>%
-    filter(value_id != "comment", value_id != "class" ) %>%
-    mutate(value = as.character(value))
+    dplyr::filter(value_id != "comment", value_id != "class" ) %>%
+    dplyr::mutate(value = as.character(value))
 
   # Filter item labels
   items <- codes %>%
     #na.omit() %>%
-    distinct(item,label) %>%
-    mutate(no = row_number())
+    dplyr::distinct(item,label) %>%
+    dplyr::mutate(no = row_number())
 
   # Calculate
   data_grouped <- data %>%
 
     tidyr::pivot_longer(tidyselect::all_of(cols_items), names_to="item",values_to="value_id") %>%
 
-    count(!!col_group,item,value_id) %>%
-    group_by(!!col_group,item) %>%
-    mutate(p= n / sum(n)) %>%
-    ungroup() %>%
+    dplyr::count(!!col_group,item,value_id) %>%
+    dplyr::group_by(!!col_group,item) %>%
+    dplyr::mutate(p= n / sum(n)) %>%
+    dplyr::ungroup() %>%
 
     # Labeling
-    mutate(value_id = as.character(value_id)) %>%
-    left_join(items,by=c("item")) %>%
-    left_join(select(codes,item,value_id,value),by=c("item","value_id")) %>%
+    dplyr::mutate(value_id = as.character(value_id)) %>%
+    dplyr::left_join(items,by=c("item")) %>%
+    dplyr::left_join(select(codes,item,value_id,value),by=c("item","value_id")) %>%
 
-    mutate(label = str_remove(label,"^.*: ")) %>%
-    mutate(label = str_trunc(label,50) ) %>%
+    dplyr::mutate(label = str_remove(label,"^.*: ")) %>%
+    dplyr::mutate(label = str_trunc(label,50) ) %>%
 
-    mutate(item=str_remove(item,common_prefix(.$item))) %>%
-    mutate(item=paste0(item," ",label)) %>%
-    mutate(item=forcats::fct_reorder(item,no, .desc=T)) %>%
+    dplyr::mutate(item=str_remove(item,common_prefix(.$item))) %>%
+    dplyr::mutate(item=paste0(item," ",label)) %>%
+    dplyr::mutate(item=forcats::fct_reorder(item,no, .desc=T)) %>%
 
-    mutate(value=paste0(value_id, " ", value))
+    dplyr::mutate(value=paste0(value_id, " ", value))
 
   data_grouped
 }

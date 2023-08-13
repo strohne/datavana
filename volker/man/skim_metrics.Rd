@@ -4,7 +4,7 @@
 \alias{skim_metrics}
 \title{A reduced skimmer for metric variables}
 \usage{
-skim_metrics(data, ...)
+skim_metrics(data, ..., .data_name = NULL)
 }
 \description{
 A reduced skimmer for metric variables
