@@ -1,7 +1,5 @@
 import pandas as pd
-import os
 from sqlalchemy import create_engine, text
-from urllib.parse import urlparse, urlunparse
 
 settings = {
     'host': 'localhost',
