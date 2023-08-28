@@ -64,3 +64,7 @@ def table(table="", db="epi_all"):
         db_rows = pd.read_sql(text(query), con=con)
 
     return(db_rows)
+
+
+  
+
