@@ -54,7 +54,7 @@ epi_is_iripath <- function(iripath, table=NA, type=NA) {
     type <- "([a-z0-9_-]+)"
   }
 
-  fragment <- "([a-zA-Z0-9_~-]+)"
+  fragment <- "([a-z0-9_~-]+)"
 
   stringr::str_detect(iripath,paste0("^",table,"/",type,"/",fragment,"$"))
 
