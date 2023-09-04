@@ -2,7 +2,7 @@
 % Please edit documentation in R/trees.R
 \name{tree_disambiguate_ids}
 \alias{tree_disambiguate_ids}
-\title{Create tree IDs - disambiguate IDs of different node types to avoid collision between IDs}
+\title{Create unique tree IDs}
 \usage{
 tree_disambiguate_ids(.data, id, parent, type, levels)
 }
@@ -19,5 +19,8 @@ tree_disambiguate_ids(.data, id, parent, type, levels)
 A dataframe with new IDs
 }
 \description{
+Disambiguates IDs of different node types to avoid ID collisions.
+}
+\details{
 TODO: test and refine
 }

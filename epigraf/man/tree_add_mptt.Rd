@@ -2,8 +2,7 @@
 % Please edit documentation in R/trees.R
 \name{tree_add_mptt}
 \alias{tree_add_mptt}
-\title{Adds left and right values to the dataframe (modified preorder tree traversal)
-See https://www.sitepoint.com/hierarchical-data-database-3/}
+\title{Adds left and right values to the dataframe}
 \usage{
 tree_add_mptt(.data)
 }
@@ -15,6 +14,7 @@ TODO: parameters?}
 Dataframe with lft and rght values
 }
 \description{
-Adds left and right values to the dataframe (modified preorder tree traversal)
+Left and right values are used to store hierarchical data
+using the concept of modified preorder tree traversal.
 See https://www.sitepoint.com/hierarchical-data-database-3/
 }

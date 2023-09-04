@@ -2,9 +2,7 @@
 % Please edit documentation in R/trees.R
 \name{tree_add_path}
 \alias{tree_add_path}
-\title{Add a column holding the path of each node.
-The path is created by concatenating all col_lemma values up to the root node.
-Lemmata are concatenated using a slash - existing slashes are replaced by the entity /.}
+\title{Add a column holding the path of each node.}
 \usage{
 tree_add_path(data, col_id, col_parent_id, col_lemma)
 }
@@ -21,7 +19,6 @@ tree_add_path(data, col_id, col_parent_id, col_lemma)
 A data frame with the additional column tree_path
 }
 \description{
-Add a column holding the path of each node.
 The path is created by concatenating all col_lemma values up to the root node.
 Lemmata are concatenated using a slash - existing slashes are replaced by the entity /.
 }

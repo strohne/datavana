@@ -26,11 +26,13 @@ tree_bind_ancestors <- function(.data, .tree, id, parent_id) {
 }
 
 
-#' For each node, add each ancestors id.
+#' For each node, add each ancestor's id
+#'
 #' In the result, nodes will be duplicated for all their ancestors.
 #' As an example: a node on level 2 will be present two times,
 #'   1. the node containing the parent_id in the col_stack column
 #'   2. the node containing the parents parent_id in the col_stack column
+#'
 #' @param data All nodes
 #' @param col_id The column holding IDs of the nodes
 #' @param col_parent The column holding IDs of the parent nodes
@@ -261,7 +263,10 @@ tree_add_level2 <- function(data, col_id, col_parent, col_sort=NULL) {
 }
 
 
-#' Adds left and right values to the dataframe (modified preorder tree traversal)
+#' Adds left and right values to the dataframe
+#'
+#' Left and right values are used to store hierarchical data
+#' using the concept of modified preorder tree traversal.
 #' See https://www.sitepoint.com/hierarchical-data-database-3/
 #'
 #' @param data Dataframe with the columns tree_id, tree_parent, tree_thread, tree_level, tree_order
@@ -338,6 +343,7 @@ tree_add_mptt <- function(.data) {
 
 
 #' Add a column holding the path of each node.
+#'
 #' The path is created by concatenating all col_lemma values up to the root node.
 #' Lemmata are concatenated using a slash - existing slashes are replaced by the entity &#47;.
 #'
@@ -387,7 +393,9 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
 }
 
 
-#' Create tree IDs - disambiguate IDs of different node types to avoid collision between IDs
+#' Create unique tree IDs
+#'
+#' Disambiguates IDs of different node types to avoid ID collisions.
 #'
 #' TODO: test and refine
 #'
