@@ -1,6 +1,7 @@
 setup.py
 epygraf/__init__.py
 epygraf/api.py
+epygraf/base.py
 epygraf/db.py
 epygraf.egg-info/PKG-INFO
 epygraf.egg-info/SOURCES.txt
