@@ -4,7 +4,7 @@ import re
 
 def create_iri(table, type, fragment):
 
-     """
+    """
     Create a clean IRI.
 
     :param table: (str) The table name
@@ -79,7 +79,7 @@ def is_id(ids, table=None):
 
 def is_irifragment(irifragment):
 
-     """
+    """
     Check whether the provided vector contains a valid IRI fragment
 
     :param irifragment: (str or list) The vector that will be checked for valid IRI fragments.
