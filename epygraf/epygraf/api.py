@@ -9,10 +9,15 @@ from epygraf import base
 
 def setup(apiserver, apitoken, verbose=False): 
     
-    """ 
-    Save API connection settings to environment variables
+   """
+    Save API connection settings to environment variables.
+
+    :param apiserver: (str) URL of the Epigraf server
+                      (including https-protocol)
+    :param apitoken: (str) Access token
+    :param verbose: (bool) Show debug messages and the built URLs
+                    (default is False)
     """
-    
     settings = dict(locals())
     settings = {f"epi_{key}": str(value) for key, value in settings.items()}
     os.environ.update(settings)
@@ -21,9 +26,14 @@ def setup(apiserver, apitoken, verbose=False):
 def build_url(endpoint, query=None, database=None, extension="json"):
     
     """
-    Build base URL
-    """
+    Build base URL.
 
+    :param endpoint: (str) The endpoint, e.g. articles/import
+    :param query: (dict or None) Query parameters for the endpoint
+    :param database: (str or None) The database name
+    :param extension: (str) Extension added to the URL path, defaults to json.
+    :return: (str) The built URL
+    """
     # Get server and token from the global settings
     server = os.getenv("epi_apiserver")
     token = os.getenv("epi_apitoken")
@@ -64,7 +74,14 @@ def build_url(endpoint, query=None, database=None, extension="json"):
 def table(table, params=None, db=None, maxpages=1):
 
     """
-    Download tabular data
+    Download tabular data.
+
+    :param table: (str) The table name (e.g. "items")
+    :param params: (dict) A named dictionary of query parameters
+    :param db: (str) The database name
+    :param maxpages: (int) Maximum number of pages to request.
+                    Set to 1 for non-paginated tables.
+    :return: (pandas.DataFrame) The downloaded tabular data
     """
     verbose = True if os.getenv("epi_verbose") == "TRUE" else False
 
@@ -124,8 +141,14 @@ def table(table, params=None, db=None, maxpages=1):
 # Create and execute a job
 def job_create(endpoint, params, database, payload=None):
 
-    """
-    Create job
+     """
+    Create and execute a job.
+
+    :param endpoint: (str) The endpoint supporting job creation
+    :param params: (dict) Query parameters
+    :param database: (str) The selected database
+    :param payload: (object or None) The data posted to the job endpoint
+    :return: None
     """
     server = os.getenv("epi_apiserver")
     verbose = True if os.getenv("epi_verbose") == "TRUE" else False
@@ -174,7 +197,10 @@ def job_create(endpoint, params, database, payload=None):
 def job_execute(job_id):
 
     """
-    Execute job
+    Execute a job.
+
+    :param job_id: (str) The job ID
+    :return: (bool) Whether the job was finished without error.
     """
 
     verbose = True if os.getenv("epi_verbose") == "TRUE" else False
@@ -235,7 +261,20 @@ def job_execute(job_id):
 def patch(data, database, table=None, type=None, wide=True):
 
     """
-    Patch data
+    Update records in the database using the API.
+    Existing records will be updated, missing records will be created.
+    The function supports uploading all data related to articles:
+    articles, sections, items, links, footnotes, properties, projects, users, types.
+    The IRI path in the ID column of the dataframe must contain the specific table name.
+
+    :param data: (pandas.DataFrame) A dataframe with the column id
+                 (must be a valid IRI path).
+                 Additional columns such as norm_data will be written to the record.
+    :param database: (str) The database name
+    :param table: (str or None) Check that the data only contains rows for a specific table
+    :param type: (str or None) Check that the data only contains rows with a specific type
+    :param wide: (bool) Convert wide format to long format
+    :return: None
     """
     
     if wide:

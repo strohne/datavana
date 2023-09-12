@@ -36,15 +36,16 @@ articles <- api_table("articles",c(), "epi_all", 1)
 
 ## Writing data
 
-Categories used to annotate or tag articles are called properties in the Epigraf data model. You can create or update such properties with api_patch_properties(). The following command creates two categories, "Klösterlandschaften" with the IRI "properties/topics/monasteries" and "Hansestädte" with the IRI "properties/topics/hanseatic" (last three parameters) in the database epi_all (first parameter).
+Categories used to annotate or tag articles are called properties in the Epigraf data model. You can create or update such properties with api_patch(). The following command creates one categorie "Hansestädte" with the IRI "properties/topics/hanseatic" in the database epi_all.
 
 ```
-api_patch_properties(
-  "epi_all",
-  "topics",
-  c("Klösterlandschaften","Hansestädte"),
-  c("monasteries", "hanseatic")
+properties <- tibble(
+  id = c("properties/topics/hanseatic"),
+  lemma = c("Hansestädte")
 )
+
+api_patch(properties, "epi_all")
+
 ```
 
 If a property with the given IRI already exists, it will not be created, but updated. This way you can change the labels.

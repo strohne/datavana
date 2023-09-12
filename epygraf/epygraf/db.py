@@ -10,8 +10,18 @@ settings = {
 }
 
 def setup(host="localhost", port=3306, username="root", password="root", database=""):
+    
     """
-    Prepare the database connection parameters
+    Save database connection settings to environment variables.
+    Environment variables are prefixed with "epi_" and used in db_connect()
+    to establish the connection.
+
+    :param host: (str) host
+    :param port: (int) port
+    :param username: (str) username
+    :param password: (str) password
+    :param database: (str) database
+    :return: None
     """
     settings['host'] = host
     settings['port'] = port
@@ -19,12 +29,17 @@ def setup(host="localhost", port=3306, username="root", password="root", databas
     settings['password'] = password
     settings['database'] = database
 
-def connect(db = "epi_all"):
+def connect(db=None):
+   
     """
-    Create an engine used to connect to the database
-    
-    Parameters:
-    - db The database name
+    Get a connection to a database.
+    Before you can use this function, call db_setup once
+    to set the connection parameters.
+    All parameters are stored in the environment.
+
+    :param db: (str or None) Name of the database as string.
+               Leave empty to use the database name from the environment settings.
+    :return: (pymysql.connections.Connection) A connection to the database.
     """
     db_str = 'mysql+pymysql://' + \
              settings['username'] + ':' + \
