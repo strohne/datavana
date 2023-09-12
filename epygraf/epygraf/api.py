@@ -9,11 +9,11 @@ from epygraf import base
 
 def setup(apiserver, apitoken, verbose=False): 
     
-   """
+    """
     Save API connection settings to environment variables.
 
     :param apiserver: (str) URL of the Epigraf server
-                      (including https-protocol)
+                        (including https-protocol)
     :param apitoken: (str) Access token
     :param verbose: (bool) Show debug messages and the built URLs
                     (default is False)
@@ -141,7 +141,7 @@ def table(table, params=None, db=None, maxpages=1):
 # Create and execute a job
 def job_create(endpoint, params, database, payload=None):
 
-     """
+    """
     Create and execute a job.
 
     :param endpoint: (str) The endpoint supporting job creation
@@ -150,48 +150,48 @@ def job_create(endpoint, params, database, payload=None):
     :param payload: (object or None) The data posted to the job endpoint
     :return: None
     """
-    server = os.getenv("epi_apiserver")
-    verbose = True if os.getenv("epi_verbose") == "TRUE" else False
+server = os.getenv("epi_apiserver")
+verbose = True if os.getenv("epi_verbose") == "TRUE" else False
 
-    print(f"Creating job on server {server}")
+print(f"Creating job on server {server}")
 
     # 1. Create job
-    url = build_url(endpoint, params, database)
+url = build_url(endpoint, params, database)
 
-    if verbose:
-        resp = requests.post(url, json=payload, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
-    else:
-        resp = requests.post(url, json=payload)
+if verbose:
+    resp = requests.post(url, json=payload, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
+else:
+    resp = requests.post(url, json=payload)
 
-    body = resp.json()
-    job_id = body.get("job_id", None)
+body = resp.json()
+job_id = body.get("job_id", None)
 
-    error = False
-    message = None
+error = False
+message = None
 
-    # Request error
-    if resp.status_code != 200:
-        error = True
-        message = body.get("error", {}).get("message", None)
+# Request error
+if resp.status_code != 200:
+    error = True
+    message = body.get("error", {}).get("message", None)
 
-    # Job error
-    elif not body.get("success", True):
-        error = True
-        message = body.get("message", None)
+# Job error
+elif not body.get("success", True):
+    error = True
+    message = body.get("message", None)
 
-    # No job ID
-    elif job_id is None:
-        error = True
-        message = "No job ID found."
+# No job ID
+elif job_id is None:
+    error = True
+    message = "No job ID found."
 
-    if error:
-        raise Exception(f"Could not create job: {message}")
+if error:
+    raise Exception(f"Could not create job: {message}")
 
-    if message is not None:
-        print(message)
+if message is not None:
+    print(message)
 
-    # 2. Execute job
-    job_execute(job_id)
+# 2. Execute job
+job_execute(job_id)
 
 # Execute a job
 def job_execute(job_id):
