@@ -11,3 +11,9 @@ library(volker)
 ```
 
 
+Alternative using remotes:
+```
+if (!require(remotes)) { install.packages("remotes") }
+remotes::install_github("strohne/datavana", subdir="epigraf")
+p_load("epigraf")
+```
