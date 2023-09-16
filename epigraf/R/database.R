@@ -30,7 +30,7 @@ db_connect <- function(db=NULL) {
   }
 
   con <- dbConnect(
-    RMySQL::MySQL(),
+    RMariaDB::MariaDB(),
     host = Sys.getenv("epi_host"),
     port = as.numeric(Sys.getenv("epi_port")),
     username = Sys.getenv("epi_username"),
