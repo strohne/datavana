@@ -1,97 +1,151 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
 import re
-from typing import Union, DataFrame, Optional
+import mysql.connector
+import os
+import pymysql
+from pymysql import cursors
 
-settings = {
-    'host': 'localhost',
-    'port': 3306,
-    'username': 'root',
-    'password': 'root',
-    'database': "epi_all"
-}
 
 def setup(host="localhost", port=3306, username="root", password="root", database=""):
-    
-    """
-    Save database connection settings to environment variables.
-    Environment variables are prefixed with "epi_" and used in db_connect()
-    to establish the connection.
 
-    :param host: (str) host
-    :param port: (int) port
-    :param username: (str) username
-    :param password: (str) password
-    :param database: (str) database
-    :return: None
     """
-    settings['host'] = host
-    settings['port'] = port
-    settings['username'] = username
-    settings['password'] = password
-    settings['database'] = database
+    Set up environment variables for connecting to a database.
+
+    :param host: (str) The hostname or IP address of the database server.
+                  Default is 'localhost'.
+    :param port: (int) The port number for the database server. Default is 3306.
+    :param username: (str) The username for connecting to the database.
+                      Default is 'root'.
+    :param password: (str) The password for connecting to the database.
+                      Default is 'root'.
+    :param database: (str) The name of the database to connect to.
+                     Default is an empty string.
+    :return: None
+
+    """
+    settings = {
+        "epi_host": host,
+        "epi_port": str(port),
+        "epi_username": username,
+        "epi_password": password,
+        "epi_dbname": database
+    }
+
+    for key, value in settings.items():
+        os.environ[key] = str(value)
+
 
 def connect(db=None):
-   
-    """
-    Get a connection to a database.
-    Before you can use this function, call db_setup once
-    to set the connection parameters.
-    All parameters are stored in the environment.
-
-    :param db: (str or None) Name of the database as string.
-               Leave empty to use the database name from the environment settings.
-    :return: (pymysql.connections.Connection) A connection to the database.
-    """
-    db_str = 'mysql+pymysql://' + \
-             settings['username'] + ':' + \
-             settings['password'] + '@' + \
-             settings['host'] + ':' + \
-             str(settings['port']) + '/' + \
-             db
-
-    db_enginge = create_engine(db_str)
-
-    return (db_enginge)
-
-
-def unconnect(db_engine):
-    """
-    Closes a database connection
-    
-    Parameters:
-    - db_engine The database engine created by connect()
-    """
-    db_engine.dispose()
-
-def table(table="", db="epi_all"):
-    """
-    Get all rows in a table filtered by deleted=0.
-    
-    Parameters:
-    - table The table name
-    - db The database engine obtained from connect()
-    Returns:
-    A pandas dataframe
     
     """
+    Connect to a database using the provided or environment-based parameters.
 
-    query = 'SELECT * FROM ' + table + ' WHERE deleted = 0'    
+    :param db: (str or None) The name of the database to connect to. If None,
+               uses the database name from environment variables.
+    :return: pymysql.connections.Connection
+        A connection to the MySQL database.
+    """
+    if db is None:
+        db = os.environ.get("epi_dbname")
+
+    con = pymysql.connect(
+        host=os.environ.get("epi_host"),
+        port=int(os.environ.get("epi_port")),
+        user=os.environ.get("epi_username"),
+        password=os.environ.get("epi_password"),
+        database=db
+    )
+
+    return con
+
+
+def table(table, db=None, deleted=False, cond=None):
     
-    with connect(db).connect() as con:
-        db_rows = pd.read_sql(text(query), con=con)
+    """
+    Retrieve data from a table based on the specified conditions.
 
-    return(db_rows)
+    :param table: (str) The name of the table to retrieve data from.
+    :param db: (pymysql.connections.Connection or None) The MySQL database connection.
+               If None, a new connection will be established using the
+               default settings or environment variables.
+    :param deleted: (bool) Flag indicating whether to include deleted
+                    records. Default is False.
+    :param cond: (str or list or None) Filter condition(s) to apply to the query.
+                 Each condition should be a string that represents a SQL condition.
+                 If provided as a string, no additional formatting is applied.
+                 If provided as a list, conditions are joined using 'AND'.
+                 Default is None.
+    :return: pandas.DataFrame
+        A DataFrame containing the retrieved data.
+    """
+    if db is None:
+        con = connect()  # Establish a new connection
+    else:
+        con = db  # Use the provided connection
+
+    cursor = con.cursor(cursors.DictCursor)  # Use DictCursor
+
+    # Construct SQL
+    sql = f"SELECT * FROM {table}"
+
+    # Add deleted = 0 to the conditions vector
+    if not deleted:
+        if cond:
+            cond = f"deleted = 0 AND {cond}"
+        else:
+            cond = "deleted = 0"
+
+    # Add the condition(s) to the query
+    if cond:
+        if isinstance(cond, list):
+            cond_str = " AND ".join(cond)
+        else:
+            cond_str = cond
+
+        sql += f" WHERE {cond_str}"
+
+    # Execute SQL query
+    cursor.execute(sql)
+
+    # Fetch the result as a DataFrame
+    result = pd.DataFrame(cursor.fetchall())
+
+    # Close the cursor and connection if a new connection was established
+    if db is None:
+        cursor.close()
+        con.close()
+
+    return result
 
 
-def db_name(con):
+def name(con):
+    
+    """
+    Retrieve the database name from the MySQL connection.
+
+    :param con: (pymysql.connections.Connection) The MySQL database connection.
+    :return: str or None
+        The name of the connected database, or None if no database is selected.
+
+    """
     with con.cursor() as cursor:
-        cursor.execute("SHOW DATABASES;")
+        cursor.execute("SELECT DATABASE();")
         result = cursor.fetchone()
         return result[0] if result else None
 
-def db_databases(epi=False):
-    con = db_connect()
+
+def databases(epi=False):
+    
+    """
+    Retrieve a list of databases, optionally filtered by prefix.
+
+    :param epi: (bool) If True, filter databases to those starting with 'epi_'.
+                If False, return all databases. Default is False.
+    :return: list
+        A list of database names.
+    """
+    con = connect()
     with con.cursor() as cursor:
         cursor.execute("SHOW DATABASES;")
         dbs = cursor.fetchall()
@@ -101,92 +155,169 @@ def db_databases(epi=False):
 
     return dbs
 
-def db_condition(table, field, value):
-    if all(isinstance(val, (int, float)) for val in value):
-        value_str = f"({','.join(map(str, value))})"
-    elif all(isinstance(val, str) for val in value):
-        value_str = f"('{\"','\".join(value)}')"
+
+def condition(table, field, values):
+    
+    """
+    Create a filter condition for a field based on specified values.
+
+    :param table: (str) The name of the table.
+    :param field: (str) The name of the field to filter.
+    :param values: (list) A list of values to use in the filter condition.
+                   Supported value types: int, float, str.
+    :return: str
+        A filter condition statement.
+    """
+    if all(isinstance(val, (int, float)) for val in values):
+        value_str = f"({','.join(map(str, values))})"
+    elif all(isinstance(val, str) for val in values):
+        value_str = f"('{','.join(values)}')"
     else:
         raise ValueError("Unsupported value types in the list")
 
-    statement = f"{table}.{field} in {value_str}"
+    statement = f"{table}.{field} IN {value_str}"
     return statement
 
-def db_get_codings(db):
-    con, databasename = db_connect(db)
+
+def geolocations(db=None, itemtype="geolocations"):
     
-    items = db_table("items", con)
-    properties = db_table("properties", con)
-    types = db_table("types", con)
-    articles = db_table("articles", con)
-    links = db_table("links", con)
+    """
+    Retrieve geolocations data for a given database.
+
+    :param db: (str or None) The name of the database. If None, the default database will be used.
+    :param itemtype: (str) The item type for geolocations. Default is "geolocations".
+    :return: pandas.DataFrame
+        A DataFrame containing the retrieved geolocations data.
+        
+    """
+    engine = create_engine(f"mysql+pymysql://{os.environ.get('epi_username')}:{os.environ.get('epi_password')}@{os.environ.get('epi_host')}:{os.environ.get('epi_port')}/{db}")
+
+    sql = f"""
+        SELECT
+          articles_id,
+          id AS item_id,
+          sortno,
+          published,
+          CAST(JSON_VALUE(`value`, '$.lat') AS DOUBLE) AS lat,
+          CAST(JSON_VALUE(`value`, '$.lng') AS DOUBLE) AS lng
+        FROM items WHERE
+          itemtype = '{itemtype}' AND
+          deleted=0
+    """
+
+    table = pd.read_sql_query(sql, engine)
+
+    return table
+
+
+def get_codings(db):
+    
+    """
+    Retrieve codings data from the specified database.
+
+    This function retrieves codings data from the 'items', 'properties', 'types', 'articles', and 'links' tables
+    for the specified database. It joins the data based on relationships and provides a DataFrame with codings information.
+
+    :param db: (str or None) The name of the database. If None, the default database will be used.
+    :return: pandas.DataFrame
+        A DataFrame containing the retrieved codings data.
+    """
+    con = connect(db)  # Use the connect function to get the connection
+
+    # Check if the result is a tuple (connection, databasename)
+    if isinstance(con, tuple):
+        con, databasename = con
+    else:
+        databasename = db
+
+    items = table("items", con)
+    properties = table("properties", con)
+    types = table("types", con)
+    articles = table("articles", con)
+    links = table("links", con)
 
     if isinstance(db, str):
-        dbDisconnect(con)
+        con.close()
 
+    # Join data
     items = items.merge(
         articles[['id', 'articletype']],
         left_on='articles_id',
-        right_on='id',
-        suffixes=('', '_articles')
+        right_on='id'
     ).merge(
         properties[['id', 'propertytype', 'norm_data', 'lemma', 'name', 'unit']],
         left_on='properties_id',
-        right_on='id',
-        suffixes=('', '_properties')
+        right_on='id'
     ).merge(
-        types.query('scope == "properties"')[['name', 'category', 'caption']],
+        types.query("scope == 'properties'")[['name', 'category', 'caption']],
         left_on='propertytype',
-        right_on='name',
-        suffixes=('', '_types')
+        right_on='name'
     )
 
+    # Prepare data
     items = items[
         (items['deleted'] == 0) &
-        (items['articletype'] == 'object') &
-        (items['properties_id'].notna())
+        (items['articletype'] == "object") &
+        (~items['properties_id'].isna())
     ]
 
-    links = links[
-        (links['deleted'] == 0) &
-        (links['root_tab'] == 'articles') &
-        (links['to_tab'] == 'properties')
-    ].merge(
-        articles.query('articletype == "object"')[['id']],
+    links = links.merge(
+        articles[articles['articletype'] == "object"][['id']],
         left_on='root_id',
-        right_on='id',
-        suffixes=('', '_articles')
+        right_on='id'
     )
 
     codings = pd.concat([
         items[['articles_id', 'properties_id']],
-        links[['articles_id', 'to_id']]
+        links.rename(columns={'root_id': 'articles_id', 'to_id': 'properties_id'})[['articles_id', 'properties_id']]
     ]).groupby(['articles_id', 'properties_id']).size().reset_index(name='count')
-    
+
     codings['db'] = databasename
 
     return codings
 
-def db_get_codes(db):
-    con, databasename = db_connect(db)
 
-    properties = db_table("properties", con)
+def get_codes(db):
+    
+    """
+    Retrieve codes for a given database.
+
+    This function retrieves codes from the 'properties' table for the specified database.
+    It includes information about properties, their types, and hierarchical relationships.
+
+    :param db: (str or None) The name of the database. If None, the default database will be used.
+    :return: pandas.DataFrame
+        A DataFrame containing the retrieved codes.
+    """
+    con = connect(db)  # Use the connect function to get the connection
+
+    # Check if the result is a tuple (connection, databasename)
+    if isinstance(con, tuple):
+        con, databasename = con
+    else:
+        databasename = db
+
+    properties = table("properties", con)
 
     if isinstance(db, str):
-        dbDisconnect(con)
+        con.close()
 
+    # Filter properties without related_id (top-level properties)
     codes = properties[properties['related_id'].isna()][[
         'id', 'parent_id', 'propertytype', 'lemma', 'name',
         'norm_data', 'norm_iri', 'level', 'lft', 'rght'
     ]]
 
-    propertytypes = codes.drop_duplicates('propertytype')[[
-        'propertytype', 'propertytype'
-    ]].assign(
+    # Remove duplicates in the 'propertytype' column
+    codes = codes.drop_duplicates('propertytype')
+
+    # Create propertytypes DataFrame with unique property types
+    propertytypes = codes.assign(
         level=-1,
         id=lambda x: -x.groupby('propertytype').cumcount() - 1
     )
 
+    # Merge propertytypes with codes and handle parent_id
     codes = codes.merge(
         propertytypes[['id', 'propertytype']],
         left_on='propertytype',
@@ -196,39 +327,26 @@ def db_get_codes(db):
         parent_id=lambda x: x['id_propertytypes'].combine_first(x['parent_id'])
     ).drop(columns=['id_propertytypes'])
 
+    # Concatenate propertytypes and codes, adjust hierarchical structure
     codes = pd.concat([
         propertytypes,
         codes
     ]).groupby('propertytype').apply(lambda x: fix_lft_rght(x)).reset_index(drop=True)
 
+    # Fill missing lemma with name
     codes['lemma'] = codes['lemma'].fillna(codes['name'])
 
+    # Add database name to the DataFrame
     codes['db'] = databasename
 
     return codes
 
-def db_geolocations(db, itemtype="geolocations"):
-    con, _ = db_connect(db)
-    
-    sql = f"""
-        SELECT
-          articles_id,
-          id AS item_id,
-          sortno,
-          published,
-          CAST(JSON_VALUE(`value`, '$.lat') AS DOUBLE)  AS lat,
-          CAST(JSON_VALUE(`value`, '$.lng') AS DOUBLE) AS lng
-        FROM items WHERE
-          itemtype = '{itemtype}' AND
-          deleted=0
-    """
+def fix_lft_rght(df):
+    if df["level"].iloc[0] == -1:
+        df["lft"] = df["lft"].min() - 1
+        df["rght"] = df["rght"].max() + 1
+    return df
 
-    table = pd.read_sql_query(sql, con)
-
-    if isinstance(db, str):
-        dbDisconnect(con)
-
-    return table
 
 
   
