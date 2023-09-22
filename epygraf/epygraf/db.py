@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
+import mysql
 import re
 import mysql.connector
 import os

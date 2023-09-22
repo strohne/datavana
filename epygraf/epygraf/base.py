@@ -12,7 +12,7 @@ def create_iri(table, type, fragment):
     :param fragment: (str) The IRI fragment that will be cleaned
     :return: (str) The clean IRI
     """
-    cleaned_fragment = epi_clean_irifragment(fragment)
+    cleaned_fragment = clean_irifragment(fragment)
 
     if type is None:
         return f"{table}/{cleaned_fragment}"
@@ -61,20 +61,37 @@ def is_iripath(iripath, table=None, type=None):
     return iripath.str.match(pattern)
 
 
-def is_id(ids, table=None):
+import re
 
+def is_id(ids, table=None):
     """
-    Check whether the provided vector contains valid IDs prefixed with table names. Example: articles-123
+    Check whether the provided vector contains valid IDs prefixed with table names.
+    Example: articles-123
 
     :param ids: (str or list) The vector that will be checked for valid IDs.
     :param table: (str or None) Check whether the IDs are prefixed with table names. Leave empty to allow all tables.
     :return: (bool or list of bool) True for valid IDs, False otherwise.
     """
+    # Handle single string input
+    if not isinstance(ids, list):
+        ids = [ids]
+
     if table is None:
         table = "(projects|articles|sections|items|properties|links|footnotes|types|users)"
+    else:
+        table = f"({table})"
+
     fragment = "([0-9]+)"
     pattern = f"^{table}.{fragment}$"
-    return ids.str.match(pattern)
+
+    # Match the pattern for each ID
+    valid_ids = [bool(re.match(pattern, id_)) for id_ in ids]
+
+    # Return True for a single valid ID, otherwise the list of boolean values
+    if len(valid_ids) == 1:
+        return valid_ids[0]
+    else:
+        return valid_ids
 
 
 def is_irifragment(irifragment):
@@ -184,7 +201,7 @@ def create_properties(propertytype, lemmata, names=None, irifragments=None):
 
     return properties
 
-# Create sections
+
 def create_sections(data, sectiontype, name=None):
 
     """
@@ -196,12 +213,13 @@ def create_sections(data, sectiontype, name=None):
     :return: (pandas.DataFrame) A dataframe representing the created sections.
     """
     sections = pd.DataFrame({
-        "articles_id": f"articles/{data['articletype']}/{data['norm_iri']}",
-        "id": f"sections/{sectiontype}/{data['norm_iri']}",
-        "name": name
+        "articles_id": data.apply(lambda row: f"articles/{row['articletype']}/{row['norm_iri']}", axis=1),
+        "id": data.apply(lambda row: f"sections/{sectiontype}/{row['norm_iri']}", axis=1),
+        "name": name if name else [""] * len(data)  # Ensure a value for each row
     })
 
     return sections
+
 
 def create_empty_items(sections, itemtype):
 
@@ -216,71 +234,81 @@ def create_empty_items(sections, itemtype):
     items["id"] = items["id"].str.replace(r"sections/", f"items/{itemtype}/")
     return items
 
-def create_property_items(data, col_articletype, col_value, col_prop, sectiontype, itemtype):
 
+def create_property_items(data, col_articletype, col_value, col_prop, sectiontype, itemtype):
     """
     Create filled items and properties from values.
 
-    :param data: (pandas.DataFrame) A data frame containing the columns articletype, norm_iri, value, and propertytype
-    :param col_articletype: (str) The column in data specifying the articletype
-    :param col_value: (str) The column in data specifying the value
-    :param col_prop: (str) The column in data containing the propertytype
-    :param sectiontype: (str) A string with the name of the section
-    :param itemtype: (str) A string with the name of the itemtype
-    :return: (tuple of pandas.DataFrame) A tuple containing dataframes representing the created properties and items.
+    Parameters:
+    data (pd.DataFrame): A DataFrame containing the columns articletype and norm_iri.
+    col_articletype (str): The column in data specifying the articletype.
+    col_value (str): The column in data specifying the value.
+    col_prop (str): The column in data containing the propertytype.
+    sectiontype (str): A string with the name of the section.
+    itemtype (str): A string with the name of the itemtype.
+
+    Returns:
+    pd.DataFrame: Concatenated DataFrame containing properties and items based on the provided data and parameters.
     """
-    properties = epi_create_properties("coding-sample", data[col_prop].unique())
+    # Create properties
+    props = create_properties("coding-sample", data[col_prop].unique())
 
-    items = data.copy()
-    items["id"] = items["id"].str.replace(r"articles/", f"items/{itemtype}/")
-    items["sections_id"] = items["id"].str.replace(f"items/{itemtype}/", f"sections/{sectiontype}/")
-    items["articles_id"] = items["id"].str.replace(f"items/{itemtype}/", f"articles/{itemtype}/")
-    items = items.rename(columns={col_value: "value", col_prop: "properties_lemma"})
+    # Create items
+    items = (data.assign(
+        id=data.apply(lambda row: f"items/{itemtype}/{row['norm_iri']}", axis=1),
+        sections_id=data.apply(lambda row: f"sections/{sectiontype}/{row['norm_iri']}", axis=1),
+        articles_id=data.apply(lambda row: f"articles/{row[col_articletype]}/{row['norm_iri']}", axis=1),
+        value=data[col_value],
+        properties_lemma=data[col_prop]
+    )
+    .merge(props[['properties_id', 'properties_lemma']], left_on='properties_lemma', right_on='lemma', how='left')
+    .rename(columns={'properties_id': 'properties_id'})
+    .loc[:, ['id', 'sections_id', 'articles_id', 'properties_id', 'value']])
 
-    items = items.merge(properties[["id", "lemma"]], left_on="properties_lemma", right_on="lemma", how="left")
-    items = items[["id", "sections_id", "articles_id", "properties_id", "value"]]
+    # Concatenate properties and items
+    result = pd.concat([props, items], ignore_index=True)
 
-    return pd.concat([properties, items])
+    return result
+
 
 
 def text2article(text):
-
-    """
-    Convert text to epigraf article.
-
-    :param text: (pandas.DataFrame) Dataframe with the columns id, project, caption and content
-    :return: (pandas.DataFrame) Dataframe with article, section and item
-    """
+    # Extracting unique values from the input DataFrame
+    unique_project = text['project'].unique()[0]
+    unique_id = text['id'].unique()[0]
+    
+    # Create DataFrames for projects, articles, sections, and items
     projects = pd.DataFrame({
-        "table": "projects",
-        "type": "default",
-        "id": f"projects-int{text['project'].unique()[0]}",
-        "name": text["project"].unique()
+        'table': ['projects'],
+        'type': ['default'],
+        'id': [f'projects-int{unique_project}'],
+        'name': [unique_project]
     })
-
+    
     articles = pd.DataFrame({
-        "table": "articles",
-        "type": "default",
-        "id": f"articles-int{text['id']}",
-        "projects_id": f"projects-int{text['project'].unique()[0]}",
-        "name": text["caption"]
+        'table': ['articles'],
+        'type': ['default'],
+        'id': [f'articles-int{unique_id}'],
+        'projects_id': [f'projects-int{unique_project}'],
+        'name': [text['caption'].iloc[0]]
     })
-
+    
     sections = pd.DataFrame({
-        "table": "sections",
-        "type": "default",
-        "id": f"sections-int{text['id']}",
-        "articles_id": f"articles-int{text['id']}",
-        "name": "Text"
+        'table': ['sections'],
+        'type': ['default'],
+        'id': [f'sections-int{unique_id}'],
+        'articles_id': [f'articles-int{unique_id}'],
+        'name': ['Text']
     })
-
+    
     items = pd.DataFrame({
-        "table": "items",
-        "type": "default",
-        "id": f"items-int{text['id']}",
-        "sections_id": f"sections-int{text['id']}",
-        "articles_id": f"articles-int{text['id']}",
-        "content": text["content"]
+        'table': ['items'],
+        'type': ['default'],
+        'id': [f'items-int{unique_id}'],
+        'sections_id': [f'sections-int{unique_id}'],
+        'articles_id': [f'articles-int{unique_id}'],
+        'content': [text['content'].iloc[0]]
     })
-
-    return pd.concat([projects, articles, sections, items])
+    
+    # Concatenate the DataFrames
+    return pd.concat([projects, articles, sections, items], ignore_index=True)
