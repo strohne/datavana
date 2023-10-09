@@ -8,9 +8,6 @@
 
 sm_pseudonyms <- function(msg) {
 
-  letters.consonant <- c("b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","z")
-  letters.vocal <- c("a","e","i","o","u")
-
   authors <- msg %>%
     filter(!is.na(author_id)) %>%
     distinct(platform,author_id)
@@ -20,18 +17,8 @@ sm_pseudonyms <- function(msg) {
     slice_sample(prop=1.0) %>%
     mutate(
       .author_id = row_number(),
-      .author_name = paste0(
-        sample(str_to_upper(letters.consonant),size = nrow(.),replace=T),
-        sample(letters.vocal,size = nrow(.),replace=T),
-
-        sample(letters.consonant,size = nrow(.),replace=T),
-        sample(letters.vocal,size = nrow(.),replace=T),
-
-        sample(letters.consonant,size = nrow(.),replace=T),
-        sample(letters.vocal,size = nrow(.),replace=T)
-      )
+      .author_name = pseudonyms()
     )
-
 
   msg %>%
     left_join(authors,by=c("platform","author_id")) %>%

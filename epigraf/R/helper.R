@@ -107,3 +107,51 @@ encode <- function(number, base) {
   }
   return( if(length(number)==1) result[,1] else result )
 }
+
+#' Create distinct pseudonyms
+#'
+#' @param n Number of pseudonyms. Leave empty when used inside mutate to create value for each row
+#' @return Vector of pseudonyms
+#' @export
+pseudonyms <- function(n) {
+
+  if (missing(n)) {
+    n = dplyr::n()
+  }
+
+  letters.consonant <- c("b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","z")
+  letters.vocal <- c("a","e","i","o","u")
+
+  candidates <- c()
+  todo <- n
+  iterations <- 0
+
+  while (todo > 0) {
+
+    if (iterations > 100) {
+      stop("Could not create sufficient values in 100 iterations.")
+    }
+
+    candidates <- unique(
+      c(
+        candidates,
+        paste0(
+          sample(str_to_upper(letters.consonant), size=todo, replace=T),
+          sample(letters.vocal, size=todo, replace=T),
+
+          sample(letters.consonant, size=todo, replace=T),
+          sample(letters.vocal, size=todo, replace=T),
+
+          sample(letters.consonant, size=todo, replace=T),
+          sample(letters.vocal, size=todo, replace=T)
+        )
+      )
+    )
+
+    todo <- n - length(candidates)
+    iterations <- iterations + 1
+  }
+
+  candidates
+}
+

@@ -435,3 +435,18 @@ tree_disambiguate_ids <- function(.data, id, parent, type, levels) {
   # Return
   bind_cols(tree,.data)
 }
+
+#' Get all distinct nodes in an edge list
+#'
+#' @param edges An edge list
+#' @param col_source Source column name
+#' @param col_target Target column name
+#' @return A tibble with one column `id` containing unique source and target values
+#' @export
+net_getnodes <- function(edges, col_source, col_target) {
+
+  edges %>%
+    dplyr::select({{col_source}}, {{col_target}}) %>%
+    tidyr::pivot_longer(c({{col_source}},{{col_target}})) %>%
+    dplyr::distinct(id=value)
+}
