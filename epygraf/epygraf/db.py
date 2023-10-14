@@ -191,6 +191,7 @@ def geolocations(db=None, itemtype="geolocations"):
         A DataFrame containing the retrieved geolocations data.
         
     """
+    # TODO: Use connect()
     engine = create_engine(f"mysql+pymysql://{os.environ.get('epi_username')}:{os.environ.get('epi_password')}@{os.environ.get('epi_host')}:{os.environ.get('epi_port')}/{db}")
 
     sql = f"""
@@ -223,6 +224,8 @@ def get_codings(db):
     :return: pandas.DataFrame
         A DataFrame containing the retrieved codings data.
     """
+    #TODO: rename to get_annotations()
+
     con = connect(db)  # Use the connect function to get the connection
 
     # Check if the result is a tuple (connection, databasename)
@@ -230,6 +233,9 @@ def get_codings(db):
         con, databasename = con
     else:
         databasename = db
+
+    #TODO: Filter data in SQL query, avoid deleted==0 etc. below
+    #TODO: JOIN data in SQL query, avoid pd.merge() below
 
     items = table("items", con)
     properties = table("properties", con)
@@ -256,6 +262,7 @@ def get_codings(db):
     )
 
     # Prepare data
+    # TODO: make articletype filter configurable
     items = items[
         (items['deleted'] == 0) &
         (items['articletype'] == "object") &

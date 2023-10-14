@@ -8,5 +8,8 @@ Keywords: python,epigraf
 Classifier: Development Status :: 2 - Pre-Alpha
 Classifier: Intended Audience :: Science/Research
 Classifier: Programming Language :: Python :: 3
+Requires-Dist: sqlalchemy>=2.0.0
+Requires-Dist: pymysql>=1.1.0
+Requires-Dist: pandas>=2.0.0
 
 The Epygraf package aims to make data work with Epigraf easier. It provides functions for data transfer using the Epigraf APIs: preparing data imports, e.g. from social media datasets, and preparing data analyses with Python.
