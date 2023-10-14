@@ -12,3 +12,4 @@ facepager.Rcheck
 
 .ipynb_checkpoints
 __pycache__
+.idea
