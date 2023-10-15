@@ -80,6 +80,7 @@ def table(table, db=None, deleted=False, cond=None):
     :return: pandas.DataFrame
         A DataFrame containing the retrieved data.
     """
+    #TODO: what if the db parameter is a string (the database name?)
     if db is None:
         con = connect()  # Establish a new connection
     else:
