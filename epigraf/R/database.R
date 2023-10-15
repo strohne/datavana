@@ -156,7 +156,7 @@ db_table <- function(table, db, deleted=FALSE, cond=c()){
 #' @return A dataframe containing links and items.
 #' @details Queries the database to join the items, properties, types, articles and links tables.
 #' @export
-db_get_annotations <- function(db){
+db_annotations <- function(db){
 
   # Check if db is character --> open db connection
   if (is.character(db)) {
