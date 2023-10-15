@@ -1,8 +1,8 @@
 Metadata-Version: 2.1
 Name: epygraf
 Version: 0.0.1
-Summary: Epygraf - Analyse Epigraf data with Python
-Author: Jakob Jünger und Chantal Gärtner
+Summary: Epygraf - Analyze Epigraf data with Python
+Author: Jakob Jünger and Chantal Gärtner
 Author-email: jakob.juenger@uni-muenster.de
 Keywords: python,epigraf
 Classifier: Development Status :: 2 - Pre-Alpha
@@ -11,5 +11,6 @@ Classifier: Programming Language :: Python :: 3
 Requires-Dist: sqlalchemy>=2.0.0
 Requires-Dist: pymysql>=1.1.0
 Requires-Dist: pandas>=2.0.0
+Requires-Dist: requests>=2.0.0
 
 The Epygraf package aims to make data work with Epigraf easier. It provides functions for data transfer using the Epigraf APIs: preparing data imports, e.g. from social media datasets, and preparing data analyses with Python.

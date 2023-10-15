@@ -1,15 +1,10 @@
-import pandas as pd
-from sqlalchemy import create_engine, text
-import mysql
-import re
-import mysql.connector
 import os
+import pandas as pd
 import pymysql
 from pymysql import cursors
 
 
 def setup(host="localhost", port=3306, username="root", password="root", database=""):
-
     """
     Set up environment variables for connecting to a database.
 
@@ -23,8 +18,8 @@ def setup(host="localhost", port=3306, username="root", password="root", databas
     :param database: (str) The name of the database to connect to.
                      Default is an empty string.
     :return: None
-
     """
+
     settings = {
         "epi_host": host,
         "epi_port": str(port),
@@ -36,9 +31,10 @@ def setup(host="localhost", port=3306, username="root", password="root", databas
     for key, value in settings.items():
         os.environ[key] = str(value)
 
+# Initial setup using defaults
+setup()
 
 def connect(db=None):
-    
     """
     Connect to a database using the provided or environment-based parameters.
 
@@ -61,18 +57,16 @@ def connect(db=None):
     return con
 
 
-def table(table, db=None, deleted=False, cond=None):
-    
+def table(table, db=None, deleted=False, filter=None):
     """
-    Retrieve data from a table based on the specified conditions.
+    Retrieve data from a table.
 
-    :param table: (str) The name of the table to retrieve data from.
-    :param db: (pymysql.connections.Connection or None) The MySQL database connection.
-               If None, a new connection will be established using the
-               default settings or environment variables.
-    :param deleted: (bool) Flag indicating whether to include deleted
-                    records. Default is False.
-    :param cond: (str or list or None) Filter condition(s) to apply to the query.
+    :param table: (str) The table name.
+    :param db: (pymysql.connections.Connection or string) The database connection object or the database name.
+        If None, uses the database name from the settings.
+    :param deleted: (bool) Flag indicating whether to include deleted records.
+                           Default is False.
+    :param filter: (str or list or None) Filter condition(s) to apply to the query.
                  Each condition should be a string that represents a SQL condition.
                  If provided as a string, no additional formatting is applied.
                  If provided as a list, conditions are joined using 'AND'.
@@ -80,32 +74,33 @@ def table(table, db=None, deleted=False, cond=None):
     :return: pandas.DataFrame
         A DataFrame containing the retrieved data.
     """
-    #TODO: what if the db parameter is a string (the database name?)
-    if db is None:
-        con = connect()  # Establish a new connection
+
+    # Get database connection
+    if isinstance(db, pymysql.connections.Connection):
+        con = db
     else:
-        con = db  # Use the provided connection
+        con = connect(db)
 
     cursor = con.cursor(cursors.DictCursor)  # Use DictCursor
 
-    # Construct SQL
+    # Construct SQL expression
     sql = f"SELECT * FROM {table}"
 
-    # Add deleted = 0 to the conditions vector
+    # Add conditions to the query
+    if filter is None:
+        filter = []
+    elif not isinstance(filter, list):
+        filter = [filter]
+
+
+    # Add deleted = 0 to the conditions
     if not deleted:
-        if cond:
-            cond = f"deleted = 0 AND {cond}"
-        else:
-            cond = "deleted = 0"
+        filter.append(f"{table}.deleted = 0")
 
-    # Add the condition(s) to the query
-    if cond:
-        if isinstance(cond, list):
-            cond_str = " AND ".join(cond)
-        else:
-            cond_str = cond
-
-        sql += f" WHERE {cond_str}"
+    # Convert to SQL string
+    if len(filter) > 0:
+        filter = " AND ".join(filter)
+        sql += f" WHERE {filter}"
 
     # Execute SQL query
     cursor.execute(sql)
@@ -113,9 +108,11 @@ def table(table, db=None, deleted=False, cond=None):
     # Fetch the result as a DataFrame
     result = pd.DataFrame(cursor.fetchall())
 
-    # Close the cursor and connection if a new connection was established
-    if db is None:
-        cursor.close()
+    # Close the cursor
+    cursor.close()
+
+    # Close the connection if a new connection was established
+    if not isinstance(db, pymysql.connections.Connection):
         con.close()
 
     return result
@@ -192,7 +189,7 @@ def geolocations(db=None, itemtype="geolocations"):
         A DataFrame containing the retrieved geolocations data.
         
     """
-    # TODO: Use connect()
+    # TODO: Use connect(), see annotations()
     engine = create_engine(f"mysql+pymysql://{os.environ.get('epi_username')}:{os.environ.get('epi_password')}@{os.environ.get('epi_host')}:{os.environ.get('epi_port')}/{db}")
 
     sql = f"""
@@ -213,86 +210,105 @@ def geolocations(db=None, itemtype="geolocations"):
     return table
 
 
-def get_codings(db):
+def annotations(db, tables=['items', 'links'], filter={}):
     
     """
-    Retrieve codings data from the specified database.
+    Retrieve article annotations from items and links.
 
-    This function retrieves codings data from the 'items', 'properties', 'types', 'articles', and 'links' tables
-    for the specified database. It joins the data based on relationships and provides a DataFrame with codings information.
+    Data from the items, properties, types, articles, and links tables will be joined.
 
     :param db: (str or None) The name of the database. If None, the default database will be used.
+    :param filter: (dict) Filter by itemtype, linktype, propertytype, articletype, or projecttype by assigning
+                          the respective keys with a list of allowed values.
+    :param tables: (list or str) Add 'items' or 'links' to the list to retrieve annotations from the respective tables.
     :return: pandas.DataFrame
-        A DataFrame containing the retrieved codings data.
+        A DataFrame containing annotations
     """
-    #TODO: rename to get_annotations()
 
-    con = connect(db)  # Use the connect function to get the connection
+    # Defaults
+    tables = [tables] if not isinstance(tables, list) else tables
 
-    # Check if the result is a tuple (connection, databasename)
-    if isinstance(con, tuple):
-        con, databasename = con
-    else:
-        databasename = db
+    # Get connection
+    db = os.environ.get("epi_dbname") if db is None else db
+    con = connect(db)
+    cursor = con.cursor(cursors.DictCursor)
 
-    #TODO: Filter data in SQL query, avoid deleted==0 etc. below
-    #TODO: JOIN data in SQL query, avoid pd.merge() below
+    # Filter construction method
+    def typeFilter(filter, tablename, colname):
+        filter = filter.get(colname, [])
+        filter = [filter] if not isinstance(filter, list) else filter
+        if len(filter) > 0:
+            filter = ['"' + x + '"' for x in filter]
+            filter = "AND " + tablename + "." + colname + " IN (" + ",".join(filter) + ")"
+            return filter
+        else:
+            return ""
 
-    items = table("items", con)
-    properties = table("properties", con)
-    types = table("types", con)
-    articles = table("articles", con)
-    links = table("links", con)
-
-    if isinstance(db, str):
-        con.close()
-
-    # Join data
-    items = items.merge(
-        articles[['id', 'articletype']],
-        left_on='articles_id',
-        right_on='id'
-    ).merge(
-        properties[['id', 'propertytype', 'norm_data', 'lemma', 'name', 'unit']],
-        left_on='properties_id',
-        right_on='id'
-    ).merge(
-        types.query("scope == 'properties'")[['name', 'category', 'caption']],
-        left_on='propertytype',
-        right_on='name'
-    )
-
-    # Prepare data
-    # TODO: make articletype filter configurable
-    items = items[
-        (items['deleted'] == 0) &
-        (items['articletype'] == "object") &
-        (~items['properties_id'].isna())
-    ]
-
-    links = links.merge(
-        articles[articles['articletype'] == "object"][['id']],
-        left_on='root_id',
-        right_on='id'
-    )
-
-    codings = pd.concat([
-        items[['articles_id', 'properties_id']],
-        links.rename(columns={'root_id': 'articles_id', 'to_id': 'properties_id'})[['articles_id', 'properties_id']]
-    ]).groupby(['articles_id', 'properties_id']).size().reset_index(name='count')
-
-    codings['db'] = databasename
-
-    return codings
+    items = pd.DataFrame()
+    if ('items' in tables):
+        # Construct items SQL expression
+        sql_items = f"""
+           SELECT
+                items.itemtype, items.sortno, items.properties_id ,
+                properties.lemma, properties.name, properties.norm_iri AS properties_iri, 
+                properties.propertytype,            
+                items.articles_id, articles.signature as articles_signature, articles.norm_iri AS articles_iri,
+                articles.articletype,
+                projects.id AS projects_id, projects.signature AS projects_signature, projects.norm_iri AS projects_iri,
+                projects.projecttype
+           FROM items 
+           INNER JOIN properties ON items.properties_id = properties.id AND properties.deleted=0 {typeFilter(filter,'properties','propertytype')}
+           INNER JOIN articles ON items.articles_id = articles.id AND articles.deleted=0 {typeFilter(filter,'articles','articletype')}
+           INNER JOIN projects ON articles.projects_id = projects.id AND projects.deleted=0 {typeFilter(filter,'projects','projecttype')}
+           WHERE items.deleted=0 {typeFilter(filter,'items','itemtype')}
+        """
 
 
-def get_codes(db):
+        # Execute SQL query
+        cursor.execute(sql_items)
+        items = pd.DataFrame(cursor.fetchall())
+
+    links = pd.DataFrame()
+    if ('links' in tables):
+        # Construct links SQL expression
+        sql_links = f"""
+               SELECT
+                    links.from_tagname AS linktype, links.to_id AS properties_id,
+                    properties.lemma, properties.name, properties.norm_iri AS properties_iri, 
+                    properties.propertytype,            
+                    links.root_id AS articles_id, articles.signature as articles_signature, articles.norm_iri AS articles_iri,
+                    articles.articletype,
+                    projects.id AS projects_id, projects.signature AS projects_signature, projects.norm_iri AS projects_iri,
+                    projects.projecttype
+               FROM links
+               INNER JOIN properties ON links.to_id = properties.id AND links.to_tab='properties' AND properties.deleted=0  {typeFilter(filter,'properties','propertytype')}
+               INNER JOIN articles ON links.root_id = articles.id AND links.root_tab='articles' AND articles.deleted=0  {typeFilter(filter,'articles','articletype')}           
+               INNER JOIN projects ON articles.projects_id = projects.id AND projects.deleted=0  {typeFilter(filter,'projects','projecttype')}
+               WHERE links.deleted=0  {typeFilter(filter,'links','from_tagname')}
+            """
+
+        # Execute SQL query
+        cursor.execute(sql_links)
+        links = pd.DataFrame(cursor.fetchall())
+
+    # Close the cursor
+    cursor.close()
+    con.close()
+
+    annotations =  pd.concat([items, links])
+    annotations['db'] = db
+
+    return annotations
+
+
+def properties(db):
     
     """
-    Retrieve codes for a given database.
+    Retrieve properties
 
-    This function retrieves codes from the 'properties' table for the specified database.
-    It includes information about properties, their types, and hierarchical relationships.
+    The result includes the properties and their hierarchical relationships.
+
+    TODO: revise
 
     :param db: (str or None) The name of the database. If None, the default database will be used.
     :return: pandas.DataFrame
