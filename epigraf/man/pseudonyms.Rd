@@ -2,16 +2,16 @@
 % Please edit documentation in R/helper.R
 \name{pseudonyms}
 \alias{pseudonyms}
-\title{Create pseudonyms}
+\title{Create distinct pseudonyms}
 \usage{
-pseudonyms(n = 1)
+pseudonyms(n)
 }
 \arguments{
-\item{n}{Number of pseudonyms}
+\item{n}{Number of pseudonyms. Leave empty when used inside mutate to create value for each row}
 }
 \value{
 Vector of pseudonyms
 }
 \description{
-Create pseudonyms
+Create distinct pseudonyms
 }

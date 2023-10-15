@@ -150,13 +150,13 @@ db_table <- function(table, db, deleted=FALSE, cond=c()){
 }
 
 #
-#' Get codings from database
+#' Get annotations from from items and links
 #'
 #' @param db A connection object (object) or the database name (character)
 #' @return A dataframe containing links and items.
 #' @details Queries the database to join the items, properties, types, articles and links tables.
 #' @export
-db_get_codings <- function(db){
+db_get_annotations <- function(db){
 
   # Check if db is character --> open db connection
   if (is.character(db)) {
