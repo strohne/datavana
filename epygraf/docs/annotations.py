@@ -121,7 +121,7 @@ print(datetime.datetime.now())
 
 #%% Option 2: Save distance matrix
 
-# Caution: Results in a 20GB file for 64k cases
+# Caution: Results in a 36GB file for 64k cases
 # TODO: use sparse format
 np.savetxt('annos_distances_top200_jaccard.out', annos_distances, fmt = '%.6f')
 
