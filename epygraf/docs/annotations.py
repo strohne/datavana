@@ -1,9 +1,14 @@
 import pandas as pd
-import epygraf as epi
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import epygraf as epi
+
 from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances
+
+import datetime
 
 # import importlib
 # importlib.reload(epi)
@@ -90,8 +95,10 @@ plt.ylabel("SSE")
 plt.show()
 
 
-#%% Cluster data
-# TODO: use Jaccard metric
+
+#%% Option 1: Cluster data without precomputing the distance matrix
+# See next cells for computing the distance matrix first
+
 # TODO: use DBSCAN instead of KMeans
 
 # Create a K-Means model for 6 clusters
@@ -103,6 +110,50 @@ kmeans = KMeans(
 
 # Get clusters
 kmeans_fit = kmeans.fit_predict(annos_dummies)
+
+
+#%% Option 2: Calculate distance matrix
+
+# Caution: Takes 2 hours on an 4 core CPU at 4.5 Ghz (Intel Core i7-7700K@4.20Ghz) for 64k cases and 600 features
+print(datetime.datetime.now())
+annos_distances = pairwise_distances(annos_dummies.to_numpy(),metric="jaccard",n_jobs=-1)
+print(datetime.datetime.now())
+
+#%% Option 2: Save distance matrix
+
+# Caution: Results in a 20GB file for 64k cases
+# TODO: use sparse format
+np.savetxt('annos_distances_top200_jaccard.out', annos_distances, fmt = '%.6f')
+
+#%% Option 2: Save distance matrix
+
+# TODO: Test whether this is more efficient for storing the numpy distance matrix
+# See https://github.com/mverleg/array_storage_benchmark/
+from numpy import frombuffer
+def binary_save(arr, pth):
+    with open(pth, 'wb+') as fh:
+        fh.write('{0:} {1:} {2:}\n'.format(arr.dtype, arr.shape[0], arr.shape[1]).encode('ascii'))
+        fh.write(arr.data)
+
+def binary_load(pth):
+    with open(pth, 'rb') as fh:
+        header = fh.readline()
+        data = fh.read()
+    dtype, w, h = header.decode('ascii').strip().split()
+    return frombuffer(data, dtype=dtype).reshape((int(w), int(h)))
+
+binary_save(annos_distances, "annos_distances_top200_jaccard.bin")
+#%% Option 2: Cluster with precomputed distance matrix
+
+# TODO: test code
+kmeans = KMeans(
+    n_clusters=6,
+    precompute_distances=False,
+    random_state=42
+)
+
+# Get clusters
+kmeans_fit = kmeans.fit_predict(annos_dummies, sample_weight=annos_distances)
 
 #%% Add cluster numbers to the annotations dataset
 
