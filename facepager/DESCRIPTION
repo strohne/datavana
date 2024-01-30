@@ -7,7 +7,7 @@ Description: Functions to analyze the database files of Facepager.
 License: MIT
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.1.9000
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 LazyData: true
 Imports:
@@ -22,7 +22,8 @@ Imports:
   purrr,
   tidygraph,
   tokenizers,
-  jsonlite
+  jsonlite,
+  zoo
 Suggests:
   testthat (>= 3.0.0),
   knitr,

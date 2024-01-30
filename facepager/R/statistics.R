@@ -69,7 +69,7 @@ fp_timing <- function(data, f.objecttype="data", f.querystatus="fetched (200)") 
   if (nrow(timeline) > 60) {
 
    timeline <- timeline %>%
-     mutate(perhour = rollmean(n, 60, na.pad=TRUE,align = "right")) %>%
+     mutate(perhour = zoo::rollmean(n, 60, na.pad=TRUE,align = "right")) %>%
      na.omit()
 
    pl <- pl +
