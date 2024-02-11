@@ -310,6 +310,7 @@ api_job_execute <- function(job_id) {
 #' @param db_target Target database name
 #' @param db_params A parameter list for selecting the appropriate rows.
 #'                  For example: params <- list("scopes" = "properties")
+#' @export
 api_transfer <- function(table, db_source, db_target, db_params = list()) {
   db_params["source"] = db_source
   api_job_create(paste0(table, "/transfer"), db_params, db_target)
