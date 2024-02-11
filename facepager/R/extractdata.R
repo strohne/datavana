@@ -1,11 +1,15 @@
 #' Get the Object IDs  and number of parent nodes
+#'
 #' @import dplyr
 #' @description `fp_getparents()` can be used to get details about the parents.
+#'
 #' @param data the loaded data from Facepager
 #' @param level=0 the node level
 #' @return a tibble with 3 columns: parent_id, parent_object, parent_no
+#'
 #' @examples
 #' fp_getparents(data)
+#'
 #' @export
 fp_getparents <- function(.data, level=0) {
 
