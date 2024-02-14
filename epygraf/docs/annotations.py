@@ -1,9 +1,10 @@
 import pandas as pd
+import numpy as np
 import epygraf as epi
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, DBSCAN
 
 # import importlib
 # importlib.reload(epi)
@@ -54,9 +55,18 @@ plt.show()
 #%% Prepare cluster data
 
 # Select sample with the top terms
-annos_topterms = annos_terms.groupby('propertytype').apply(lambda rows: rows.head(200))
+annos_topterms = annos_terms.groupby('propertytype').apply(lambda rows: rows.head(50))
 annos_sample = annos[annos.properties_id.isin(annos_topterms.properties_id)]
 
+#%%
+
+# annos_sample.reset_index()
+# matrix = annos_sample[['articles_id']].\
+#     join(pd.get_dummies(annos_sample['properties_id'], dtype=int)).\
+#     groupby('articles_id').\
+#     max()
+
+#%%
 # Dummy code properties
 annos_dummies = pd \
     .get_dummies(
@@ -65,6 +75,7 @@ annos_dummies = pd \
         sparse=True
     ) \
     .set_index('articles_id')
+
 
 #%% Find number of clusters
 
@@ -103,6 +114,22 @@ kmeans = KMeans(
 
 # Get clusters
 kmeans_fit = kmeans.fit_predict(annos_dummies)
+print("Ready")
+
+#%%
+from sklearn.metrics import pairwise_distances
+
+jaccard_distances = pairwise_distances(annos_dummies.to_numpy(), metric='jaccard',n_jobs=-1)
+
+#%%
+kmeans = KMeans(n_clusters=6, init='k-means++', precompute_distances=False)
+kmeans_fit = kmeans.fit_predict(annos_dummies, sample_weight=jaccard_distances)
+
+#%%
+from sklearn.cluster import DBSCAN
+dbscan = DBSCAN(metric='jaccard')
+dbscan_fit = dbscan.fit_predict(annos_dummies)
+print("Ready")
 
 #%% Add cluster numbers to the annotations dataset
 
@@ -136,15 +163,20 @@ annos_cluster_n = annos_cluster \
     .reset_index(name='n') \
     .assign(label = lambda rows: rows['name'] + ' (' + rows['properties_id'].astype(str) + ')')
 
+
+annos_cluster_n['p'] = annos_cluster_n \
+    .groupby('properties_id')['n'] \
+    .transform(lambda x: x / x.sum())
+
 # tfidf for clusters as documents and all their properties as terms,
 # for finding distinctive properties
+# TODO: check if correct
 document_count = annos_cluster_n['cluster_no'].nunique()
 term_document_count = annos_cluster_n.groupby('properties_id')['cluster_no'].nunique()
 
 annos_cluster_n['tf'] = annos_cluster_n \
     .groupby('cluster_no')['n'] \
     .transform(lambda x: x / x.sum())
-
 
 annos_cluster_n['idf'] = annos_cluster_n['properties_id'] \
     .map(lambda x: document_count / term_document_count[x]) \
@@ -156,14 +188,19 @@ annos_cluster_n['tfidf'] = annos_cluster_n['tf'] * annos_cluster_n['idf']
 
 #%% Plot top distinctive terms per cluster
 
+# Most distinctive terms
 tfidf_topterms = annos_cluster_n \
     .sort_values(by='tfidf', ascending=True) \
     .groupby('cluster_no').apply(lambda rows: rows.head(10))
 
+# Proportion: how many term occurences in a cluster in relation to all term occurences?
 annos_cluster_n[annos_cluster_n.properties_id.isin(tfidf_topterms.properties_id)] \
+    # .filter(['label','p', 'cluster_no']) \
+    # .pivot(index='label', columns='cluster_no',values='p') \
     .filter(['label','tf', 'cluster_no']) \
     .pivot(index='label', columns='cluster_no',values='tf') \
     .plot.barh(stacked=True)
+
 
 plt.tight_layout()
 plt.show()
