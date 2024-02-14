@@ -6,10 +6,13 @@
 #' Save API connection settings to environment variables.
 #'
 #' @param apiserver URL of the Epigraf server (including https-protocol)
-#' @param apitoken Access token
+#' @param apitoken Access token. If NULL, you will be asked to enter the token.
 #' @param verbose Show debug messages and the built URLs
 #' @export
-api_setup <- function(apiserver, apitoken, verbose=F) {
+api_setup <- function(apiserver, apitoken=NULL, verbose=F) {
+  if (missing(apitoken)) {
+    apitoken <- readline(prompt="Please, enter your access token:")
+  }
   settings <- as.list(environment())
   settings <- setNames(settings, paste0("epi_",names(settings)))
   do.call(Sys.setenv, settings)
