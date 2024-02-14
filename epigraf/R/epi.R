@@ -8,14 +8,25 @@
 #' @param table The table name
 #' @param type If NA, the type will be omitted.
 #' @param fragment The IRI fragment that will be cleaned
+#' @param split If TRUE and the fragment already contains a type, the fragment's type is used
 #' @export
+epi_create_iri <- function(table, type, fragment, split=F) {
 
-epi_create_iri <- function(table, type, fragment) {
-  paste0(
-    table, "/",
-    ifelse(is.na(type),"",paste0(type, "/")),
-    epi_clean_irifragment(fragment)
-  )
+  # Get type from fragment
+  # TODO: vectorize
+  # if (split) {
+  #   fragment <- strsplit(fragment, "/", fixed=T)[[1]]
+  #   if (length(fragment) > 1) {
+  #      type <- fragment[1]
+  #      fragment <- fragment[2]
+  #   }
+  # }
+
+  table <- paste0(table, "/")
+  type <- ifelse(is.na(type),"", paste0(type, "/"))
+  fragment <- epi_clean_irifragment(fragment)
+
+  paste0(table, type, fragment)
 }
 
 
@@ -171,15 +182,18 @@ epi_wide_to_long <- function(data) {
 
 
 #' Convert text to epigraf article
+#'
+#' TODO: Do we need this? Better use craft functions
+#'
 #' @param text Dataframe with the columns id, project, caption and content
 #' @return Dataframe with article, section and item
 #' @export
 #' @examples
 #' epi_text2article(
-#' tibble(id=1,project="Import",
-#' caption="My first text",
-#' content="Words are letters with glue"))
-
+#'   tibble(id=1,project="Import",
+#'   caption="My first text",
+#'   content="Words are letters with glue")
+#' )
 epi_text2article  <- function(text)
 { if (!requireNamespace("tidyverse", quietly = TRUE)) {
   stop(
