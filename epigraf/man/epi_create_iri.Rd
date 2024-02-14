@@ -4,7 +4,7 @@
 \alias{epi_create_iri}
 \title{Create a clean IRI}
 \usage{
-epi_create_iri(table, type, fragment)
+epi_create_iri(table, type, fragment, split = F)
 }
 \arguments{
 \item{table}{The table name}
@@ -12,6 +12,8 @@ epi_create_iri(table, type, fragment)
 \item{type}{If NA, the type will be omitted.}
 
 \item{fragment}{The IRI fragment that will be cleaned}
+
+\item{split}{If TRUE and the fragment already contains a type, the fragment's type is used}
 }
 \description{
 Create a clean IRI

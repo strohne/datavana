@@ -4,12 +4,12 @@
 \alias{api_setup}
 \title{Save API connection settings to environment variables.}
 \usage{
-api_setup(apiserver, apitoken, verbose = F)
+api_setup(apiserver, apitoken = NULL, verbose = F)
 }
 \arguments{
 \item{apiserver}{URL of the Epigraf server (including https-protocol)}
 
-\item{apitoken}{Access token}
+\item{apitoken}{Access token. If NULL, you will be asked to enter the token.}
 
 \item{verbose}{Show debug messages and the built URLs}
 }

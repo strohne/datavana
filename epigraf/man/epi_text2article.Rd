@@ -13,11 +13,12 @@ epi_text2article(text)
 Dataframe with article, section and item
 }
 \description{
-Convert text to epigraf article
+TODO: Do we need this? Better use craft functions
 }
 \examples{
 epi_text2article(
-tibble(id=1,project="Import",
-caption="My first text",
-content="Words are letters with glue"))
+  tibble(id=1,project="Import",
+  caption="My first text",
+  content="Words are letters with glue")
+)
 }
