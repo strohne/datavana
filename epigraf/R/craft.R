@@ -1,7 +1,7 @@
 #' Craft a project
 #'
 #' @export
-craft_project <- function(ds, col_id, col_name="", col_signature="", type="default") {
+craft_project <- function(ds, col_id, col_name="", col_signature="", type="default", skip=FALSE) {
 
   if (rlang::quo_is_symbol(rlang::enquo(col_id))) {
     check_has_column(ds, {{ col_id }})
@@ -31,13 +31,14 @@ craft_project <- function(ds, col_id, col_name="", col_signature="", type="defau
     )))
   )
 
-  .craft_add_rows(ds, rows)
+
+  .craft_add_rows(ds, rows, skip)
 }
 
 #' Craft an article
 #'
 #' @export
-craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno="",  type="default") {
+craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno="",  type="default", skip=FALSE) {
 
   if (!(".project" %in% colnames(ds))) {
     .craft_stop("Please, craft a project first")
@@ -87,14 +88,14 @@ craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno=
     )))
   )
 
-  .craft_add_rows(ds, rows)
+  .craft_add_rows(ds, rows, skip)
 }
 
 
 #' Craft a section
 #'
 #' @export
-craft_section <- function(ds, col_id, col_name="", col_alias="", col_sortno="", type="default") {
+craft_section <- function(ds, col_id, col_name="", col_alias="", col_sortno="", type="default", skip=FALSE) {
 
   if (!(".article" %in% colnames(ds))) {
     .craft_stop("Please, craft an article first")
@@ -134,14 +135,14 @@ craft_section <- function(ds, col_id, col_name="", col_alias="", col_sortno="", 
     )))
   )
 
-  .craft_add_rows(ds, rows)
+  .craft_add_rows(ds, rows, skip)
 }
 
 
 #' Craft an item
 #'
 #' @export
-craft_item <- function(ds, col_id, col_content="", type_property="default", col_property="", col_sortno="", type="default") {
+craft_item <- function(ds, col_id, col_content=NULL, type_property="default", col_property=NULL, col_sortno=NULL, type="default") {
 
   if (!(".article" %in% colnames(ds))) {
     .craft_stop("Please, craft an article first")
@@ -157,14 +158,33 @@ craft_item <- function(ds, col_id, col_content="", type_property="default", col_
 
   ds <- .craft_add_id(ds,".item", "items", type, {{ col_id }}, ds$.section)
 
+  fields <- c()
   if (!missing(col_property)) {
     ds <- .craft_add_id(ds,".property", "properties", type_property, {{ col_property }})
+    fields <- c(fields,"properties_id")
+  } else {
+    ds$.property <- NA
   }
+
+  if (!missing(col_content)) {
+    fields <- c(fields,"content")
+  } else {
+    col_content <- NA
+  }
+
+  if (!missing(col_sortno)) {
+    fields <- c(fields,"sortno")
+  } else {
+    col_sortno <- NA
+  }
+
+  fields <- paste0(fields, collapse=",")
 
   rows <- ds %>%
     dplyr::mutate(
       table = "items",
       id= ds$.item,
+      `_fields` = fields,
 
       sortno = ifelse(
         rep(rlang::quo_is_symbol(rlang::enquo(col_sortno)), nrow(ds)),
@@ -182,10 +202,11 @@ craft_item <- function(ds, col_id, col_content="", type_property="default", col_
 
   rows <- dplyr::distinct(
     rows,
-    dplyr::across(tidyselect::all_of(c(
+    dplyr::across(tidyselect::any_of(c(
       "table","id","content","properties_id",
       "sortno","articles_id","sections_id",
-      ".project", ".article", ".section",".item"
+      ".project", ".article", ".section",".item",
+      "_fields"
     )))
   )
 
@@ -365,8 +386,9 @@ craft_compile <- function(ds) {
 #'
 #' @param ds A tibble
 #' @param row A crafted row
+#' @param skip Whether to update the record or only use it as reference
 #' @return Epigraf tibble
-.craft_add_rows <- function(ds, rows) {
+.craft_add_rows <- function(ds, rows, skip=FALSE) {
 
   epi <- attr(ds, "epi")
   if (is.null(epi)) {
@@ -378,6 +400,10 @@ craft_compile <- function(ds) {
   }
 
   rows <- dplyr::mutate(rows, dplyr::across(tidyselect::everything(), as.character))
+
+  if (skip) {
+    rows$`_action` <- "skip"
+  }
 
   epi$rows <- bind_rows(epi$rows, rows)
   attr(ds, "epi") <- epi

@@ -10,7 +10,8 @@ craft_article(
   col_name = "",
   col_signature = "",
   col_sortno = "",
-  type = "default"
+  type = "default",
+  skip = FALSE
 )
 }
 \description{

@@ -10,7 +10,8 @@ craft_section(
   col_name = "",
   col_alias = "",
   col_sortno = "",
-  type = "default"
+  type = "default",
+  skip = FALSE
 )
 }
 \description{

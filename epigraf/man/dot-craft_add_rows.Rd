@@ -4,10 +4,12 @@
 \alias{.craft_add_rows}
 \title{Add a row to the rows in the epi attribute}
 \usage{
-.craft_add_rows(ds, rows)
+.craft_add_rows(ds, rows, skip = FALSE)
 }
 \arguments{
 \item{ds}{A tibble}
+
+\item{skip}{Whether to update the record or only use it as reference}
 
 \item{row}{A crafted row}
 }

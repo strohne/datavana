@@ -7,10 +7,10 @@
 craft_item(
   ds,
   col_id,
-  col_content = "",
+  col_content = NULL,
   type_property = "default",
-  col_property = "",
-  col_sortno = "",
+  col_property = NULL,
+  col_sortno = NULL,
   type = "default"
 )
 }

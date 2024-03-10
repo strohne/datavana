@@ -4,7 +4,14 @@
 \alias{craft_project}
 \title{Craft a project}
 \usage{
-craft_project(ds, col_id, col_name = "", col_signature = "", type = "default")
+craft_project(
+  ds,
+  col_id,
+  col_name = "",
+  col_signature = "",
+  type = "default",
+  skip = FALSE
+)
 }
 \description{
 Craft a project
