@@ -23,13 +23,14 @@ craft_project <- function(ds, col_id, col_name="", col_signature="", type="defau
       )
     )
 
-  rows <- dplyr::distinct(
-    rows,
-    dplyr::across(tidyselect::all_of(c(
-      "table","id","signature","name",
-      ".project"
-    )))
-  )
+  rows <- rows |>
+    dplyr::mutate(`_fields` = "table,type,id,signature,name") |>
+    dplyr::distinct(
+      dplyr::across(tidyselect::any_of(c(
+        "table","type","id","signature","name",
+        ".project","_fields"
+      )))
+    )
 
 
   .craft_add_rows(ds, rows, skip)
@@ -80,13 +81,14 @@ craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno=
       projects_id = ds$.project
     )
 
-  rows <- dplyr::distinct(
-    rows,
-    dplyr::across(tidyselect::all_of(c(
-      "table","id","sortno","signature","name", "projects_id",
-      ".project", ".article"
-    )))
-  )
+  rows <- rows |>
+    dplyr::mutate(`_fields` = "table,type,id,sortno,signature,name,projects_id") |>
+    dplyr::distinct(
+      dplyr::across(tidyselect::any_of(c(
+        "table","type","id","sortno","signature","name", "projects_id",
+        ".project", ".article","_fields"
+      )))
+    )
 
   .craft_add_rows(ds, rows, skip)
 }
@@ -127,13 +129,14 @@ craft_section <- function(ds, col_id, col_name="", col_alias="", col_sortno="", 
       articles_id = ds$.article # TODO: Rename to "article" in PHP
     )
 
-  rows <- dplyr::distinct(
-    rows,
-    dplyr::across(tidyselect::all_of(c(
-      "table","id","sortno","alias","name","articles_id",
-      ".project", ".article", ".section"
-    )))
-  )
+  rows <- rows |>
+    dplyr::mutate(`_fields` = "table,type,id,sortno,alias,name,articles_id") |>
+    dplyr::distinct(
+      dplyr::across(tidyselect::any_of(c(
+        "table","type","id","sortno","alias","name","articles_id",
+        ".project", ".article", ".section","_fields"
+      )))
+    )
 
   .craft_add_rows(ds, rows, skip)
 }
@@ -158,7 +161,7 @@ craft_item <- function(ds, col_id, col_content=NULL, type_property="default", co
 
   ds <- .craft_add_id(ds,".item", "items", type, {{ col_id }}, ds$.section)
 
-  fields <- c()
+  fields <- c("table","type","id","articles_id","sections_id")
   if (!missing(col_property)) {
     ds <- .craft_add_id(ds,".property", "properties", type_property, {{ col_property }})
     fields <- c(fields,"properties_id")
@@ -178,13 +181,10 @@ craft_item <- function(ds, col_id, col_content=NULL, type_property="default", co
     col_sortno <- NA
   }
 
-  fields <- paste0(fields, collapse=",")
-
   rows <- ds %>%
     dplyr::mutate(
       table = "items",
       id= ds$.item,
-      `_fields` = fields,
 
       sortno = ifelse(
         rep(rlang::quo_is_symbol(rlang::enquo(col_sortno)), nrow(ds)),
@@ -200,15 +200,16 @@ craft_item <- function(ds, col_id, col_content=NULL, type_property="default", co
       articles_id = ds$.article # TODO: Rename to "article" in PHP
     )
 
-  rows <- dplyr::distinct(
-    rows,
-    dplyr::across(tidyselect::any_of(c(
-      "table","id","content","properties_id",
-      "sortno","articles_id","sections_id",
-      ".project", ".article", ".section",".item",
-      "_fields"
-    )))
-  )
+  rows <- rows |>
+    dplyr::mutate(`_fields` = paste0(fields, collapse=",")) |>
+    dplyr::distinct(
+      dplyr::across(tidyselect::any_of(c(
+        "table","type","id","content","properties_id",
+        "sortno","articles_id","sections_id",
+        ".project", ".article", ".section",".item",
+        "_fields"
+      )))
+    )
 
   .craft_add_rows(ds, rows)
 }
@@ -242,12 +243,13 @@ craft_property <- function(ds, col_id, col_lemma="", type="default") {
     dplyr::mutate(name = .data$lemma)
 
 
-  rows <- dplyr::distinct(
-    rows,
-    dplyr::across(tidyselect::all_of(c(
-      "table","id","lemma"
-    )))
-  )
+  rows <- rows |>
+    dplyr::mutate(`_fields` = "table,type,id,lemma,name") |>
+    dplyr::distinct(
+      dplyr::across(tidyselect::any_of(c(
+        "table","type","id","lemma","_fields"
+      )))
+    )
 
   .craft_add_rows(ds, rows)
 }
@@ -286,7 +288,6 @@ craft_type <- function(ds, col_id, col_name, col_caption, col_config, mode, type
         rep(rlang::quo_is_symbol(rlang::enquo(col_config)), nrow(ds)),
         {{ col_config }}, col_config
       )
-
     )
 
   # Default values
@@ -296,13 +297,14 @@ craft_type <- function(ds, col_id, col_name, col_caption, col_config, mode, type
       id = ifelse(is.na(.data$mode), .data$id, paste0(.data$id,"~",.data$mode))
     )
 
-  rows <- dplyr::distinct(
-    rows,
-    dplyr::across(tidyselect::all_of(c(
-      "table","id","name","caption","config","mode",
-      ".type"
-    )))
-  )
+  rows <- rows |>
+    dplyr::mutate(`_fields` = "table,type,id,name,caption,config,mode") |>
+    dplyr::distinct(
+      dplyr::across(tidyselect::any_of(c(
+        "table","type","id","name","caption","config","mode",
+        ".type"
+      )))
+    )
 
   .craft_add_rows(ds, rows)
 }
