@@ -351,18 +351,21 @@ tree_add_mptt <- function(.data) {
 #' @param col_id The ID column of the node
 #' @param col_parent The ID column of the parent node
 #' @param col_lemma The column holding the node name that will be used for the path
+#' @param delim Character that glues together the path elements. Set to NULL to create a vector instead.
 #' @return A data frame with the additional column tree_path
 #' @export
-tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
+tree_add_path <- function(data, col_id, col_parent_id, col_lemma, delim="/")  {
 
   col_id <- enquo(col_id)
   col_parent_id <- enquo(col_parent_id)
   col_lemma <- enquo(col_lemma)
   join_by_parent = set_names(quo_name(col_id), quo_name(col_parent_id))
 
-  # Escape slashes in lemmata
+
+  # Escape slashes (or other characters used as delimiter) in lemmata
+  delim_entity <- paste0("&x", charToRaw(delim),";")
   data <- data %>%
-    mutate(!!col_lemma := str_replace(!!col_lemma,"/","&#47;"))
+    mutate(!!col_lemma := str_replace(!!col_lemma, delim ,delim_entity))
 
   # Init path
   data <- data %>%
@@ -371,7 +374,8 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
   # Root nodes
   current <- data %>%
     filter(is.na(!!col_parent_id)) %>%
-    select(!!col_id, tree_path = !!col_lemma)
+    mutate(tree_path =!!col_lemma) %>%
+    select(!!col_id, tree_path)
 
   while(nrow(current) > 0) {
     print(paste0(nrow(current), " nodes processed."))
@@ -385,7 +389,7 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma)  {
     # Get children of current batch and create path
     current <- data %>%
       inner_join(select(current, !!col_id,.tree_parent_path = tree_path),by=join_by_parent) %>%
-      mutate(tree_path = paste0(.tree_parent_path, " / " , !!col_lemma)) %>%
+      mutate(tree_path = paste0(.tree_parent_path, " ", delim, " ", !!col_lemma)) %>%
       select(!!col_id, tree_path)
   }
 

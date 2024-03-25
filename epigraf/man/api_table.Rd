@@ -2,12 +2,12 @@
 % Please edit documentation in R/api.R
 \name{api_table}
 \alias{api_table}
-\title{Download tabular data}
+\title{Download tables}
 \usage{
-api_table(table, params = c(), db, maxpages = 1)
+api_table(endpoint, params = c(), db, maxpages = 1)
 }
 \arguments{
-\item{table}{The table name (e.g. "items")}
+\item{endpoint}{The endpoint path (e.g. "articles/index" or "articles/view/1")}
 
 \item{params}{A named list of query params}
 
@@ -17,5 +17,5 @@ api_table(table, params = c(), db, maxpages = 1)
 Set to 1 for non-paginated tables.}
 }
 \description{
-Download tabular data
+Fetches tables such as articles, projects or properties
 }

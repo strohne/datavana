@@ -80,16 +80,20 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
 
 }
 
-
-#' Download tabular data
+#' Download tables
 #'
-#' @param table The table name (e.g. "items")
+#' Fetches tables such as articles, projects or properties
+#'
+#' TODO: silent problem message (false positive, results from the last column being empty from case to case)
+#' TODO: add progress bar
+#'
+#' @param endpoint The endpoint path (e.g. "articles/index" or "articles/view/1")
 #' @param params A named list of query params
 #' @param db The database name
 #' @param maxpages Maximum number of pages to request.
 #'                 Set to 1 for non-paginated tables.
 #' @export
-api_table <- function(table, params=c(), db, maxpages=1) {
+api_table <- function(endpoint, params=c(), db, maxpages=1) {
 
   verbose <- Sys.getenv("epi_verbose") == "TRUE"
 
@@ -100,10 +104,14 @@ api_table <- function(table, params=c(), db, maxpages=1) {
   fetchmore <- TRUE
   while (fetchmore) {
     params["page"] <- page
-    url = api_buildurl(table, params, db, "csv")
+    url = api_buildurl(endpoint, params, db, "csv")
     ext <- ".csv"
 
-    print (paste0("Fetching page ", page ," from ", table,"."))
+    if (maxpages == 1) {
+      message(paste0("Fetching data from ", endpoint,"."))
+    } else {
+      message(paste0("Fetching page ", page ," from ", endpoint,"."))
+    }
     message <- NA
 
     rows <- tryCatch(
@@ -153,9 +161,12 @@ api_table <- function(table, params=c(), db, maxpages=1) {
     }
   }
 
-  print (paste0("Fetched ", nrow(data) ," records from ", table,"."))
+  print (paste0("Fetched ", nrow(data) ," records from ", endpoint,"."))
 
-  data <- type_convert(data)
+  if (nrow(data) > 0) {
+    data <- suppressMessages(type_convert(data))
+  }
+  data <- .to_epitable(data, c("endpoint"=endpoint, "params" = params, "db"=db))
   data
 }
 
@@ -385,3 +396,15 @@ api_patch_wide <- function(data, database) {
 
 }
 
+#' Add the epi_tbl class and make it remember its source
+#'
+#' @param data A tibble
+#' @param source A named vector of source parameters, containing endpount, parameters and database name
+.to_epitable <- function(data, source=NULL) {
+  if (!is.null(source)) {
+    attr(data, "source") <- source
+  }
+
+  class(data) <- c("epi_tbl", setdiff(class(data), "epi_tbl"))
+  data
+}

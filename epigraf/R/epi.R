@@ -86,8 +86,32 @@ epi_is_id <- function(ids, table=NA) {
 
   fragment <- "([0-9]+)"
 
-  stringr::str_detect(ids,paste0("^",table,".",fragment,"$"))
+  stringr::str_detect(ids,paste0("^",table,"-",fragment,"$"))
 }
+
+
+#' Check whether the provided vector contains valid IDs prefixed
+#' with table names and temporary prefixes. Example: articles-tmp123
+#'
+#' @param ids The vector that will be proofed
+#' @param table Check whether the path contains the table. Leave empty to allow all tables.
+#' @param prefix Check whether the ID contains the prefix, e.g. "tmp". Leave empty to allow all prefixes.
+#' @export
+epi_is_prefixid <- function(ids, table=NA, prefix=NA) {
+
+  if (is.na(table)) {
+    table <- "(projects|articles|sections|items|properties|links|footnotes|types|users)"
+  }
+
+  if (is.na(prefix)) {
+    prefix <- "[a-z]+"
+  }
+
+  fragment <- "([0-9]+)"
+
+  stringr::str_detect(ids,paste0("^",table,"-",prefix,fragment,"$"))
+}
+
 
 #' Check whether the provided vector contains a valid IRI fragment
 #'

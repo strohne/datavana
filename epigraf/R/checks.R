@@ -24,3 +24,38 @@ check_has_column <- function(data, col, msg=NULL) {
 
   check
 }
+
+#' Check whether a value is a valid table prefixed ID, and stop if not
+#'
+#' @keywords internal
+#'
+#' @param value A character value
+#' @param msg A custom error message if the check fails
+#' @return boolean Whether the value is a valid table prefixed ID
+check_is_id   <- function(value, msg=NULL) {
+  check <- epi_is_id(value)
+  if (!check ) {
+    msg <- dplyr::coalesce(msg, paste0("The value ", value, " is not a valid Epigraf ID."))
+    stop(msg, call. = F)
+  }
+
+  check
+}
+
+
+#' Check whether a value is a valid database name, and stop if not
+#'
+#' @keywords internal
+#'
+#' @param value A character value
+#' @param msg A custom error message if the check fails
+#' @return boolean Whether the value is a valid database name
+check_is_db   <- function(value, msg=NULL) {
+  check <- is.character(value)
+  if (!check ) {
+    msg <- dplyr::coalesce(msg, paste0("The value ", value, " is not a valid Epigraf database name."))
+    stop(msg, call. = F)
+  }
+
+  check
+}
