@@ -1,10 +1,12 @@
 ---
-title: "Get Started with Epigraf Package"
+title: "Get started with the Epigraf package"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{epigraf_vignette}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, echo=FALSE}
@@ -26,9 +28,41 @@ More is yet to come.
 ## Installation 
 
 ```{r}
-library(devtools)
-install_github("strohne/datavana/epigraf")
+#library(devtools)
+#install_github("strohne/datavana/epigraf")
+
+# Connect to the API.
+api_setup("http://127.0.0.1/", "devel")
 ```
+
+## Get data
+
+```{r}
+
+# Get an article list
+articles <- fetch_table("articles", columns=c("name"), db="ca_chatgpt", maxpages=2)
+
+# Get a single article
+article <- fetch_entity("articles-1", db="ca_chatgpt")
+
+# Get all data for the first articles page
+articles <- fetch_table("articles", params=c(limit=5), db="ca_chatgpt", maxpages=1) |> 
+  fetch_entity()
+
+# Extract property tree
+props <- articles |> 
+  filter(table=="properties") |> 
+  select_if(~ ! all(is.na(.))) |> 
+  distinct() |> 
+  arrange(propertytype,lft) 
+
+props <- props |> 
+  select(lemma,level,lft,rght,id,parent_id) |> 
+  tree_add_path(id, parent_id,id)
+
+```
+
+
 
 ## A simple example I 
 The following example shows how to convert any text into epigraf article format. 
