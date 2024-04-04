@@ -365,7 +365,7 @@ tree_add_path <- function(data, col_id, col_parent_id, col_lemma, delim="/")  {
   # Escape slashes (or other characters used as delimiter) in lemmata
   delim_entity <- paste0("&x", charToRaw(delim),";")
   data <- data %>%
-    mutate(!!col_lemma := str_replace(!!col_lemma, delim ,delim_entity))
+    mutate(!!col_lemma := str_replace_all(!!col_lemma, delim ,delim_entity))
 
   # Init path
   data <- data %>%
