@@ -49,7 +49,7 @@ craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno=
     check_has_column(ds, {{ col_id }})
   }
 
-  ds <- .craft_add_id(ds,".article", "articles", type, {{ col_id }})
+  ds <- .craft_add_id(ds,".article", "articles", type, {{ col_id }}, ds$.project)
   # ds <- ds %>%
   #   dplyr::mutate(
   #     .article = epi_create_iri(
