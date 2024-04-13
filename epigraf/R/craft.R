@@ -24,7 +24,7 @@ craft_project <- function(ds, col_id, col_name="", col_signature="", type="defau
     )
 
   rows <- rows |>
-    dplyr::mutate(`_fields` = "table,type,id,signature,name") |>
+    dplyr::mutate(`_fields` = "id,table,type,norm_iri,signature,name") |>
     dplyr::distinct(
       dplyr::across(tidyselect::any_of(c(
         "table","type","id","signature","name",
@@ -82,7 +82,7 @@ craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno=
     )
 
   rows <- rows |>
-    dplyr::mutate(`_fields` = "table,type,id,sortno,signature,name,projects_id") |>
+    dplyr::mutate(`_fields` = "id,table,type,norm_iri,sortno,signature,name,projects_id") |>
     dplyr::distinct(
       dplyr::across(tidyselect::any_of(c(
         "table","type","id","sortno","signature","name", "projects_id",
@@ -130,7 +130,7 @@ craft_section <- function(ds, col_id, col_name="", col_alias="", col_sortno="", 
     )
 
   rows <- rows |>
-    dplyr::mutate(`_fields` = "table,type,id,sortno,alias,name,articles_id") |>
+    dplyr::mutate(`_fields` = "id,table,type,norm_iri,sortno,alias,name,articles_id") |>
     dplyr::distinct(
       dplyr::across(tidyselect::any_of(c(
         "table","type","id","sortno","alias","name","articles_id",
@@ -161,7 +161,7 @@ craft_item <- function(ds, col_id, col_content=NULL, type_property="default", co
 
   ds <- .craft_add_id(ds,".item", "items", type, {{ col_id }}, ds$.section)
 
-  fields <- c("table","type","id","articles_id","sections_id")
+  fields <- c("id","table","type","norm_iri","articles_id","sections_id")
   if (!missing(col_property)) {
     ds <- .craft_add_id(ds,".property", "properties", type_property, {{ col_property }})
     fields <- c(fields,"properties_id")
@@ -204,7 +204,7 @@ craft_item <- function(ds, col_id, col_content=NULL, type_property="default", co
     dplyr::mutate(`_fields` = paste0(fields, collapse=",")) |>
     dplyr::distinct(
       dplyr::across(tidyselect::any_of(c(
-        "table","type","id","content","properties_id",
+        "id","table","type","norm_iri","content","properties_id",
         "sortno","articles_id","sections_id",
         ".project", ".article", ".section",".item",
         "_fields"
@@ -244,7 +244,7 @@ craft_property <- function(ds, col_id, col_lemma="", type="default") {
 
 
   rows <- rows |>
-    dplyr::mutate(`_fields` = "table,type,id,lemma,name") |>
+    dplyr::mutate(`_fields` = "id,table,type,norm_iri,lemma,name") |>
     dplyr::distinct(
       dplyr::across(tidyselect::any_of(c(
         "table","type","id","lemma","_fields"
@@ -298,7 +298,7 @@ craft_type <- function(ds, col_id, col_name, col_caption, col_config, mode, type
     )
 
   rows <- rows |>
-    dplyr::mutate(`_fields` = "table,type,id,name,caption,config,mode") |>
+    dplyr::mutate(`_fields` = "id,table,type,norm_iri,name,caption,config,mode") |>
     dplyr::distinct(
       dplyr::across(tidyselect::any_of(c(
         "table","type","id","name","caption","config","mode",
@@ -314,7 +314,19 @@ craft_type <- function(ds, col_id, col_name, col_caption, col_config, mode, type
 #' Craft field configuration
 #'
 #' @export
-craft_type_fields <- function(ds, col_name = field_name, cols_fields, col_id, col_mode = mode, type) {
+craft_type_fields <- function(ds, col_name = field_name, cols_fields, col_id, col_mode = "default", type) {
+
+  # Add defaults
+  ds <- ds |>
+    dplyr::mutate(
+    mode = ifelse(
+      rep(rlang::quo_is_symbol(rlang::enquo(col_mode)), nrow(ds)),
+      {{ col_mode }}, col_mode
+    ))
+
+#   if (! ("edit" %in% colnames(ds))) {
+#     ds$edit <- NA
+#   }
 
   # Filter out NAs
   ds_config <- dplyr::filter(ds, !is.na({{ col_name }}))
@@ -324,12 +336,13 @@ craft_type_fields <- function(ds, col_name = field_name, cols_fields, col_id, co
   ds_config$config <- map(pmap(fields, list), na.omit)
 
   ds_config <- ds_config |>
+
     # Nest fields
-    dplyr::group_by({{ col_id }}, {{ type }}, {{ col_mode }}) |>
+    dplyr::group_by({{ col_id }}, {{ type }}, mode) |>
     dplyr::summarise(
       config = list(config),
-      {{col_name}} := list({{ col_name }}),
-      edit = any(.data$edit, na.rm=T)
+      {{col_name}} := list({{ col_name }})
+      #edit = any(.data$edit, na.rm=T)
     ) |>
     dplyr::ungroup() |>
     dplyr::rowwise() |>
@@ -350,7 +363,7 @@ craft_type_fields <- function(ds, col_name = field_name, cols_fields, col_id, co
 
   # Merge back
   #joinby <- setNames(c({{ type }}, {{ col_id }}), c(quo_name(enquo(type)), quo_name(enquo(col_id))))
-  joinby <- c(quo_name(enquo(type)), quo_name(enquo(col_id)), quo_name(enquo(col_mode)))
+  joinby <- c(quo_name(enquo(type)), quo_name(enquo(col_id)), "mode")
   left_join(ds, ds_config, by= joinby)
 
 }
