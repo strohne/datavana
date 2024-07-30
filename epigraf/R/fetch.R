@@ -26,8 +26,9 @@ fetch_table <- function(table, columns=c(), params=c(), db, maxpages=1) {
 #' @param params A named list of query params
 #' @param db The database name. Leave empty when providing a dataframe produced by fetch_table().
 #'           In this case, the database name will be extracted from the dataframe.
+#' @param silent Whether to output status messages
 #' @export
-fetch_entity <- function(ids, params=c(), db=NULL) {
+fetch_entity <- function(ids, params=c(), db=NULL, silent=FALSE) {
   # Get the database name from a dataframe
   if (is.null(db) && ("epi_tbl" %in% class(ids))) {
     db <- attr(ids, "source")["db"]
@@ -41,8 +42,19 @@ fetch_entity <- function(ids, params=c(), db=NULL) {
 
   # Iterate all IDs
   if (length(ids) > 1) {
-    data <- lapply(ids, fetch_entity, params, db)
-    data <- bind_rows(data)
+    cli_progress_bar("Fetching data", total = length(ids))
+    data <- tibble()
+
+    for (id in ids) {
+      data <- bind_rows(
+        data,
+        fetch_entity(id, params, db, silent=TRUE)
+      )
+
+      cli_progress_update(status=id)
+    }
+
+    cli_progress_done()
     return (data)
   }
 
@@ -57,7 +69,7 @@ fetch_entity <- function(ids, params=c(), db=NULL) {
   table <- id[1]
   id <- id[2]
 
-  data <- api_table(paste0(table,"/view/", id), params, db, 1)
+  data <- api_table(paste0(table,"/view/", id), params, db, 1, silent = silent)
   data <- tidyr::separate_wider_delim(data, id, delim="-", names=c("table","row"), cols_remove = F)
   data
 }

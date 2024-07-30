@@ -92,8 +92,9 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
 #' @param db The database name
 #' @param maxpages Maximum number of pages to request.
 #'                 Set to 1 for non-paginated tables.
+#' @param silent Whether to output status messages
 #' @export
-api_table <- function(endpoint, params=c(), db, maxpages=1) {
+api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
 
   verbose <- Sys.getenv("epi_verbose") == "TRUE"
 
@@ -107,10 +108,12 @@ api_table <- function(endpoint, params=c(), db, maxpages=1) {
     url = api_buildurl(endpoint, params, db, "csv")
     ext <- ".csv"
 
-    if (maxpages == 1) {
-      message(paste0("Fetching data from ", endpoint,"."))
-    } else {
-      message(paste0("Fetching page ", page ," from ", endpoint,"."))
+    if (!silent) {
+      if (maxpages == 1) {
+        message(paste0("Fetching data from ", endpoint,"."))
+      } else {
+        message(paste0("Fetching page ", page ," from ", endpoint,"."))
+      }
     }
     message <- NA
 
