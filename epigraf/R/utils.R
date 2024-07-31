@@ -173,21 +173,29 @@ pseudonyms <- function(n) {
 #' @param dataframes A list of dataframes
 #' @param A list of dataframes with common column types
 bind_rows_char <- function(dataframes){
+
   cols_names <- unique(unlist(lapply(dataframes, colnames)))
-  cols_classes <- sapply(cols_names, function(colname)
-    unique(sapply(dataframes, function(df) class(df[[colname]])))
-  )
+  cols_classes <- lapply(cols_names, function(colname)
+    unique(sapply(dataframes, function(df) ifelse(
+      colname %in% colnames(df),class(df[[colname]]),
+      "NULL"
+    ))
+  ))
   cols_tocharacter <- lapply(cols_classes, \(col) (length(col[col != "NULL"]) > 1))
+  names(cols_tocharacter) <- cols_names
 
-  dataframes <- lapply(dataframes, \(df) {
-    for (colname in colnames(df)) {
-      if (cols_tocharacter[[colname]]) {
-        df[[colname]] <- as.character(df[[colname]])
+
+  if (length(cols_tocharacter) > 0) {
+    dataframes <- lapply(dataframes, \(df) {
+      for (colname in colnames(df)) {
+        if (cols_tocharacter[[colname]]) {
+          df[[colname]] <- as.character(df[[colname]])
+        }
       }
-    }
-    df
+      df
 
-  })
+    })
+  }
 
   return(bind_rows(dataframes))
 }
