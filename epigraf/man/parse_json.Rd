@@ -6,6 +6,12 @@
 \usage{
 parse_json(data)
 }
+\arguments{
+\item{data}{A character vector that may contain NAs}
+}
+\value{
+A parsed vector
+}
 \description{
 Parse JSON columns
 }

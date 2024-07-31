@@ -52,6 +52,8 @@ drop_empty_columns <- function(df) {
 
 #' Parse JSON columns
 #'
+#' @param data A character vector that may contain NAs
+#' @return A parsed vector
 #' @importFrom jsonlite stream_in
 #' @export
 parse_json <- function(data) {
