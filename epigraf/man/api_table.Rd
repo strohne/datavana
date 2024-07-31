@@ -4,7 +4,7 @@
 \alias{api_table}
 \title{Download tables}
 \usage{
-api_table(endpoint, params = c(), db, maxpages = 1)
+api_table(endpoint, params = c(), db, maxpages = 1, silent = FALSE)
 }
 \arguments{
 \item{endpoint}{The endpoint path (e.g. "articles/index" or "articles/view/1")}
@@ -15,7 +15,13 @@ api_table(endpoint, params = c(), db, maxpages = 1)
 
 \item{maxpages}{Maximum number of pages to request.
 Set to 1 for non-paginated tables.}
+
+\item{silent}{Whether to output status messages}
 }
 \description{
 Fetches tables such as articles, projects or properties
+}
+\details{
+TODO: silent problem message (false positive, results from the last column being empty from case to case)
+TODO: add progress bar
 }

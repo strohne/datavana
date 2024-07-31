@@ -1,16 +1,24 @@
 Package: epigraf
-Title: Convert text to epigraf article
+Title: Fetch from and push data to Epigraf
 Version: 0.0.0.9000
 Authors@R: 
     person("Jakob", "Jünger", , "jakob.juenger@uni-muenster.de", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-1860-6695"))
-Description: Convert canonical social media datasets to Epigraf structure for import. 
-            To learn more about epigraf, start with the vignettes on Github. 
+Description: Provides functions to import and export data and for batch operations.
+            To learn more about Epigraf, start with the vignettes.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
-Depends: tidyverse,tidygraph,jsonlite,httr,RMariaDB
+RoxygenNote: 7.3.1
+Imports:
+    cli,
+    lifecycle
+Depends: 
+    tidyverse,
+    tidygraph,
+    jsonlite,
+    httr,
+    RMariaDB
 Suggests: 
     knitr,
     rmarkdown,
@@ -18,5 +26,3 @@ Suggests:
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://github.com/strohne/datavana/tree/main/epigraf
-Imports: 
-    cli

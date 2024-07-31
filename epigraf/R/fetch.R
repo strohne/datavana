@@ -42,19 +42,21 @@ fetch_entity <- function(ids, params=c(), db=NULL, silent=FALSE) {
 
   # Iterate all IDs
   if (length(ids) > 1) {
-    cli_progress_bar("Fetching data", total = length(ids))
+    cli::cli_progress_bar("Fetching data", total = length(ids))
     data <- tibble()
 
     for (id in ids) {
-      data <- bind_rows(
-        data,
-        fetch_entity(id, params, db, silent=TRUE)
+      data <- bind_rows_char(
+        list(
+          data,
+          fetch_entity(id, params, db, silent=TRUE)
+        )
       )
 
-      cli_progress_update(status=id)
+      cli::cli_progress_update(status=id)
     }
 
-    cli_progress_done()
+    cli::cli_progress_done()
     return (data)
   }
 

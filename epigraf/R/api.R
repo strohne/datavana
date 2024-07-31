@@ -1,5 +1,5 @@
 #
-# Functions for API access to Epigraf
+# Functions for low level API access to Epigraf
 #
 
 
@@ -156,7 +156,7 @@ api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
     }
 
     if (nrow(rows) > 0) {
-      data <- bind_rows(data, rows)
+      data <- bind_rows_char(list(data, rows))
       fetchmore <- (page < maxpages)
       page <- page + 1
     } else {
@@ -164,7 +164,9 @@ api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
     }
   }
 
-  print (paste0("Fetched ", nrow(data) ," records from ", endpoint,"."))
+  if (!silent) {
+    print (paste0("Fetched ", nrow(data) ," records from ", endpoint,"."))
+  }
 
   if (nrow(data) > 0) {
     data <- suppressMessages(type_convert(data))
@@ -320,18 +322,6 @@ api_job_execute <- function(job_id) {
   return (invisible((polling == F) & (error == F)))
 }
 
-#' Transfer datasets between different databases
-#'
-#' @param table Table name, e.g. "types"
-#' @param db_source Source database name
-#' @param db_target Target database name
-#' @param db_params A parameter list for selecting the appropriate rows.
-#'                  For example: params <- list("scopes" = "properties")
-#' @export
-api_transfer <- function(table, db_source, db_target, db_params = list()) {
-  db_params["source"] = db_source
-  api_job_create(paste0(table, "/transfer"), db_params, db_target)
-}
 
 #' Patch data
 #'

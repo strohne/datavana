@@ -9,7 +9,7 @@ craft_type_fields(
   col_name = field_name,
   cols_fields,
   col_id,
-  col_mode = mode,
+  col_mode = "default",
   type
 )
 }

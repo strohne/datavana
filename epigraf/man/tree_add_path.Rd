@@ -4,7 +4,7 @@
 \alias{tree_add_path}
 \title{Add a column holding the path of each node.}
 \usage{
-tree_add_path(data, col_id, col_parent_id, col_lemma)
+tree_add_path(data, col_id, col_parent_id, col_lemma, delim = "/")
 }
 \arguments{
 \item{data}{Dataframe containing hierarchical data}
@@ -12,6 +12,8 @@ tree_add_path(data, col_id, col_parent_id, col_lemma)
 \item{col_id}{The ID column of the node}
 
 \item{col_lemma}{The column holding the node name that will be used for the path}
+
+\item{delim}{Character that glues together the path elements. Set to NULL to create a vector instead.}
 
 \item{col_parent}{The ID column of the parent node}
 }

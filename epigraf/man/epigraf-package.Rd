@@ -4,9 +4,9 @@
 \name{epigraf-package}
 \alias{epigraf}
 \alias{epigraf-package}
-\title{epigraf: Convert text to epigraf article}
+\title{epigraf: Fetch from and push data to Epigraf}
 \description{
-Convert canonical social media datasets to Epigraf structure for import. To learn more about epigraf, start with the vignettes on Github.
+Provides functions to import and export data and for batch operations. To learn more about Epigraf, start with the vignettes.
 }
 \seealso{
 Useful links:

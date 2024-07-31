@@ -1,3 +1,7 @@
+#
+# Functions for direct database access
+#
+
 #' Save database connection settings to environment variables.
 #' Environment variables are prefixed with "epi_" and used in db_connect()
 #' to establish the connection.
