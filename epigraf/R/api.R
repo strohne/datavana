@@ -288,6 +288,11 @@ api_job_execute <- function(job_id) {
       error <- F
       message <- purrr::pluck(body,"job","message",.default = NA)
 
+      delay <- purrr::pluck(body,"job","delay",.default = 0)
+      if (delay > 0) {
+        Sys.sleep(1)
+      }
+
       #url <- purrr::pluck(body,"job","nexturl",.default = NA)
       #api_buildurl(url, NA, "epi_all")
 

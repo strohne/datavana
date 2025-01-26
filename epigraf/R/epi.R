@@ -162,8 +162,7 @@ epi_extract_wide <- function(data, cols_prefix, cols_keep=c()) {
 #' Convert wide to long format
 #'
 #' @param data A dataframe with the column id containing a valid IRI path.
-#'             and additional columns. The additional columns may contain nested
-#'             data in the following form:
+#'             Additional columns may contain nested data in the following form:
 #'
 #'             Column names prefixed with "properties", "items", "sections",
 #'              "articles" and "projects" followed by a dot (e.g. "properties.id",
