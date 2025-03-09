@@ -172,7 +172,22 @@ def wide_to_long(data):
 
         return rows
 
-    return pd.DataFrame()  # Return an empty DataFrame if no data is extracted
+    # Return an empty DataFrame if no data is extracted
+    return pd.DataFrame()
+
+def long_to_wide(df, table):
+    tables = {}
+    for tableName in ['items','sections','articles','projects']:
+        tables[tableName] = df[df.table == tableName].drop(columns=['table', 'row']).dropna(axis=1, how='all')
+
+    if table == 'items':
+        df_wide = tables['items'] \
+            .merge(tables['sections'].add_prefix("sections."), left_on=["sections_id"], right_on=["sections.id"], how='left').drop(columns=['sections_id', 'sections.articles_id']) \
+            .merge(tables['articles'].add_prefix("articles."), left_on=["articles_id"], right_on=["articles.id"], how='left').drop(columns=['articles_id'])
+        return df_wide
+
+    # Return an empty DataFrame if no data is extracted
+    return pd.DataFrame()
 
 
 

@@ -3,9 +3,7 @@ from urllib.parse import urlparse, urlunparse, urlencode
 import pandas as pd
 import io
 import requests
-from requests.cookies import create_cookie
 from epygraf import base
-
 
 def setup(apiserver, apitoken, verbose=False): 
     
@@ -20,6 +18,7 @@ def setup(apiserver, apitoken, verbose=False):
     """
     settings = dict(locals())
     settings = {f"epi_{key}": str(value) for key, value in settings.items()}
+    settings['epi_verbose'] = str(verbose).upper()
     os.environ.update(settings)
 
 
@@ -71,16 +70,17 @@ def build_url(endpoint, query=None, database=None, extension="json"):
     return url
 
 
-def table(table, params=None, db=None, maxpages=1):
+def table(endpoint, params=None, db=None, maxpages=1, silent=False):
 
     """
     Download tabular data.
 
-    :param table: (str) The table name (e.g. "items")
+    :param endpoint: (str) The endpoint path (e.g. "articles/index" or "articles/view/1")
     :param params: (dict) A named dictionary of query parameters
     :param db: (str) The database name
     :param maxpages: (int) Maximum number of pages to request.
                     Set to 1 for non-paginated tables.
+    :param silent: (bool) Whether to output status messages
     :return: (pandas.DataFrame) The downloaded tabular data
     """
     verbose = True if os.getenv("epi_verbose") == "TRUE" else False
@@ -93,18 +93,21 @@ def table(table, params=None, db=None, maxpages=1):
         if params is None:
             params = {}
         params["page"] = page
-        url = build_url(table, params, db, "csv")
+        url = build_url(endpoint, params, db, "csv")
         ext = ".csv"
 
-        print(f"Fetching page {page} from {table}.")
+        if (not silent):
+            if maxpages == 1:
+                print(f"Fetching data from {endpoint}.")
+            else:
+                print(f"Fetching page {page} from {endpoint}.")
         message = None
 
         try:
             if verbose:
-                cookies = [create_cookie("XDEBUG_SESSION", "XDEBUG_ECLIPSE")]
-                resp = requests.get(url, cookies=cookies, headers={"Accept": ext})
+                resp = requests.get(url, cookies={'XDEBUG_SESSION' : 'XDEBUG_ECLIPSE'})
             else:
-                resp = requests.get(url, headers={"Accept": ext})
+                resp = requests.get(url)
 
             if resp.status_code == 200:
                 body = resp.text
@@ -130,10 +133,12 @@ def table(table, params=None, db=None, maxpages=1):
         else:
             fetchmore = False
 
-    print(f"Fetched {data.shape[0]} records from {table}.")
+    if not silent:
+        print(f"Fetched {data.shape[0]} records from {endpoint}.")
 
     # Convert columns to appropriate types
     data = data.convert_dtypes()
+    data = to_epitable(data, {'endpoint': endpoint, 'params': params, 'db':db})
     return data
 
 
@@ -294,9 +299,47 @@ def patch(data, database, table=None, type=None, wide=True):
 
     job_create("articles/import", None, database, {"data": data.to_dict(orient="records")})
 
-# Patch data and create related properties, items, sections, articles, and projects
 def patch_wide(data, database):
+    """
+    Patch data and create related properties, items, sections, articles, and projects
+
+    Args:
+        data: A dataframe with the column id containing a valid IRI path.
+              Additional columns such as norm_data will be written to the record.
+              Column names prefixed with "properties", "items", "sections", "articles"
+              and "projects" followed by a dot (e.g. "properties.id", "properties.lemma")
+              will be extracted and patched as additional records.
+        database: The database name
+
+    Returns: None
+
+    """
     rows = base.wide_to_long(data)
-    api_patch(rows, database)
+    patch(rows, database)
 
 
+def to_epitable(data: pd.DataFrame, source: dict = None) -> pd.DataFrame:
+    """
+    Add the epigraf source and type attributes to the DataFrame
+
+    :param data: A pandas DataFrame
+    :param source: A dictionary of source parameters, containing endpoint, parameters, and database name
+    :return: Modified DataFrame with metadata in the attrs property
+    """
+    # Set source
+    if source is not None:
+        data.attrs["epi_source"] = source
+
+    # Reorder columns
+    id_cols = [col for col in  ["database", "table", "row", "type", "norm_iri"] if col in data.columns]
+    belongsto_idcols = [col for col in data.columns if col.endswith("id")]
+    belongsto_namedcols = [col for col in ["project","article","section","item","property","footnote"] if col in data.columns]
+    state_cols = [col for col in data.columns if col.startswith(("created", "modified"))]
+    content_cols = [col for col in data.columns if col not in id_cols + belongsto_idcols + belongsto_namedcols + state_cols]
+
+    ordered_cols = id_cols + content_cols + belongsto_idcols + state_cols
+    data = data[ordered_cols]
+
+    # Add Epigraf type attribute
+    data.attrs["epi_type"] = "table"
+    return data

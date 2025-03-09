@@ -2,7 +2,9 @@ setup.py
 epygraf/__init__.py
 epygraf/api.py
 epygraf/base.py
+epygraf/check.py
 epygraf/db.py
+epygraf/fetch.py
 epygraf.egg-info/PKG-INFO
 epygraf.egg-info/SOURCES.txt
 epygraf.egg-info/dependency_links.txt
