@@ -73,5 +73,5 @@ fetch_entity <- function(ids, params=c(), db=NULL, silent=FALSE) {
 
   data <- api_table(paste0(table,"/view/", id), params, db, 1, silent = silent)
   data <- tidyr::separate_wider_delim(data, id, delim="-", names=c("table","row"), cols_remove = F)
-  data
+  .to_epitable(data)
 }

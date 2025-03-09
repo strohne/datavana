@@ -106,7 +106,6 @@ api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
   while (fetchmore) {
     params["page"] <- page
     url = api_buildurl(endpoint, params, db, "csv")
-    ext <- ".csv"
 
     if (!silent) {
       if (maxpages == 1) {
@@ -121,9 +120,9 @@ api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
       {
 
         if (verbose)  {
-          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"), accept(ext))
+          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"))
         } else {
-          resp <- GET(url, accept(ext))
+          resp <- GET(url)
         }
 
 
@@ -171,8 +170,8 @@ api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
   if (nrow(data) > 0) {
     data <- suppressMessages(type_convert(data))
   }
-  data <- .to_epitable(data, c("endpoint"=endpoint, "params" = params, "db"=db))
-  data
+
+  .to_epitable(data, c("endpoint"=endpoint, "params" = params, "db"=db))
 }
 
 
@@ -402,6 +401,23 @@ api_patch_wide <- function(data, database) {
   if (!is.null(source)) {
     attr(data, "source") <- source
   }
+
+  # Reorder columns
+  id_cols <-  intersect(c("database", "table", "row", "type", "norm_iri"), names(data))
+  belongsto_id_cols <- grep("id$", names(data), value = TRUE)
+  belongsto_name_cols <- intersect(c("project","article","section","item","property","footnote"), names(data))
+  state_cols <- grep("^(created)|(modified)", names(data), value = TRUE)
+  content_cols <- setdiff(names(data), c(id_cols, belongsto_id_cols, belongsto_name_cols, state_cols))
+
+  data <- dplyr::select(
+    data,
+    dplyr::all_of(id_cols),
+    dplyr::all_of(content_cols),
+    dplyr::all_of(belongsto_name_cols),
+    dplyr::all_of(belongsto_id_cols),
+    dplyr::all_of(state_cols)
+  )
+
 
   class(data) <- c("epi_tbl", setdiff(class(data), "epi_tbl"))
   data
