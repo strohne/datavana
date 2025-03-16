@@ -1,12 +1,10 @@
-# Epigraf (R-package)
+# Epigraf packages
 
-Epigraf is a research platform for text: https://epigraf.inschriften.net. The [Epigraf package](epigraf) assists with data transfer and analysis.
-The [Epigraf package](epigraf) supports data management and analysis using R.
+Epigraf is a research platform for collecting, annotating, linking and publishing multimodal text data. See https://epigraf.uni-muenster.de for further information.
+The packages assist with data management and analysis.
 
-# Epygraf (Python-package)
-
-Epigraf is a research platform for text: https://epigraf.inschriften.net. The [Epigraf package](epigraf) assists with data transfer and analysis.
-The [Epygraf package](epygraf) supports data management and analysis using python.
+- [Epigraf package](epigraf) for R 
+- [Epygraf package](epygraf) for Python
 
 # Facepager package
 
