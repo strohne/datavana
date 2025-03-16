@@ -32,7 +32,7 @@ More is yet to come.
 #install_github("strohne/datavana/epigraf")
 
 # Connect to the API.
-api_setup("http://127.0.0.1/", "devel")
+api_setup("http://127.0.0.1/", "devel", TRUE)
 ```
 
 ## Get data
@@ -40,13 +40,13 @@ api_setup("http://127.0.0.1/", "devel")
 ```{r}
 
 # Get an article list
-articles <- fetch_table("articles", columns=c("name"), db="ca_chatgpt", maxpages=2)
+articles <- fetch_table("articles", columns=c("name"), db="epi_playground", maxpages=2)
 
 # Get a single article
-article <- fetch_entity("articles-1", db="ca_chatgpt")
+article <- fetch_entity("articles-1", db="epi_playground")
 
 # Get all data for the first articles page
-articles <- fetch_table("articles", params=c(limit=5), db="ca_chatgpt", maxpages=1) |> 
+articles <- fetch_table("articles", params=c(limit=5), db="epi_playground", maxpages=1) |> 
   fetch_entity()
 
 # Extract property tree
@@ -87,7 +87,8 @@ epidata
 
 
 ## A simple example II 
-The following example shows how to convert a social media dataset into an Epigraf import file. The social media dataset follows the canoncial structure described on the project page.
+The following example shows how to convert a social media dataset into an Epigraf import file. 
+The social media dataset follows the canoncial structure described on the project page.
 
 ```{r, eval=TRUE}
 library(tidyverse)

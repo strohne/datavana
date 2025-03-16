@@ -128,7 +128,7 @@ api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
 
         if (resp$status_code == 200) {
           body <- content(resp,as="text")
-          rows <- read_delim(I(body), delim=";", col_types = cols(.default = col_character()))
+          rows <- suppressWarnings(read_delim(I(body), delim=";", col_types = cols(.default = col_character())))
         }
 
 
