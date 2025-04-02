@@ -167,3 +167,11 @@ articles.articletype.value_counts()
 | base.is_irifragment()        | Check whether the provided vector contains a valid IRI fragment. Example for the given vector 'iri-fragments': `iri_fragments = pd.Series(["di-103-17", "invaliDfragment", "mv~5627"]) base.is_irifragment(iri_fragments)`      |
 | base.extract_wide()          | Select nested data from prefixed columns. Example for the given dataframe 'data': `data = pd.DataFrame({"data.id": [1, 2, 3], "data.value": [10, 20, 30],"other.id": [4, 5, 6]}) base.extract_wide(data, "data") ` This command creates a DataFrame containing only columns with the prefix 'data' and the prefix will be removed.                                     |
 
+
+# Build the package
+
+```
+python setup.py install
+```
+
+To install the new version, uninstall the old one first  `pip uninstall epygraf`.
