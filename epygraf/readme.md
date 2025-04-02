@@ -60,6 +60,28 @@ To warm up, try to get an article list. The following method fetches articles (f
 epi.fetch.table("articles", columns=["name"], db="epi_movies", maxpages=5)
 ```
 
+Here is an example to get a property list:
+
+df = epi.fetch.table(
+    "properties",
+    columns= ["id","parent_id","lemma","sortkey","level","lft"],
+    params={'propertytype':'materials'},
+    db="epi_playground",
+    maxpages=20
+)
+
+Note how you provide the propertytype in the parameters. The columns have the following meaning:
+- lemma: The content of the item
+- sortkey: The sortkey of the item
+- id and parent_id: The internal database IDs of the item and its parent
+- level: Properties my be organised as trees. Root items are on level 0, direct children on level 1 and so on.
+- lft: Properties are stored with a fixed order in the database, following an approach called Modified Preorder Tree Traversal.
+       The lft field can be used to sort the properties, which results in the correct tree order.
+
+When fetching properties, all  ancestor nodes are fetched as well.
+For paginated queries, this results in duplicates. On each page, all parents are included.   
+Drop them using `df = df.drop_duplicates()`.
+
 Api access not only provides functions to fetch data, you can also import, write or annotate data. 
 For example, you can create or update properties and articles using the function `api.patch()`.
 On the properties page, datasets are imported into the properties table with the selected category set as propertytype. 
