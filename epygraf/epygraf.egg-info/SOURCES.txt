@@ -5,6 +5,7 @@ epygraf/base.py
 epygraf/check.py
 epygraf/db.py
 epygraf/fetch.py
+epygraf/utils.py
 epygraf.egg-info/PKG-INFO
 epygraf.egg-info/SOURCES.txt
 epygraf.egg-info/dependency_links.txt
