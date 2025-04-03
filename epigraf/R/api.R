@@ -335,11 +335,14 @@ api_job_execute <- function(job_id) {
 #' articles, sections, items, links, footnotes, properties, projects, users, types.
 #' The IRI path in the ID column of the dataframe must contain the specific table name.
 #'
-#' @param data A dataframe with the column id (must be a a valid IRI path).
-#'              Additional columns such as norm_data will be written to the record.
+#' @param data A dataframe with the column `id`.
+#'             Additional columns such as norm_data will be written to the record.
+#'             The id must either be a a valid IRI path (e.g. properties/objecttypes/xxx)
+#'             or an id prefixed by the table name (e.g. properties-12).
+#'             Patching properties with prefixed ids requires a `type` column that contains the property type.
 #' @param database The database name
-#' @param table Check that the data only contains rows for a specific table
-#' @param type Check that the data only contains rows with a specific type
+#' @param table Optional: Check that the data only contains rows for a specific table
+#' @param type Optional: Check that the data only contains rows with a specific type
 #' @param wide Convert wide format to long format
 #' @export
 api_patch <- function(data, database, table=NA, type=NA, wide=T) {
