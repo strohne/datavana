@@ -4,7 +4,7 @@
 #' @param .tree Data frame containing all nodes including all ancestors
 #' @param id Column name of the id in .data and .tree
 #' @param parent_id Column name of the parent id in .data and .tree
-#' @return Data frame containing the nodes of .data and alle ancestors
+#' @return Data frame containing the nodes of .data and all ancestors
 #' @export
 tree_bind_ancestors <- function(.data, .tree, id, parent_id) {
   id <- enquo(id)
@@ -190,8 +190,6 @@ tree_add_level <- function(.data, col_id, col_parent, col_sort=NULL) {
 #'
 #' TODO: fix tree_order ... should be related to the thread, not the parent
 #'
-#' Version 2: loop through the levels
-#'
 #' @import tidygraph
 #' @param .data The dataframe containing hierarchical data
 #' @param col_id The ID column of the node
@@ -270,7 +268,6 @@ tree_add_level2 <- function(data, col_id, col_parent, col_sort=NULL) {
 #' See https://www.sitepoint.com/hierarchical-data-database-3/
 #'
 #' @param data Dataframe with the columns tree_id, tree_parent, tree_thread, tree_level, tree_order
-#'            TODO: parameters?
 #' @return Dataframe with lft and rght values
 #' @export
 tree_add_mptt <- function(.data) {
@@ -335,7 +332,7 @@ tree_add_mptt <- function(.data) {
   }
 
   .data <- .data %>%
-    arrange(tree_thread, tree_order) %>%
+    arrange(tree_thread, tree_lft) %>%
     select(starts_with("tree_"), everything())
 
   return(.data)
@@ -447,7 +444,7 @@ tree_disambiguate_ids <- function(.data, id, parent, type, levels) {
 #' @param col_target Target column name
 #' @return A tibble with one column `id` containing unique source and target values
 #' @export
-net_getnodes <- function(edges, col_source, col_target) {
+tree_get_nodes <- function(edges, col_source, col_target) {
 
   edges %>%
     dplyr::select({{col_source}}, {{col_target}}) %>%

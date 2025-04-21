@@ -7,16 +7,24 @@
 api_patch(data, database, table = NA, type = NA, wide = T)
 }
 \arguments{
-\item{data}{A dataframe with the column id (must be a a valid IRI path).
-Additional columns such as norm_data will be written to the record.}
+\item{data}{A dataframe with the column \code{id}.
+Additional columns such as norm_data will be written to the record.
+The id must either be a a valid IRI path (e.g. properties/objecttypes/xxx)
+or an id prefixed by the table name (e.g. properties-12).
+Patching properties with prefixed ids requires a \code{type} column
+that contains the property type.
+Column names with table names as prefixes will be extracted, if wide is set to TRUE (default).}
 
 \item{database}{The database name}
 
-\item{table}{Check that the data only contains rows for a specific table}
+\item{table}{Optional: Check that the data only contains rows for a specific table}
 
-\item{type}{Check that the data only contains rows with a specific type}
+\item{type}{Optional: Check that the data only contains rows with a specific type}
 
-\item{wide}{Convert wide format to long format}
+\item{wide}{Convert wide format to long format.
+If TRUE, column names prefixed with "properties", "items", "sections", "articles"
+and "projects" followed by a dot (e.g. "properties.id",
+"properties.lemma") will be extracted and patched as additional records.}
 }
 \description{
 Update records in the database using the API.

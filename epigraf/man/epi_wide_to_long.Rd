@@ -8,8 +8,7 @@ epi_wide_to_long(data)
 }
 \arguments{
 \item{data}{A dataframe with the column id containing a valid IRI path.
-and additional columns. The additional columns may contain nested
-data in the following form:
+Additional columns may contain nested data in the following form:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{        Column names prefixed with "properties", "items", "sections",
          "articles" and "projects" followed by a dot (e.g. "properties.id",

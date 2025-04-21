@@ -1,0 +1,48 @@
+---
+title: "Import data into Epigraf"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{import}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>", 
+  message = FALSE, 
+  warning = FALSE
+)
+```
+
+Epigraf expects data in a format called Relational Article Model (RAM).
+
+
+## Map data to the RAM
+
+```{r}
+
+ds <- tribble(
+  ~case, ~title, ~text,
+  1, "Case 01", "Happy New Year!",
+  2, "Case 02", "Happy Easter!",
+  3, "Case 03", "Happy Birthday!"
+)
+
+epi <- ds |> 
+  df_to_ram(
+    item    = c("content" = "text"),
+    article = c("id" = "case", "signature" = "case", "name" = "title"),
+
+    vals = list(
+      item = c("type" = "text"),
+      section = c("type" = "text"),
+    ),
+    
+    compile = T
+  )
+
+```

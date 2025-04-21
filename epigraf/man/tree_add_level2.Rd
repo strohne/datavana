@@ -21,6 +21,3 @@ Data frame with the additional columns tree_thread, tree_order and tree_level
 \description{
 TODO: fix tree_order ... should be related to the thread, not the parent
 }
-\details{
-Version 2: loop through the levels
-}

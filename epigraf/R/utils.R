@@ -201,3 +201,16 @@ bind_rows_char <- function(dataframes){
 
   return(bind_rows(dataframes))
 }
+
+
+merge_vectors <- function(values, default) {
+  default[names(values)] <- values
+  default
+}
+
+default_values <- function(ds, colname, default) {
+  if (!(colname %in% colnames(ds))) {
+    ds[[colname]] <- default
+  }
+  ds
+}

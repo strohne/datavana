@@ -16,7 +16,7 @@ tree_bind_ancestors(.data, .tree, id, parent_id)
 \item{parent_id}{Column name of the parent id in .data and .tree}
 }
 \value{
-Data frame containing the nodes of .data and alle ancestors
+Data frame containing the nodes of .data and all ancestors
 }
 \description{
 Row bind all ancestors of the selected nodes

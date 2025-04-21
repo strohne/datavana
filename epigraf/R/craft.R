@@ -37,7 +37,7 @@ craft_project <- function(ds, col_id, col_name="", col_signature="", type="defau
     )
 
 
-  .craft_add_rows(ds, rows, skip)
+  ram_add(ds, rows, skip)
 }
 
 #' Craft an article
@@ -94,7 +94,7 @@ craft_article <- function(ds, col_id, col_name="", col_signature="", col_sortno=
       )))
     )
 
-  .craft_add_rows(ds, rows, skip)
+  ram_add(ds, rows, skip)
 }
 
 
@@ -142,7 +142,7 @@ craft_section <- function(ds, col_id, col_name="", col_alias="", col_sortno="", 
       )))
     )
 
-  .craft_add_rows(ds, rows, skip)
+  ram_add(ds, rows, skip)
 }
 
 
@@ -215,7 +215,7 @@ craft_item <- function(ds, col_id, col_content=NULL, type_property="default", co
       )))
     )
 
-  .craft_add_rows(ds, rows)
+  ram_add(ds, rows)
 }
 
 
@@ -255,7 +255,7 @@ craft_property <- function(ds, col_id, col_lemma="", type="default") {
       )))
     )
 
-  .craft_add_rows(ds, rows)
+  ram_add(ds, rows)
 }
 
 
@@ -310,7 +310,7 @@ craft_type <- function(ds, col_id, col_name, col_caption, col_config, mode, type
       )))
     )
 
-  .craft_add_rows(ds, rows)
+  ram_add(ds, rows)
 }
 
 
@@ -370,66 +370,6 @@ craft_type_fields <- function(ds, col_name = field_name, cols_fields, col_id, co
   joinby <- c(quo_name(enquo(type)), quo_name(enquo(col_id)), "mode")
   left_join(ds, ds_config, by= joinby)
 
-}
-
-#' Compile a crafted Epigraf table ready to patch into the database
-#'
-#' @export
-craft_compile <- function(ds) {
-  rows <- attr(ds, "epi")$rows
-  if (is.null(rows)) {
-    rows <- tibble::tibble()
-  }
-
-  rows <- dplyr::arrange(rows, dplyr::desc(
-    dplyr::across(tidyselect::any_of(c(".project",".article",".section",".item")))
-  )
-  )
-
-  rows <- dplyr::select(
-    rows,
-    tidyselect::any_of(c(
-      "table","id",
-      "signature", "name", "alias", "sortno",
-      "content","property",
-      "sections_id","articles_id","projects_id"
-    )),
-    tidyselect::everything(),
-    -tidyselect::starts_with(".")
-  )
-
-  tibble::as_tibble(apply(rows, 2, rev))
-}
-
-#' Add a row to the rows in the epi attribute
-#'
-#' @param ds A tibble
-#' @param row A crafted row
-#' @param skip Whether to update the record or only use it as reference
-#' @return Epigraf tibble
-.craft_add_rows <- function(ds, rows, skip=FALSE) {
-
-  epi <- attr(ds, "epi")
-  if (is.null(epi)) {
-    epi <- list()
-  }
-
-  if (is.null(epi$rows)) {
-    epi$rows <- tibble::tibble()
-  }
-
-  rows <- dplyr::mutate(rows, dplyr::across(tidyselect::everything(), as.character))
-
-  if (skip) {
-    rows$`_action` <- "skip"
-  }
-
-  epi$rows <- bind_rows(epi$rows, rows)
-  attr(ds, "epi") <- epi
-
-  # Set class
-  class(ds) <- c("epi_tbl", setdiff(class(ds),"epi_tbl"))
-  ds
 }
 
 #' Add ID column

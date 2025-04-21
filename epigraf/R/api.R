@@ -80,101 +80,6 @@ api_buildurl <- function(endpoint, query=NA, database=NA, extension="json") {
 
 }
 
-#' Download tables
-#'
-#' Fetches tables such as articles, projects or properties
-#'
-#' TODO: silent problem message (false positive, results from the last column being empty from case to case)
-#' TODO: add progress bar
-#'
-#' @param endpoint The endpoint path (e.g. "articles/index" or "articles/view/1")
-#' @param params A named list of query params
-#' @param db The database name
-#' @param maxpages Maximum number of pages to request.
-#'                 Set to 1 for non-paginated tables.
-#' @param silent Whether to output status messages
-#' @export
-api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
-
-  verbose <- Sys.getenv("epi_verbose") == "TRUE"
-
-
-  data = data.frame()
-  page = 1
-
-  fetchmore <- TRUE
-  while (fetchmore) {
-    params["page"] <- page
-    url = api_buildurl(endpoint, params, db, "csv")
-
-    if (!silent) {
-      if (maxpages == 1) {
-        message(paste0("Fetching data from ", endpoint,"."))
-      } else {
-        message(paste0("Fetching page ", page ," from ", endpoint,"."))
-      }
-    }
-    message <- NA
-
-    rows <- tryCatch(
-      {
-
-        if (verbose)  {
-          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"))
-        } else {
-          resp <- GET(url)
-        }
-
-
-        if (resp$status_code == 200) {
-          body <- content(resp,as="text")
-          rows <- suppressWarnings(read_delim(I(body), delim=";", col_types = cols(.default = col_character())))
-        }
-
-
-        else if (resp$status_code == 404) {
-          message <- "No more data found."
-          rows <- data.frame()
-        }
-
-        else {
-          rows <- data.frame()
-          message <- paste0("Error ",resp$status_code,": ", content(resp))
-        }
-
-        rows
-      },
-      error=function(msg) {
-        message <- msg
-        data.frame()
-      }
-    )
-
-    if (!is.na(message)) {
-      print(message)
-    }
-
-    if (nrow(rows) > 0) {
-      data <- bind_rows_char(list(data, rows))
-      fetchmore <- (page < maxpages)
-      page <- page + 1
-    } else {
-      fetchmore = F
-    }
-  }
-
-  if (!silent) {
-    print (paste0("Fetched ", nrow(data) ," records from ", endpoint,"."))
-  }
-
-  if (nrow(data) > 0) {
-    data <- suppressMessages(type_convert(data))
-  }
-
-  .to_epitable(data, c("endpoint"=endpoint, "params" = params, "db"=db))
-}
-
-
 #' Create and execute a job
 #'
 #' @param endpoint The endpoint supporting job creation
@@ -327,6 +232,102 @@ api_job_execute <- function(job_id) {
 }
 
 
+#' Download tables
+#'
+#' Fetches tables such as articles, projects or properties
+#'
+#' TODO: silent problem message (false positive, results from the last column being empty from case to case)
+#' TODO: add progress bar
+#'
+#' @param endpoint The endpoint path (e.g. "articles/index" or "articles/view/1")
+#' @param params A named list of query params
+#' @param db The database name
+#' @param maxpages Maximum number of pages to request.
+#'                 Set to 1 for non-paginated tables.
+#' @param silent Whether to output status messages
+#' @export
+api_table <- function(endpoint, params=c(), db, maxpages=1, silent=FALSE) {
+
+  verbose <- Sys.getenv("epi_verbose") == "TRUE"
+
+
+  data = data.frame()
+  page = 1
+
+  fetchmore <- TRUE
+  while (fetchmore) {
+    params["page"] <- page
+    url = api_buildurl(endpoint, params, db, "csv")
+
+    if (!silent) {
+      if (maxpages == 1) {
+        message(paste0("Fetching data from ", endpoint,"."))
+      } else {
+        message(paste0("Fetching page ", page ," from ", endpoint,"."))
+      }
+    }
+    message <- NA
+
+    rows <- tryCatch(
+      {
+
+        if (verbose)  {
+          resp <- GET(url, set_cookies(XDEBUG_SESSION="XDEBUG_ECLIPSE"))
+        } else {
+          resp <- GET(url)
+        }
+
+
+        if (resp$status_code == 200) {
+          body <- content(resp,as="text")
+          rows <- suppressWarnings(read_delim(I(body), delim=";", col_types = cols(.default = col_character())))
+        }
+
+
+        else if (resp$status_code == 404) {
+          message <- "No more data found."
+          rows <- data.frame()
+        }
+
+        else {
+          rows <- data.frame()
+          message <- paste0("Error ",resp$status_code,": ", content(resp))
+        }
+
+        rows
+      },
+      error=function(msg) {
+        message <- msg
+        data.frame()
+      }
+    )
+
+    if (!is.na(message)) {
+      print(message)
+    }
+
+    if (nrow(rows) > 0) {
+      data <- bind_rows_char(list(data, rows))
+      fetchmore <- (page < maxpages)
+      page <- page + 1
+    } else {
+      fetchmore = F
+    }
+  }
+
+  if (!silent) {
+    print (paste0("Fetched ", nrow(data) ," records from ", endpoint,"."))
+  }
+
+  if (nrow(data) > 0) {
+    data <- suppressMessages(type_convert(data))
+  }
+
+  .to_epitable(data, c("endpoint"=endpoint, "params" = params, "db"=db))
+}
+
+
+
 #' Patch data
 #'
 #' Update records in the database using the API.
@@ -339,11 +340,16 @@ api_job_execute <- function(job_id) {
 #'             Additional columns such as norm_data will be written to the record.
 #'             The id must either be a a valid IRI path (e.g. properties/objecttypes/xxx)
 #'             or an id prefixed by the table name (e.g. properties-12).
-#'             Patching properties with prefixed ids requires a `type` column that contains the property type.
+#'             Patching properties with prefixed ids requires a `type` column
+#'             that contains the property type.
+#'             Column names with table names as prefixes will be extracted, if wide is set to TRUE (default).
 #' @param database The database name
 #' @param table Optional: Check that the data only contains rows for a specific table
 #' @param type Optional: Check that the data only contains rows with a specific type
-#' @param wide Convert wide format to long format
+#' @param wide Convert wide format to long format.
+#'             If TRUE, column names prefixed with "properties", "items", "sections", "articles"
+#'             and "projects" followed by a dot (e.g. "properties.id",
+#'            "properties.lemma") will be extracted and patched as additional records.
 #' @export
 api_patch <- function(data, database, table=NA, type=NA, wide=T) {
 
@@ -375,25 +381,6 @@ api_patch <- function(data, database, table=NA, type=NA, wide=T) {
   print(paste0("Uploading ",nrow(data)," rows."))
 
   api_job_create("articles/import", NA, database,list(data=data))
-}
-
-
-#' Patch data and create related properties, items, sections, articles and projects
-#'
-#' @param data A dataframe with the column id containing a valid IRI path.
-#'             Additional columns such as norm_data will be written to the record.
-#'
-#'             Column names prefixed with "properties", "items", "sections", "articles"
-#'             and "projects" followed by a dot (e.g. "properties.id",
-#'             "properties.lemma") will be extracted and patched as additional records
-#'
-#' @param database The database name
-#' @export
-api_patch_wide <- function(data, database) {
-
-  rows <- epi_wide_to_long(data)
-  api_patch(rows, database)
-
 }
 
 #' Add the epi_tbl class and make it remember its source
