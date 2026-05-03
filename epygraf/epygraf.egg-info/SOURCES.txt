@@ -11,3 +11,7 @@ epygraf.egg-info/SOURCES.txt
 epygraf.egg-info/dependency_links.txt
 epygraf.egg-info/requires.txt
 epygraf.egg-info/top_level.txt
+private/__init__.py
+private/api.py
+private/base.py
+private/db.py

@@ -137,17 +137,14 @@ def extract_wide(data, cols_prefix, cols_keep=[]):
 
 
 def wide_to_long(data):
-
     """
     Convert wide to long format.
 
-    :param data: (pandas.DataFrame) A dataframe with the column id containing a valid IRI path
-                 and additional columns. The additional columns may contain nested
-                 data in the following form:
-                 Column names prefixed with "properties", "items", "sections",
-                 "articles" and "projects" followed by a dot (e.g. "properties.id",
-                 "properties.lemma") will be extracted and stacked to the dataframe.
-    :return: (pandas.DataFrame) A dataframe with all input rows and the nested records stacked.
+    :param data: (pandas.DataFrame) A dataframe with the column id containing a valid IRI path.
+                 If additional column names are prefixed with "properties", "items", "sections",
+                 "articles" or "projects" followed by a dot (e.g. "properties.id",
+                 "properties.lemma"), they will be extracted and stacked to the dataframe.
+    :return: (pandas.DataFrame) A dataframe with all input rows and the nested entities stacked.
     """
     extracted_data = []
 
@@ -170,6 +167,7 @@ def wide_to_long(data):
         # Drop rows with all NaN values
         rows = rows.dropna(how="all")
 
+        # TODO: stopifnot(epi_is_iripath(rows$id) | epi_is_id(rows$id))
         return rows
 
     # Return an empty DataFrame if no data is extracted

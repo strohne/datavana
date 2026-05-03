@@ -1,9 +1,11 @@
 import os
+import time
 from urllib.parse import urlparse, urlunparse, urlencode
 import pandas as pd
 import io
 import requests
 from epygraf import base
+from epygraf import utils
 
 def setup(apiserver, apitoken, verbose=False): 
     
@@ -22,7 +24,21 @@ def setup(apiserver, apitoken, verbose=False):
     os.environ.update(settings)
 
 
-def build_url(endpoint, query=None, database=None, extension="json"):
+def silent(silent=False):
+    """
+    Set silent mode
+
+    In silent mode, all user prompts are automatically confirmed.
+    Be careful, this will skip the prompt to confirm operations
+    on the live server.
+
+    :param silent: (bool)
+    """
+    settings = dict()
+    settings['epi_silent'] = str(silent).upper()
+    os.environ.update(settings)
+
+def buildurl(endpoint, query=None, database=None, extension="json"):
     
     """
     Build base URL.
@@ -37,9 +53,9 @@ def build_url(endpoint, query=None, database=None, extension="json"):
     server = os.getenv("epi_apiserver")
     token = os.getenv("epi_apitoken")
     verbose = os.getenv("epi_verbose") == "TRUE"
+    silent = os.getenv("epi_silent") == "TRUE"
 
     parsed_url = urlparse(server)
-    
     parsed_query = dict(parsed_url.query)
     parsed_query["token"] = token    
     
@@ -49,25 +65,217 @@ def build_url(endpoint, query=None, database=None, extension="json"):
     
     if not endpoint.startswith("/"):
         endpoint = "/" + endpoint
-    
-    if extension is None:
+
+    # Merge endpoint URL (if it contains query params or an extension)
+    parsed_endpoint = urlparse(endpoint)
+    parsed_query.update(dict(parsed_endpoint.query))
+    endpoint = parsed_endpoint.path
+    endpoint_extension = utils.get_extension(endpoint)
+
+    if endpoint_extension != "":
         extension = ""
-    elif extension and not extension.startswith("."):
+    elif extension is None:
+        extension = ""
+    elif extension is not None and not extension.startswith("."):
         extension = "." + extension
-    
+
     if database is not None:
         path = f"epi/{database}{endpoint}{extension}"
     else:
         path = f"{endpoint}{extension}"
     
     parsed_url = parsed_url._replace(path=path, query=urlencode(parsed_query))
+    parsed_url = urlunparse(parsed_url)
 
-    url = urlunparse(parsed_url)
+    if verbose and not silent:
+        print(parsed_url)
+
+    return parsed_url
+
+
+# Create and execute a job
+def job_create(endpoint, params, database, payload=None):
+    """
+    Create and execute a job
+
+    :param endpoint: (str) The endpoint supporting job creation.
+    :param params: (dict) Query parameters.
+    :param database: (str) The selected database.
+    :param payload: (object or None) The data posted to the job endpoint.
+    :return: (dict) A dictionary containing the following keys:
+                    polling, error, message, data, solved, downloads.
+    """
+    server = os.getenv("epi_apiserver")
+    verbose = True if os.getenv("epi_verbose") == "TRUE" else False
+    silent = True if os.getenv("epi_silent") == "TRUE" else False
+
+    if not silent:
+        print(f"Creating job on server {server}")
+
+    # 1. Create job
+    url = buildurl(endpoint, params, database)
+
+    if (not utils.is_local_server(server)):
+        utils.confirm_action()
 
     if verbose:
-        print(url)
+        resp = requests.post(url, json=payload, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
+    else:
+        resp = requests.post(url, json=payload)
 
-    return url
+    body = resp.json()
+    job_id = body.get("job_id", None)
+
+    error = False
+    message = None
+
+    # Request error
+    if resp.status_code != 200:
+        error = True
+        message = body.get("error", {}).get("message", None)
+
+    # Job error
+    elif not body.get("success", True):
+        error = True
+        message = body.get("message", None)
+
+    # No job ID
+    elif job_id is None:
+        error = True
+        message = "No job ID found."
+
+    if error:
+        raise Exception(f"Could not create job: {message}")
+
+    if message is not None:
+        print(message)
+
+    # 2. Execute job
+    return job_execute(job_id)
+
+
+# Execute a job
+def job_execute(job_id):
+    """
+    Execute a job.
+
+    :param job_id: (str) The job ID
+    :return: (dict) A dictionary containing the following keys:
+                    polling, error, message, data, solved, downloads.
+    """
+
+    verbose = True if os.getenv("epi_verbose") == "TRUE" else False
+    print(f"Starting job {job_id}.")
+
+    url = buildurl(f"jobs/execute/{job_id}", None, None)
+
+    result = []
+    polling = True
+    error = None
+    message = None
+
+    while polling:
+        if verbose:
+            resp = requests.post(url, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
+        else:
+            resp = requests.post(url)
+
+        body = resp.json()
+        newresult = None
+
+        # Request error
+        if resp.status_code != 200:
+            polling = False
+            error = True
+            message = body.get("error", {}).get("message", None)
+
+        # Job error
+        elif body.get("job", {}).get("error", False):
+            polling = False
+            error = True
+            message = body.get("job", {}).get("error", None)
+
+        # Continue
+        elif "job" in body and "nextUrl" in body["job"]:
+            polling = True
+            error = False
+            message = body.get("job", {}).get("message", None)
+            newresult = body.get("job", {}).get("result", None)
+
+            delay = body.get("job", {}).get("delay", 0)
+            if (delay > 0):
+                time.sleep(1)
+
+            progressCurrent = body.get("job", {}).get("progress", None)
+            progressMax = body.get("job", {}).get("progressmax", -1)
+            if progressMax == -1:
+                print(f"Progress {progressCurrent}")
+            else:
+                print(f"Progress {progressCurrent} / {progressMax}")
+
+        # Finished
+        else:
+            polling = False
+            error = False
+            message = body.get("message", None)
+            newresult = body.get("job", {}).get("result", None)
+
+        # Output
+        if error:
+            raise Exception(f"Could not execute job: {message}")
+
+        if newresult is not None:
+            result.append(newresult)
+
+        if message is not None:
+            print(message)
+
+    # Extract solved IDs
+    solved = []
+    for x in result:
+        if "solved" in x and x["solved"] is not None:
+            solved.append(pd.DataFrame(x["solved"]))
+
+    # Remove solved from result
+    for x in result:
+        x.pop("solved", None)
+
+    if len(solved) > 0:
+        solved = pd.concat(solved, ignore_index=True).drop_duplicates()
+    else:
+        solved = pd.DataFrame()
+
+
+    # Extract downloads
+    downloads = []
+    for x in result:
+        if "downloads" in x and x["downloads"] is not None:
+            dfs = [pd.DataFrame(d) for d in x["downloads"]]
+            if dfs:
+                downloads.append(pd.concat(dfs, ignore_index=True))
+
+    # Remove downloads from result
+    for x in result:
+        x.pop("downloads", None)
+
+    if len(downloads) > 0:
+        downloads = pd.concat(downloads, ignore_index=True).drop_duplicates()
+    else:
+        downloads = pd.DataFrame()
+
+
+    # Final result structure
+    result = {
+        "polling": polling,
+        "error": error,
+        "message": message,
+        "data": result,
+        "solved": solved,
+        "downloads": downloads,
+    }
+
+    # TODO: use Python class to wrap result
+    return result
 
 
 def table(endpoint, params=None, db=None, maxpages=1, silent=False):
@@ -93,7 +301,7 @@ def table(endpoint, params=None, db=None, maxpages=1, silent=False):
         if params is None:
             params = {}
         params["page"] = page
-        url = build_url(endpoint, params, db, "csv")
+        url = buildurl(endpoint, params, db, "csv")
         ext = ".csv"
 
         if (not silent):
@@ -141,152 +349,45 @@ def table(endpoint, params=None, db=None, maxpages=1, silent=False):
     data = to_epitable(data, {'endpoint': endpoint, 'params': params, 'db':db})
     return data
 
-
-
-# Create and execute a job
-def job_create(endpoint, params, database, payload=None):
-
-    """
-    Create and execute a job.
-
-    :param endpoint: (str) The endpoint supporting job creation
-    :param params: (dict) Query parameters
-    :param database: (str) The selected database
-    :param payload: (object or None) The data posted to the job endpoint
-    :return: None
-    """
-    server = os.getenv("epi_apiserver")
-    verbose = True if os.getenv("epi_verbose") == "TRUE" else False
-    
-    print(f"Creating job on server {server}")
-    
-        # 1. Create job
-    url = build_url(endpoint, params, database)
-    
-    if verbose:
-        resp = requests.post(url, json=payload, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
-    else:
-        resp = requests.post(url, json=payload)
-    
-    body = resp.json()
-    job_id = body.get("job_id", None)
-    
-    error = False
-    message = None
-    
-    # Request error
-    if resp.status_code != 200:
-        error = True
-        message = body.get("error", {}).get("message", None)
-    
-    # Job error
-    elif not body.get("success", True):
-        error = True
-        message = body.get("message", None)
-    
-    # No job ID
-    elif job_id is None:
-        error = True
-        message = "No job ID found."
-    
-    if error:
-        raise Exception(f"Could not create job: {message}")
-    
-    if message is not None:
-        print(message)
-    
-    # 2. Execute job
-    job_execute(job_id)
-
-# Execute a job
-def job_execute(job_id):
-
-    """
-    Execute a job.
-
-    :param job_id: (str) The job ID
-    :return: (bool) Whether the job was finished without error.
-    """
-
-    verbose = True if os.getenv("epi_verbose") == "TRUE" else False
-   
-    print(f"Starting job {job_id}.")
-
-    url = build_url(f"jobs/execute/{job_id}", None, None)
-
-    polling = True
-    while polling:
-        if verbose:
-            resp = requests.post(url, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
-        else:
-            resp = requests.post(url)
-
-        body = resp.json()
-
-        # Request error
-        if resp.status_code != 200:
-            polling = False
-            error = True
-            message = body.get("error", {}).get("message", None)
-
-        # Job error
-        elif body.get("job", {}).get("error", False):
-            polling = False
-            error = True
-            message = body.get("job", {}).get("error", None)
-
-        # Continue
-        elif "job" in body and "nexturl" in body["job"]:
-            polling = True
-            error = False
-            message = body.get("job", {}).get("message", None)
-            progressCurrent = body.get("job", {}).get("progress", None)
-            progressMax = body.get("job", {}).get("progressmax", -1)
-            if progressMax == -1:
-                print(f"Progress {progressCurrent}")
-            else:
-                print(f"Progress {progressCurrent} / {progressMax}")
-
-        # Finished
-        else:
-            polling = False
-            error = False
-            message = body.get("message", None)
-
-        # Output
-        if error:
-            raise Exception(f"Could not execute job: {message}")
-
-        if message is not None:
-            print(message)
-
-    return not (polling or error)
-
-
 def patch(data, database, table=None, type=None, wide=True):
-
     """
-    Update records in the database using the API.
-    Existing records will be updated, missing records will be created.
+    Update entities in the database using the API.
+    Existing entities will be updated, missing entities will be created.
     The function supports uploading all data related to articles:
     articles, sections, items, links, footnotes, properties, projects, users, types.
     The IRI path in the ID column of the dataframe must contain the specific table name.
 
-    :param data: (pandas.DataFrame) A dataframe with the column id
-                 (must be a valid IRI path).
-                 Additional columns such as norm_data will be written to the record.
-    :param database: (str) The database name
-    :param table: (str or None) Check that the data only contains rows for a specific table
-    :param type: (str or None) Check that the data only contains rows with a specific type
-    :param wide: (bool) Convert wide format to long format
-    :return: None
+    :param data: (pandas.DataFrame) A dataframe with the column `id`.
+                 Additional columns such as `norm_data` will be written to the entity.
+                 The id must either be a valid IRI path (e.g. `properties/objecttypes/xxx`)
+                 or an id prefixed by the table name (e.g. `properties-12`).
+                 Patching properties with prefixed ids requires a `type` column that contains the property type.
+                 If wide is set to true (default), column names prefixed with table names are extracted.
+    :param database: (str) The database name.
+    :param table: (str or None) Optional: Check that the data only contains rows for a specific table.
+    :param type: (str or None) Optional: Check that the data only contains rows with a specific type.
+    :param wide: (bool) Convert wide format to long format.
+                        If true, column names prefixed with "properties", "items", "sections", "articles"
+                        and "projects" followed by a dot (e.g. `properties.id`, `properties.lemma`)
+                        will be extracted and patched as additional entities.
+        :return: (dict) A dictionary containing the following keys:
+                    polling, error, message, data, solved, downloads.
     """
     
     if wide:
         data = base.wide_to_long(data)
 
-    # Process data (remove empty columns and rows with all NA values)
+    # TODO:
+    # stopifnot(epi_is_iripath(data$id, table, type) | epi_is_id(data$id, table))
+
+    # Reorder
+    if "id" in data.columns:
+        data = data[["id"] + [col for col in data.columns if col != "id"]]
+
+    # Remove complete empty columns
     data = data.loc[:, data.notna().all()]
+
+    # Remove rows where all values are NA
     data = data.dropna(how="all")
 
     if data.empty:
@@ -297,26 +398,7 @@ def patch(data, database, table=None, type=None, wide=True):
 
     print(f"Uploading {len(data)} rows.")
 
-    job_create("articles/import", None, database, {"data": data.to_dict(orient="records")})
-
-def patch_wide(data, database):
-    """
-    Patch data and create related properties, items, sections, articles, and projects
-
-    Args:
-        data: A dataframe with the column id containing a valid IRI path.
-              Additional columns such as norm_data will be written to the record.
-              Column names prefixed with "properties", "items", "sections", "articles"
-              and "projects" followed by a dot (e.g. "properties.id", "properties.lemma")
-              will be extracted and patched as additional records.
-        database: The database name
-
-    Returns: None
-
-    """
-    rows = base.wide_to_long(data)
-    patch(rows, database)
-
+    return job_create("articles/import", None, database, {"data": data.to_dict(orient="records")})
 
 def to_epitable(data: pd.DataFrame, source: dict = None) -> pd.DataFrame:
     """

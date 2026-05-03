@@ -104,11 +104,10 @@ db_condition <- function(table, field, value) {
 #
 #' Get data from a database table
 #'
-#' @param table Table name
-#' @param db A connection object (object) or the database name (character)
+#' @param table Table name.
+#' @param db A connection object (object) or the database name (character).
 #' @param deleted Deleted records are skipped by default. Set to TRUE, to get all records.
-#' @param cond A character or a character vector of conditions, e.g.
-#'                   "id = 10"
+#' @param cond A character or a character vector of conditions, e.g. `c(id = 10")`.
 #' @export
 db_table <- function(table, db, deleted=FALSE, cond=c()){
   # Check if db is character --> open db connection

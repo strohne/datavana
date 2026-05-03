@@ -22,7 +22,7 @@ def setup(apiserver, apitoken, verbose=False):
     os.environ.update(settings)
 
 
-def build_url(endpoint, query=None, database=None, extension="json"):
+def buildurl(endpoint, query=None, database=None, extension="json"):
     
     """
     Build base URL.
@@ -93,7 +93,7 @@ def table(endpoint, params=None, db=None, maxpages=1, silent=False):
         if params is None:
             params = {}
         params["page"] = page
-        url = build_url(endpoint, params, db, "csv")
+        url = buildurl(endpoint, params, db, "csv")
         ext = ".csv"
 
         if (not silent):
@@ -161,7 +161,7 @@ def job_create(endpoint, params, database, payload=None):
     print(f"Creating job on server {server}")
     
         # 1. Create job
-    url = build_url(endpoint, params, database)
+    url = buildurl(endpoint, params, database)
     
     if verbose:
         resp = requests.post(url, json=payload, cookies={"XDEBUG_SESSION": "XDEBUG_ECLIPSE"})
@@ -212,7 +212,7 @@ def job_execute(job_id):
    
     print(f"Starting job {job_id}.")
 
-    url = build_url(f"jobs/execute/{job_id}", None, None)
+    url = buildurl(f"jobs/execute/{job_id}", None, None)
 
     polling = True
     while polling:
@@ -236,7 +236,7 @@ def job_execute(job_id):
             message = body.get("job", {}).get("error", None)
 
         # Continue
-        elif "job" in body and "nexturl" in body["job"]:
+        elif "job" in body and "nextUrl" in body["job"]:
             polling = True
             error = False
             message = body.get("job", {}).get("message", None)
@@ -298,24 +298,6 @@ def patch(data, database, table=None, type=None, wide=True):
     print(f"Uploading {len(data)} rows.")
 
     job_create("articles/import", None, database, {"data": data.to_dict(orient="records")})
-
-def patch_wide(data, database):
-    """
-    Patch data and create related properties, items, sections, articles, and projects
-
-    Args:
-        data: A dataframe with the column id containing a valid IRI path.
-              Additional columns such as norm_data will be written to the record.
-              Column names prefixed with "properties", "items", "sections", "articles"
-              and "projects" followed by a dot (e.g. "properties.id", "properties.lemma")
-              will be extracted and patched as additional records.
-        database: The database name
-
-    Returns: None
-
-    """
-    rows = base.wide_to_long(data)
-    patch(rows, database)
 
 
 def to_epitable(data: pd.DataFrame, source: dict = None) -> pd.DataFrame:
