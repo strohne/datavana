@@ -1,5 +1,7 @@
 # Epigraf Package 
 
+**NOTE: THIS IS AN OUTDATED VERSION. USE https://github.com/datavana/rpigraf**
+
 ## Why using Epigraf package? 
 
 The Epigraf package aims to make data work with [Epigraf](https://epigraf.inschriften.net/) easier. 
