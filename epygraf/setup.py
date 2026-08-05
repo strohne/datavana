@@ -10,7 +10,10 @@ setup(
         long_description = 'The Epygraf package aims to make data work with Epigraf easier. It provides functions for data transfer using the Epigraf APIs: preparing data imports, e.g. from social media datasets, and preparing data analyses with Python.',
         packages=find_packages(),
         install_requires=['sqlalchemy>=2.0.0','pymysql>=1.1.0','pandas>=2.0.0','requests>=2.0.0','tqdm>=4.0.0'],
-        
+        extras_require={
+            'test': ['pytest>=7.0.0']
+        },
+
         keywords=['python', 'epigraf'],
         classifiers= [
             "Development Status :: 2 - Pre-Alpha",
