@@ -4,6 +4,22 @@ import re
 from epygraf import utils
 
 
+TABLE_PATTERN = "(projects|articles|sections|items|properties|links|footnotes|types|users)"
+
+
+def _to_values(value):
+    if isinstance(value, pd.Series):
+        return value.tolist(), True
+    if isinstance(value, (list, tuple)):
+        return list(value), True
+    return [value], False
+
+
+def _match_values(values, pattern):
+    matched = [bool(re.match(pattern, str(v))) for v in values]
+    return matched
+
+
 def create_iri(table, type, fragment):
 
     """
@@ -14,12 +30,17 @@ def create_iri(table, type, fragment):
     :param fragment: (str) The IRI fragment that will be cleaned
     :return: (str) The clean IRI
     """
-    cleaned_fragment = clean_irifragment(fragment)
+    if table is None or fragment is None:
+        return ""
 
-    if type is None:
-        return f"{table}/{cleaned_fragment}"
-    else:
-        return f"{table}/{type}/{cleaned_fragment}"
+    cleaned_fragment = clean_irifragment(str(fragment))
+    type_part = ""
+    if type is not None:
+        if isinstance(type, str):
+            type_part = "" if type == "" else f"{type}/"
+        elif not pd.isna(type):
+            type_part = f"{type}/"
+    return f"{table}/{type_part}{cleaned_fragment}"
 
 
 def clean_irifragment(fragment):
@@ -33,11 +54,14 @@ def clean_irifragment(fragment):
     :param fragment: (str) The dirty IRI fragment that will be cleaned
     :return: (str) The clean IRI fragment
     """
-    cleaned_fragment = fragment.lower()
+    cleaned_fragment = str(fragment).lower()
     cleaned_fragment = re.sub("ä", "ae", cleaned_fragment)
     cleaned_fragment = re.sub("ö", "oe", cleaned_fragment)
     cleaned_fragment = re.sub("ü", "ue", cleaned_fragment)
     cleaned_fragment = re.sub("ß", "ss", cleaned_fragment)
+    cleaned_fragment = re.sub("å", "aa", cleaned_fragment)
+    cleaned_fragment = re.sub("æ", "ae", cleaned_fragment)
+    cleaned_fragment = re.sub("ø", "oe", cleaned_fragment)
     cleaned_fragment = re.sub("[^a-z0-9_~-]", "-", cleaned_fragment)
     cleaned_fragment = re.sub("-+", "-", cleaned_fragment)
     cleaned_fragment = cleaned_fragment.strip("-")
@@ -55,15 +79,14 @@ def is_iripath(iripath, table=None, type=None):
     :return: (bool) True if iripath is a valid IRI path, False otherwise.
     """
     if table is None:
-        table = "(projects|articles|sections|items|properties|links|footnotes|types|users)"
+        table = TABLE_PATTERN
     if type is None:
         type = "([a-z0-9_-]+)"
     fragment = "([a-z0-9_~-]+)"
     pattern = f"^{table}/{type}/{fragment}$"
-    return iripath.str.match(pattern)
-
-
-import re
+    values, is_many = _to_values(iripath)
+    result = _match_values(values, pattern)
+    return result if is_many else result[0]
 
 def is_id(ids, table=None):
     """
@@ -74,26 +97,39 @@ def is_id(ids, table=None):
     :param table: (str or None) Check whether the IDs are prefixed with table names. Leave empty to allow all tables.
     :return: (bool or list of bool) True for valid IDs, False otherwise.
     """
-    # Handle single string input
-    if not isinstance(ids, list):
-        ids = [ids]
-
     if table is None:
-        table = "(projects|articles|sections|items|properties|links|footnotes|types|users)"
+        table = TABLE_PATTERN
     else:
         table = f"({table})"
 
     fragment = "([0-9]+)"
-    pattern = f"^{table}.{fragment}$"
+    pattern = f"^{table}-{fragment}$"
+    values, is_many = _to_values(ids)
+    valid_ids = _match_values(values, pattern)
+    return valid_ids if is_many else valid_ids[0]
 
-    # Match the pattern for each ID
-    valid_ids = [bool(re.match(pattern, id_)) for id_ in ids]
 
-    # Return True for a single valid ID, otherwise the list of boolean values
-    if len(valid_ids) == 1:
-        return valid_ids[0]
+def is_prefixid(ids, table=None, prefix=None):
+    """
+    Check whether the provided vector contains valid prefixed IDs.
+    Example: articles-tmp123
+
+    :param ids: (str or list) Values to check
+    :param table: (str or None) Restrict to a specific table
+    :param prefix: (str or None) Restrict prefix (default allows all letters)
+    :return: (bool or list of bool)
+    """
+    if table is None:
+        table = TABLE_PATTERN
     else:
-        return valid_ids
+        table = f"({table})"
+    if prefix is None:
+        prefix = "[a-z]+"
+    fragment = "([0-9]+)"
+    pattern = f"^{table}-{prefix}{fragment}$"
+    values, is_many = _to_values(ids)
+    valid_ids = _match_values(values, pattern)
+    return valid_ids if is_many else valid_ids[0]
 
 
 def is_irifragment(irifragment):
@@ -104,7 +140,9 @@ def is_irifragment(irifragment):
     :param irifragment: (str or list) The vector that will be checked for valid IRI fragments.
     :return: (bool or list of bool) True for valid IRI fragments, False otherwise.
     """
-    return irifragment.str.match("^[a-z0-9_~-]+$")
+    values, is_many = _to_values(irifragment)
+    valid = _match_values(values, "^[a-z0-9_~-]+$")
+    return valid if is_many else valid[0]
 
 
 def extract_wide(data, cols_prefix, cols_keep=[]):

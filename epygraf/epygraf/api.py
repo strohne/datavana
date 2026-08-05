@@ -492,8 +492,7 @@ def fetch_entity(ids, params=None, db=None, silent: bool = False):
         return data
 
     id = ids[0]
-    if not check.is_id(id):
-        raise ValueError(f"Invalid Epigraf ID: {id}")
+    check.is_id(id)
     tbl, row_id = id.split("-", 1)
 
     data = table(f"{tbl}/view/{row_id}", params, db, 1, silent=silent)

@@ -1,76 +1,52 @@
-import pandas as pd
-import re
+from epygraf import base
 
-def is_iripath(iripath, table=None, type=None):
 
+def has_column(data, col: str, msg: str = None) -> bool:
     """
-    Check whether the provided vector contains a valid IRI path.
+    Check whether a column exists and raise an error if not.
 
-    :param iripath: (str or list) The vector that will be proofed.
-    :param table: (str or None) Check whether the path contains the table. Leave empty to allow all tables.
-    :param type: (str or None) Check whether the path contains the type. Leave empty to allow all types.
-    :return: (bool) True if iripath is a valid IRI path, False otherwise.
+    Mirrors check_has_column() from checks.R.
+
+    :param data: A pandas DataFrame
+    :param col: Column name
+    :param msg: Optional custom error message
+    :return: True if column exists
     """
-    if table is None:
-        table = "(projects|articles|sections|items|properties|links|footnotes|types|users)"
-    if type is None:
-        type = "([a-z0-9_-]+)"
-    fragment = "([a-z0-9_~-]+)"
-    pattern = f"^{table}/{type}/{fragment}$"
-    return iripath.str.match(pattern)
+    if not isinstance(col, str) or col == "":
+        raise ValueError(msg or "Did you miss to say which column to use?")
+
+    if col not in data.columns:
+        raise ValueError(msg or f"The column {col} does not exist, check your parameters.")
+
+    return True
 
 
-def is_id(ids, table=None):
+def is_id(value, msg: str = None) -> bool:
     """
-    Check whether the provided vector contains valid IDs prefixed with table names.
-    Example: articles-123
+    Check whether a value is a valid Epigraf ID and raise an error if not.
 
-    :param ids: (str or list) The vector that will be checked for valid IDs.
-    :param table: (str or None) Check whether the IDs are prefixed with table names. Leave empty to allow all tables.
-    :return: (bool or list of bool) True for valid IDs, False otherwise.
+    Mirrors check_is_id() from checks.R.
+
+    :param value: A character value (e.g. "articles-123")
+    :param msg: Optional custom error message
+    :return: True if the ID is valid
     """
-    # Handle single string input
-    if not isinstance(ids, list):
-        ids = [ids]
-
-    if table is None:
-        table = "(projects|articles|sections|items|properties|links|footnotes|types|users)"
-    else:
-        table = f"({table})"
-
-    fragment = "([0-9]+)"
-    pattern = f"^{table}.{fragment}$"
-
-    # Match the pattern for each ID
-    valid_ids = [bool(re.match(pattern, id_)) for id_ in ids]
-
-    # Return True for a single valid ID, otherwise the list of boolean values
-    if len(valid_ids) == 1:
-        return valid_ids[0]
-    else:
-        return valid_ids
-
-
-def is_irifragment(irifragment):
-
-    """
-    Check whether the provided vector contains a valid IRI fragment
-
-    :param irifragment: (str or list) The vector that will be checked for valid IRI fragments.
-    :return: (bool or list of bool) True for valid IRI fragments, False otherwise.
-    """
-    return irifragment.str.match("^[a-z0-9_~-]+$")
+    check = base.is_id(value)
+    if not check:
+        raise ValueError(msg or f"The value {value} is not a valid Epigraf ID.")
+    return True
 
 
 def is_db(value: str, msg: str = None) -> bool:
     """
-    Check whether a value is a valid database name, and raise an error if not.
+    Check whether a value is a valid database name and raise an error if not.
 
-    :param value: A string value
-    :param msg: A custom error message if the check fails
-    :return: True if the value is valid, raises ValueError otherwise
+    Mirrors check_is_db() from checks.R.
+
+    :param value: A database name string
+    :param msg: Optional custom error message
+    :return: True if value is a string
     """
     if not isinstance(value, str):
-        msg = msg or f"The value {value} is not a valid Epigraf database name."
-        raise ValueError(msg)
+        raise ValueError(msg or f"The value {value} is not a valid Epigraf database name.")
     return True
