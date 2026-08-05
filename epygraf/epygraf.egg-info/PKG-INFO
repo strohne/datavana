@@ -12,5 +12,13 @@ Requires-Dist: sqlalchemy>=2.0.0
 Requires-Dist: pymysql>=1.1.0
 Requires-Dist: pandas>=2.0.0
 Requires-Dist: requests>=2.0.0
+Requires-Dist: tqdm>=4.0.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: keywords
+Dynamic: requires-dist
+Dynamic: summary
 
 The Epygraf package aims to make data work with Epigraf easier. It provides functions for data transfer using the Epigraf APIs: preparing data imports, e.g. from social media datasets, and preparing data analyses with Python.

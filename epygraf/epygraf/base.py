@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 
+from epygraf import utils
+
 
 def create_iri(table, type, fragment):
 
@@ -325,3 +327,45 @@ def text2article(text):
     
     # Concatenate the DataFrames
     return pd.concat([projects, articles, sections, items], ignore_index=True)
+
+
+def extract_long(df: pd.DataFrame, table_name: str, type=None,
+                 prefix: bool = True) -> pd.DataFrame:
+    """
+    Get rows by table name from a RAM DataFrame.
+
+    Mirrors epi_extract_long() from epi.R.
+
+    :param df: A RAM DataFrame (output of db.fetch or api.fetch)
+    :param table_name: The table name to filter (e.g. "articles")
+    :param type: Filter by type(s). A string or list of strings.
+    :param prefix: Whether to prefix column names with the table name.
+    :return: Filtered DataFrame
+    """
+    result = df[df["table"] == table_name].copy()
+    if type is not None:
+        types = [type] if isinstance(type, str) else list(type)
+        result = result[result["type"].isin(types)]
+    result = utils.drop_empty_columns(result)
+    result = result.drop_duplicates()
+    if prefix:
+        result.columns = [f"{table_name}.{col}" for col in result.columns]
+    return result.reset_index(drop=True)
+
+
+def iri_parent(id=None, prefix: str = "~") -> str:
+    """
+    Get the IRI fragment of an IRI path and append a prefix.
+
+    Mirrors epi_iri_parent() from epi.R.
+
+    :param id: An IRI path string or iterable of IRI paths.
+               If None, returns an empty string.
+    :param prefix: Suffix appended to the extracted fragment (default ``~``)
+    :return: Fragment with prefix, or a list thereof for iterable input
+    """
+    if id is None:
+        return ""
+    if isinstance(id, str):
+        return id.split("/")[-1] + prefix
+    return [p.split("/")[-1] + prefix if p else "" for p in id]

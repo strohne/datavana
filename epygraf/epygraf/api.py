@@ -1,4 +1,5 @@
 import os
+import re
 import time
 from urllib.parse import urlparse, urlunparse, urlencode
 import pandas as pd
@@ -6,6 +7,9 @@ import io
 import requests
 from epygraf import base
 from epygraf import utils
+from epygraf import check
+from tqdm import tqdm
+
 
 def setup(apiserver, apitoken, verbose=False): 
     
@@ -278,19 +282,33 @@ def job_execute(job_id):
     return result
 
 
-def table(endpoint, params=None, db=None, maxpages=1, silent=False):
+def table(endpoint, params=None, db=None, maxpages=1, compact=False, silent=False):
 
     """
     Download tabular data.
 
     :param endpoint: (str) The endpoint path (e.g. "articles/index" or "articles/view/1")
     :param params: (dict) A named dictionary of query parameters
-    :param db: (str) The database name
+    :param db: (str or list) The database name.
+               Provide a list of database names to fetch and row-bind data from multiple databases.
+               In that case compact is automatically set to True.
     :param maxpages: (int) Maximum number of pages to request.
                     Set to 1 for non-paginated tables.
+    :param compact: (bool) Whether to rename type columns to `type` and to add `table` and `database` columns.
     :param silent: (bool) Whether to output status messages
     :return: (pandas.DataFrame) The downloaded tabular data
     """
+    # If db is a list of databases, iterate and bind rows
+    if utils.is_multi_db(db):
+        db_list = utils.iter_dbs(db)
+        data = pd.DataFrame()
+        for single_db in db_list:
+            data = pd.concat(
+                [data, table(endpoint, params, single_db, maxpages, compact=True, silent=silent)],
+                ignore_index=True,
+            )
+        return to_epitable(data, {"endpoint": endpoint, "params": params, "db": db_list})
+
     verbose = True if os.getenv("epi_verbose") == "TRUE" else False
 
     data = pd.DataFrame()
@@ -302,9 +320,8 @@ def table(endpoint, params=None, db=None, maxpages=1, silent=False):
             params = {}
         params["page"] = page
         url = buildurl(endpoint, params, db, "csv")
-        ext = ".csv"
 
-        if (not silent):
+        if not silent:
             if maxpages == 1:
                 print(f"Fetching data from {endpoint}.")
             else:
@@ -313,7 +330,7 @@ def table(endpoint, params=None, db=None, maxpages=1, silent=False):
 
         try:
             if verbose:
-                resp = requests.get(url, cookies={'XDEBUG_SESSION' : 'XDEBUG_ECLIPSE'})
+                resp = requests.get(url, cookies={'XDEBUG_SESSION': 'XDEBUG_ECLIPSE'})
             else:
                 resp = requests.get(url)
 
@@ -346,8 +363,147 @@ def table(endpoint, params=None, db=None, maxpages=1, silent=False):
 
     # Convert columns to appropriate types
     data = data.convert_dtypes()
-    data = to_epitable(data, {'endpoint': endpoint, 'params': params, 'db':db})
+
+    # Compact: add database/table columns and normalise type column name
+    if compact and not data.empty:
+        if db is not None:
+            data["database"] = db
+        table_default = endpoint.split("/", 1)[0]
+        if "id" in data.columns:
+            table_from_id = data["id"].astype("string").str.extract(r"^([a-z]+)-", expand=False)
+        else:
+            table_from_id = pd.Series([None] * len(data), dtype="string")
+        if "table" not in data.columns:
+            data["table"] = table_from_id.fillna(table_default)
+        else:
+            data["table"] = data["table"].astype("string").fillna(table_from_id).fillna(table_default)
+        type_cols = [col for col in data.columns if re.match(r"^[a-z]+type$", col)]
+        if len(type_cols) == 1:
+            data["type"] = data[type_cols[0]]
+            data = data.drop(columns=[type_cols[0]])
+
+    data = to_epitable(data, {"endpoint": endpoint, "params": params, "db": db})
     return data
+
+def fetch(table_name: str, params=None, db=None, maxpages: int = 1):
+    """
+    Fetch entity data such as articles, projects or properties from the API.
+
+    Returns all data belonging to all entities matched by the params.
+    The procedure corresponds to calling the index action with columns=0.
+
+    Mirrors api_fetch() from fetch.R.
+
+    :param table_name: (str) The table name (e.g., "articles")
+    :param params: (dict) A dictionary of query parameters
+    :param db: (str or list) The database name or a list of database names
+    :param maxpages: (int) Maximum number of pages to request
+    :return: (pandas.DataFrame) Data from the API
+    """
+    if params is None:
+        params = {}
+    else:
+        params = dict(params)
+
+    params["columns"] = "0"
+    params["idents"] = "id"
+
+    data = table(table_name, params, db, maxpages, compact=True)
+    data = data.drop_duplicates(ignore_index=True)
+    data = utils.move_cols_to_front(data, ["database", "table", "type", "id"])
+    return data
+
+
+def fetch_table(table_name: str, columns=None, params=None, db=None, maxpages: int = 1):
+    """
+    Fetch tables such as articles, projects, or properties.
+
+    Returns a row with defined columns for each record matched by the params.
+
+    :param table_name: The table name (e.g., "articles")
+    :param columns: A list of column names
+    :param params: A dictionary of query parameters
+    :param db: The database name or a list of database names
+    :param maxpages: Maximum number of pages to request. Set to 1 for non-paginated tables.
+    :return: Data from the API
+    """
+    if columns is None:
+        columns = []
+    if params is None:
+        params = {}
+    else:
+        params = dict(params)
+
+    # id is always included; preserve insertion order, no duplicates
+    unique_columns = list(dict.fromkeys(["id", *list(columns)]))
+    params["columns"] = ",".join(unique_columns)
+    params["idents"] = "id"
+
+    # api.table handles multi-db internally
+    return table(table_name, params, db, maxpages)
+
+
+def fetch_entity(ids, params=None, db=None, silent: bool = False):
+    """
+    Fetch entities such as single articles, projects, or properties.
+
+    Returns all data belonging to the entity identified by ID.
+
+    :param ids: A list of IDs or a DataFrame containing an 'id' column.
+                IDs are of the form <table>-<row>, e.g. "articles-123".
+    :param params: A dictionary of query parameters
+    :param db: The database name. Leave empty when providing a DataFrame produced by fetch_table().
+               In this case the database name will be extracted from the DataFrame.
+    :param silent: Whether to suppress the progress bar
+    :return: Data from the API
+    """
+    if params is None:
+        params = {}
+    else:
+        params = dict(params)
+
+    # Extract database name from DataFrame metadata
+    if db is None and isinstance(ids, pd.DataFrame) and isinstance(ids.attrs.get("epi_source"), dict):
+        db = ids.attrs["epi_source"].get("db")
+
+    if db is not None:
+        check.is_db(db)
+
+    # Normalise ids to a plain list
+    if isinstance(ids, pd.DataFrame):
+        if "id" not in ids.columns:
+            raise ValueError("DataFrame input must contain an 'id' column.")
+        ids = ids["id"].tolist()
+    elif isinstance(ids, pd.Series):
+        ids = ids.tolist()
+    elif isinstance(ids, tuple):
+        ids = list(ids)
+    elif not isinstance(ids, list):
+        ids = [ids]
+
+    if len(ids) == 0:
+        return to_epitable(pd.DataFrame(), {"params": params, "db": db})
+
+    if len(ids) > 1:
+        data = pd.DataFrame()
+        iterator = ids if silent else tqdm(ids, desc="Fetching entities")
+        for id_val in iterator:
+            data = pd.concat([data, fetch_entity(id_val, params, db, silent=True)], ignore_index=True)
+        return data
+
+    id = ids[0]
+    if not check.is_id(id):
+        raise ValueError(f"Invalid Epigraf ID: {id}")
+    tbl, row_id = id.split("-", 1)
+
+    data = table(f"{tbl}/view/{row_id}", params, db, 1, silent=silent)
+
+    if "id" in data.columns:
+        data[["table", "row"]] = data["id"].str.split("-", n=1, expand=True)
+
+    data = to_epitable(data)
+    return data
+
 
 def patch(data, database, table=None, type=None, wide=True):
     """
@@ -414,12 +570,12 @@ def to_epitable(data: pd.DataFrame, source: dict = None) -> pd.DataFrame:
 
     # Reorder columns
     id_cols = [col for col in  ["database", "table", "row", "type", "norm_iri"] if col in data.columns]
-    belongsto_idcols = [col for col in data.columns if col.endswith("id")]
-    belongsto_namedcols = [col for col in ["project","article","section","item","property","footnote"] if col in data.columns]
+    belongsto_id_cols = [col for col in data.columns if col.endswith("id")]
+    belongsto_name_cols = [col for col in ["project","article","section","item","property","footnote"] if col in data.columns]
     state_cols = [col for col in data.columns if col.startswith(("created", "modified"))]
-    content_cols = [col for col in data.columns if col not in id_cols + belongsto_idcols + belongsto_namedcols + state_cols]
+    content_cols = [col for col in data.columns if col not in id_cols + belongsto_id_cols + belongsto_name_cols + state_cols]
 
-    ordered_cols = id_cols + content_cols + belongsto_idcols + state_cols
+    ordered_cols = id_cols + content_cols + belongsto_name_cols + belongsto_id_cols + state_cols
     data = data[ordered_cols]
 
     # Add Epigraf type attribute

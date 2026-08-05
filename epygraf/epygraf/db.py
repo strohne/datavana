@@ -1,7 +1,10 @@
 import os
+import re
 import pandas as pd
 import pymysql
 from pymysql import cursors
+from numbers import Number
+from epygraf import check, utils
 
 
 def setup(host="localhost", port=3306, username="root", password="root", database=""):
@@ -57,23 +60,81 @@ def connect(db=None):
     return con
 
 
-def table(table, db=None, deleted=False, filter=None):
+# ---------------------------------------------------------------------------
+# Internal SQL helpers
+# ---------------------------------------------------------------------------
+
+def _is_na(value):
+    """Return True when value is None or a non-string NA."""
+    return value is None or (not isinstance(value, str) and pd.isna(value))
+
+
+def _sql_literal(value):
+    """Convert a Python value to a safe SQL literal string."""
+    if isinstance(value, bool):
+        return "1" if value else "0"
+    if isinstance(value, Number):
+        return str(value)
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def _cond_to_filter(cond):
+    """
+    Convert a dict of {field: value(s)} conditions to a list of SQL WHERE clauses.
+
+    :param cond: None, a str, a list of str, or a dict of field→value mappings
+    :return: None or a list of SQL condition strings
+    """
+    if cond is None:
+        return None
+    if isinstance(cond, str):
+        return [cond]
+    if isinstance(cond, (list, tuple)):
+        return list(cond)
+    if not isinstance(cond, dict):
+        raise TypeError("cond must be a dict, list, str, or None")
+
+    clauses = []
+    for field, raw in cond.items():
+        if _is_na(raw):
+            continue
+        if isinstance(raw, (list, tuple, set)):
+            values = [v for v in raw if not _is_na(v)]
+        elif hasattr(raw, "tolist"):
+            values = [v for v in raw.tolist() if not _is_na(v)]
+        else:
+            values = [raw]
+        if not values:
+            continue
+        joined = ", ".join(_sql_literal(v) for v in values)
+        clauses.append(f"{field} IN ({joined})")
+    return clauses
+
+
+def table(table, cond=None, db=None, deleted=False, compact=False):
     """
     Retrieve data from a table.
 
     :param table: (str) The table name.
-    :param db: (pymysql.connections.Connection or string) The database connection object or the database name.
-        If None, uses the database name from the settings.
-    :param deleted: (bool) Flag indicating whether to include deleted records.
-                           Default is False.
-    :param filter: (str or list or None) Filter condition(s) to apply to the query.
-                 Each condition should be a string that represents a SQL condition.
-                 If provided as a string, no additional formatting is applied.
-                 If provided as a list, conditions are joined using 'AND'.
-                 Default is None.
+    :param cond: (dict, list, str, or None) Filter conditions.
+                 Pass a dict of {field: value(s)} for named conditions (like R's named list),
+                 a list of raw SQL condition strings, or a single SQL condition string.
+    :param db: (pymysql.connections.Connection or str) The database connection object or name.
+               Provide a list of database names to get and row-bind data from multiple databases.
+               In that case compact is automatically set to True.
+               If None, uses the database name from the settings.
+    :param deleted: (bool) Include deleted records. Default is False.
+    :param compact: (bool) Whether to add `table` and `database` columns and normalise
+                   the type column to `type`. Mirrors the compact parameter in db_table() from db.R.
     :return: pandas.DataFrame
-        A DataFrame containing the retrieved data.
     """
+    # If db is a list of databases, iterate and bind (mirrors R db_table multi-db)
+    if not isinstance(db, pymysql.connections.Connection) and not isinstance(db, str) and \
+            db is not None and hasattr(db, "__len__") and len(db) > 1:
+        frames = []
+        for single_db in (db.tolist() if hasattr(db, "tolist") else list(db)):
+            frames.append(table(table, cond=cond, db=single_db, deleted=deleted, compact=True))
+        return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
     # Get database connection
     if isinstance(db, pymysql.connections.Connection):
@@ -81,26 +142,21 @@ def table(table, db=None, deleted=False, filter=None):
     else:
         con = connect(db)
 
-    cursor = con.cursor(cursors.DictCursor)  # Use DictCursor
+    cursor = con.cursor(cursors.DictCursor)
 
     # Construct SQL expression
     sql = f"SELECT * FROM {table}"
 
-    # Add conditions to the query
-    if filter is None:
-        filter = []
-    elif not isinstance(filter, list):
-        filter = [filter]
+    # Build conditions list
+    filter_clauses = _cond_to_filter(cond) or []
 
-
-    # Add deleted = 0 to the conditions
+    # Add deleted = 0 condition
     if not deleted:
-        filter.append(f"{table}.deleted = 0")
+        filter_clauses = [f"{table}.deleted = 0"] + list(filter_clauses)
 
     # Convert to SQL string
-    if len(filter) > 0:
-        filter = " AND ".join(filter)
-        sql += f" WHERE {filter}"
+    if filter_clauses:
+        sql += " WHERE " + " AND ".join(f"({c})" for c in filter_clauses)
 
     # Execute SQL query
     cursor.execute(sql)
@@ -114,6 +170,17 @@ def table(table, db=None, deleted=False, filter=None):
     # Close the connection if a new connection was established
     if not isinstance(db, pymysql.connections.Connection):
         con.close()
+
+    # Compact: add table/database columns and normalise type column name
+    if compact and not result.empty:
+        result = result.copy()
+        result["table"] = table
+        if isinstance(db, str):
+            result["database"] = db
+        type_cols = [col for col in result.columns if re.match(r"^[a-z]+type$", col)]
+        if len(type_cols) == 1:
+            result["type"] = result[type_cols[0]]
+            result = result.drop(columns=[type_cols[0]])
 
     return result
 
@@ -322,7 +389,7 @@ def properties(db):
     else:
         databasename = db
 
-    properties = table("properties", con)
+    properties = table("properties", db=con)
 
     if isinstance(db, str):
         con.close()
@@ -371,6 +438,112 @@ def fix_lft_rght(df):
         df["lft"] = df["lft"].min() - 1
         df["rght"] = df["rght"].max() + 1
     return df
+
+
+def fetch(table_name: str, params=None, db=None):
+    """
+    Fetch entity data such as articles, projects or properties using direct database access.
+
+    Returns all data belonging to all entities matched by the params.
+
+    Mirrors db_fetch() from fetch.R.
+
+    :param table_name: (str) The table name (e.g., "articles")
+    :param params: (dict) A dictionary of query conditions passed to db.table()
+    :param db: (str or list) The database name or a list of database names
+    :return: (pandas.DataFrame) Data from the database
+    """
+    if params is None:
+        params = {}
+
+    if utils.is_multi_db(db):
+        data = pd.DataFrame()
+        for single_db in utils.iter_dbs(db):
+            check.is_db(single_db)
+            data = pd.concat([data, fetch(table_name, params, single_db)], ignore_index=True)
+        return data
+
+    if db is not None:
+        check.is_db(db)
+
+    df_root = table(table_name, cond=params, db=db, compact=True)
+    data = df_root.copy()
+
+    # Get contained article data (mirrors db_fetch articles block in fetch.R)
+    if table_name == "articles" and not df_root.empty:
+        if "projects_id" in df_root.columns:
+            df_root = df_root.rename(columns={"projects_id": "project"})
+        if "projects_id" in data.columns:
+            data = data.rename(columns={"projects_id": "project"})
+
+        root_ids = df_root["id"].dropna().tolist() if "id" in df_root.columns else []
+        if root_ids:
+            df_sections = table("sections", cond={"articles_id": root_ids}, db=db, compact=True)
+            data = pd.concat([data, df_sections], ignore_index=True)
+
+            df_items = table("items", cond={"articles_id": root_ids}, db=db, compact=True)
+            if "properties_id" in df_items.columns:
+                df_items = df_items.rename(columns={"properties_id": "property"})
+            data = pd.concat([data, df_items], ignore_index=True)
+
+            if "property" in df_items.columns:
+                item_props = df_items["property"].dropna().unique().tolist()
+                if item_props:
+                    df_props = table("properties", cond={"id": item_props}, db=db, compact=True)
+                    data = pd.concat([data, df_props], ignore_index=True)
+
+            df_footnotes = table(
+                "footnotes", cond={"root_tab": "articles", "root_id": root_ids}, db=db, compact=True
+            )
+            data = pd.concat([data, df_footnotes], ignore_index=True)
+
+            df_links = table(
+                "links", cond={"root_tab": "articles", "root_id": root_ids}, db=db, compact=True
+            )
+            data = pd.concat([data, df_links], ignore_index=True)
+
+            if not df_links.empty and {"to_tab", "to_id"}.issubset(df_links.columns):
+                links_props = df_links[
+                    (df_links["to_tab"] == "properties") & (df_links["to_id"].notna())
+                ]
+                if not links_props.empty:
+                    df_props = table(
+                        "properties", cond={"id": links_props["to_id"].tolist()}, db=db, compact=True
+                    )
+                    data = pd.concat([data, df_props], ignore_index=True)
+
+        if "project" in df_root.columns:
+            project_ids = df_root["project"].dropna().unique().tolist()
+            if project_ids:
+                df_projects = table("projects", cond={"id": project_ids}, db=db, compact=True)
+                data = pd.concat([data, df_projects], ignore_index=True)
+
+    # Add property ancestors (mirrors the while loop in db_fetch() from fetch.R)
+    while True:
+        if "table" not in data.columns or "id" not in data.columns:
+            break
+
+        props_all = data[data["table"] == "properties"].drop_duplicates()
+        if props_all.empty or "parent_id" not in props_all.columns:
+            break
+
+        existing_ids = set(props_all["id"].dropna().tolist())
+        missing_ids = [
+            pid for pid in props_all["parent_id"].dropna().unique().tolist()
+            if pid not in existing_ids
+        ]
+        if not missing_ids:
+            break
+
+        props_missing = table("properties", cond={"id": missing_ids}, db=db, compact=True)
+        if props_missing.empty:
+            break
+
+        data = pd.concat([data, props_missing], ignore_index=True)
+
+    data = utils.drop_empty_columns(data)
+    data = utils.move_cols_to_front(data, ["database", "table", "type", "id"])
+    return data
 
 
 

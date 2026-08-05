@@ -57,18 +57,20 @@ If you get an "Error 401" when using the following methods, check your permissio
 To warm up, try to get an article list. The following method fetches articles (first parameter) without any further search filters (second parameter) from the database epi_all (third parameter). Results are paginated, depending on the endpoint you only get the first 50 or 100 results in one requests. The last parameter defines the number of pages that are requested. Please be aware: at the moment the API is under development and not yet fast. Please don't stress the servers.
 
 ```
-epi.fetch.table("articles", columns=["name"], db="epi_movies", maxpages=5)
+epi.api.fetch_table("articles", columns=["name"], db="epi_movies", maxpages=5)
 ```
 
 Here is an example to get a property list:
 
-df = epi.fetch.table(
+```
+df = epi.api.fetch_table(
     "properties",
     columns= ["id","parent_id","lemma","sortkey","level","lft"],
     params={'propertytype':'materials'},
     db="epi_playground",
     maxpages=20
 )
+```
 
 Note how you provide the propertytype in the parameters. The columns have the following meaning:
 - lemma: The content of the item
