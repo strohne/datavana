@@ -2,3 +2,4 @@ private
 *.csv
 *.out
 *.R
+epygraf/r
