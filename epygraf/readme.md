@@ -34,15 +34,20 @@ There are two ways to access Epigraf data:
 - **API**: Used to access data and create jobs from outside the server. 
 - **Database**: Presumes you have a direct connection to the database server, e.g. in a development environment. 
 
-## Api functions 
+## Access the Epigraf API
 
-The endpoints for accessing article data can be found in the [Epigraf help](https://epigraf.inschriften.net/help/epiweb-api). To get an access token for nonpublic data access follow the instructions in the help. After loading the Epygraf package, you configure the connection to the API:
+Please be aware: The API is under development and responds at a cosy pace. Please don't stress the servers.
+
+The endpoints for accessing article data are documented in the [Epigraf help](https://epigraf.inschriften.net/help/epiweb-api). 
+To get an access token for nonpublic data access follow the instructions in the help. 
+
+After loading the epygraf package, you configure the connection to the API:
 
 ```
 import epygraf as epi 
 
-epi_apiserver = "https://epigraf-dev.uni-muenster.de"
-epi_apitoken = "MYACCESSTOKEN"
+epi_apiserver = "https://epigraf.uni-muenster.de"
+epi_apitoken = "testapitoken"
 
 epi.api.setup(epi_apiserver, epi_apitoken)
 ```
@@ -50,64 +55,63 @@ epi.api.setup(epi_apiserver, epi_apitoken)
 The access token is like a password, don't show it to anyone and make sure it is not printed in any logs or outputs.
 
 Note: If you are working as a developer in a local environment, use the URL https://127.0.0.1/. 
-The function `api.setup()` provides a third parameter for enabling debug output.
+The api_setup()-function provides a third parameter for enabling debug output.
 
 If you get an "Error 401" when using the following methods, check your permissions.
 
-To warm up, try to get an article list. The following method fetches articles (first parameter) without any further search filters (second parameter) from the database epi_all (third parameter). Results are paginated, depending on the endpoint you only get the first 50 or 100 results in one requests. The last parameter defines the number of pages that are requested. Please be aware: at the moment the API is under development and not yet fast. Please don't stress the servers.
+
+## Reading data 
+
+To warm up, get some article data. 
+Data is always delivered in chunks, each chunk is called a page. 
+The `limit` parameter tells the API to return 5 articles per page.
+The `maxpages` parameter defines that fetching is stopped after one page.
+Fetching is always stopped if there is no more data.
 
 ```
-epi.api.fetch_table("articles", columns=["name"], db="epi_movies", maxpages=5)
+ram = epi.api.fetch("articles", params = {'limit':5}, db="epi_movies", maxpages=1)
 ```
 
-Here is an example to get a property list:
+The data come in the Relation-Article-Model-format. 
+That means all pieces of an article are returned as rows.  
+
+Use the distill-function to get some cozy data.
+For example, extract all properties of type "categories" from the RAM data:
 
 ```
-df = epi.api.fetch_table(
-    "properties",
-    columns= ["id","parent_id","lemma","sortkey","level","lft"],
-    params={'propertytype':'materials'},
-    db="epi_playground",
-    maxpages=20
-)
+epi.distill.properties(ram, "categories")
 ```
 
-Note how you provide the propertytype in the parameters. The columns have the following meaning:
-- lemma: The content of the item
-- sortkey: The sortkey of the item
-- id and parent_id: The internal database IDs of the item and its parent
-- level: Properties my be organised as trees. Root items are on level 0, direct children on level 1 and so on.
-- lft: Properties are stored with a fixed order in the database, following an approach called Modified Preorder Tree Traversal.
-       The lft field can be used to sort the properties, which results in the correct tree order.
-
-When fetching properties, all  ancestor nodes are fetched as well.
-For paginated queries, this results in duplicates. On each page, all parents are included.   
-Drop them using `df = df.drop_duplicates()`.
-
-Api access not only provides functions to fetch data, you can also import, write or annotate data. 
-For example, you can create or update properties and articles using the function `api.patch()`.
-On the properties page, datasets are imported into the properties table with the selected category set as propertytype. 
-On the articles page, articles are imported with their associated sections and content.
-
-The following command creates one categorie "Hansestädte" with the IRI "properties/topics/hanseatic" in the database epi_movies.
+Or extract the list of articles:
 
 ```
-data = pd.DataFrame({
-  "id": ["properties/topics/hanseatic"],
-  "lemma": ["Hansestädte"]
+epi.distill.articles(ram, ["signature", "name"])
+```
+
+## Writing data
+
+You can create or update data with `api.patch()`. The function expects data in the Relational Article Model-format.
+The following command creates one categorie "Western" with the IRI "properties/categories/western" in the database epi_movies.
+
+```
+
+properties = pd.DataFrame({
+    "id": ["properties/categories/western"],
+    "lemma": ["Western"],
 })
 
-epi.api.patch(data, "epi_movies")
+
+epi.api.patch(properties, database = "epi_movies")
+
 ```
 
-If a property with the given IRI already exists, it will not be created, but updated. 
-This way you can change the labels.
+If a property with the given IRI path already exists, it will not be created, but updated. This way you can change the labels.
 
-If you used a new propertytype, "topics" in the example, you need to configure the type in the types menu of EpiWeb. 
-Thereafter, you can see the new properties in EpiWeb by clicking the categories menu button. 
+The property types, "categories" in the example,  need to be configured in Epigraf. 
+Thereafter, you can see the new properties in Epigraf by clicking the categories menu button. 
 
-Troubleshooting:
-- If you get the error "Error loading data from source" the data could not be uploaded to the server, ask a developer for help.
+For more complex data, use the craft functions to map your data frames to the RAM.
+
 
 ## Database functions
 
@@ -137,60 +141,9 @@ The table method returns a pandas dataframe, thus,
 you can directly analyze the data:
 
 ```
-articles = epi.db.table("articles")
-articles.articletype.value_counts()
+ram = epi.db.table("articles")
+ram.articletype.value_counts()
 ```
-
-## All functions 
-
-### Fetch functions
-
-| Function              | Description            |
-|-----------------------|------------------------|
-| fetch.table()         | Fetch a table.         |
-| fetch.entity()        | Fetch a single entity. |
-
-
-### Database Functions
-
-| Function         | Description                                                                                                                                     |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| db.setup()        | Save database connection settings to environment variables.                                                                                     |
-| db.connect()      | Get a connection to a database. Before you can use this function, call db.setup() once to set the connection parameters.                           |
-| db.name()         | Retrieve the database name from the MySQL connection. Example: `connection = db.connect() db.name(connection)`                                  |
-| db.condition()    | Create a filter condition for a field based on specified values. Example: `condition = db.condition("tablename", "fieldtofilter", "value")`       |
-| db.table()        | Retrieve data from a table based on the specified conditions. Example: `db.table("tablename", cond=condition)`                                    |
-| db.databases()    | Retrieve a list of databases, optionally filtered by prefix. Example: `db.databases()`                                                            |
-| db.geolocations() | Retrieve geolocations data for a given database. Example: `db.geolocations("database")`                                                          |
-| db.get_codes()    | Retrieve codes for a given database. Example: `db.get_codes("database")`                                                                        |
-| db.annotations()  | Retrieve codes data from the specified database. Example: `db.get_codings("database")`                                                          |
-
-
-
-### API functions
-
-| Function          | Description                                                                                                                                                                                                                                                                                                                                                                                                                       |
-|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| api.setup()       | Save API connection settings to environment variables.                                                                                                                                                                                                                                                                                                                                                                            |
-| api.buildurl()   | Build base URL. Example: `api.buildurl("endpoint", {"param1":"value1"}, "database", "csv")`                                                                                                                                                                                                                                                                                                                                      |
-| api.table()       | Download tabular data. Example: `api.table("tablename", {"param1":"value1"}, "database", maxpages = 3)`                                                                                                                                                                                                                                                                                                                           |
-| api.job_create()  | Create a job. Example: `api.job_create("endpoint_name", {"param1": "value1"}, "example_db", payload={"key": "value"})`                                                                                                                                                                                                                                                                                                            
-| api.job_execute() | Execute a job. Example: `api.job_execute("job_id")`. Job functions are integrated in `api.patch()`                                                                                                                                                                                                                                                                                                                                |
-| api.patch()       | Update records in the database using the API. Existing records will be updated, missing records will be created. The function supports uploading all data related to articles: articles, sections, items, links, footnotes, properties, projects, users, types. The IRI path in the ID column of the dataframe must contain the specific table name. Example: `api.patch(data_frame, "database", "tablename", "type", wide=True)` |
-| api.patch_wide()  | Update records in the database using the API. Instead of providing each record as a row, columns prefixed with "properties", "items", "sections", "articles" and "projects" followed by a dot can be used.                                                                                                                                                                                                                        |
-
-
-### Base functions
-
-| Function                     | Description                                                                                                                                                                                                                        |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| base.create_iri()            | Create a clean IRI. Example: `base.create_iri("tablename", "type", "IRI-fragment")`                                                                                                                                               |
-| base.clean_irifragment()     | Replaces all non-alphanumeric characters by hyphens and converts the input to lowercase. Example: `base.clean_irifragment("dirtyIRI-Fragment")`                                                                             |
-| base.is_iripath()            | Check whether the provided vector contains a valid IRI path. The combination of table, type, and fragment is called an IRI path in Epigraf. Example for the given vector 'paths': `paths = pd.Series(["articles/epi-article/mv~5627", "items/text/di-103-17", "invalid/path"]) base.is_iripath(paths)` |
-| base.is_id()                  | Check whether the provided vector contains valid IDs prefixed with table names. Example: `base.is_id("articles-123")`. This will print 'True'. `base.is_id("invalid-id")`. This will print 'False'. |
-| base.is_irifragment()        | Check whether the provided vector contains a valid IRI fragment. Example for the given vector 'iri-fragments': `iri_fragments = pd.Series(["di-103-17", "invaliDfragment", "mv~5627"]) base.is_irifragment(iri_fragments)`      |
-| base.extract_wide()          | Select nested data from prefixed columns. Example for the given dataframe 'data': `data = pd.DataFrame({"data.id": [1, 2, 3], "data.value": [10, 20, 30],"other.id": [4, 5, 6]}) base.extract_wide(data, "data") ` This command creates a DataFrame containing only columns with the prefix 'data' and the prefix will be removed.                                     |
-
 
 # Build the package
 
