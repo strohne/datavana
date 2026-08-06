@@ -1,3 +1,6 @@
+**NOTE**: This is an old version of the repository. Please use https://github.com/datavana/epygraf
+
+
 # Epiygraf Python Package
 
 The Epygraf package makes working with [Epigraf](https://epigraf.inschriften.net/) data from Python easier.
